@@ -1,3 +1,3 @@
-[submodule "kubernetes-in-action-2nd-edition"]
-	path = learning-k8s/kubernetes-in-action-2nd-edition
+[submodule "learning-k8s/kubernetes-in-action"]
+	path = learning-k8s/kubernetes-in-action
 	url = https://github.com/luksa/kubernetes-in-action-2nd-edition.git
