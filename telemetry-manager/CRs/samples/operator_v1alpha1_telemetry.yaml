@@ -1,7 +1,6 @@
 apiVersion: operator.kyma-project.io/v1alpha1
 kind: Telemetry
 metadata:
-  namespace: kyma-system
   labels:
     app.kubernetes.io/name: telemetry
     app.kubernetes.io/instance: default
@@ -9,3 +8,4 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: telemetry-manager
   name: default
+
