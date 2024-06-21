@@ -1,0 +1,106 @@
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: LogPipeline
+metadata:
+  creationTimestamp: "2024-06-20T13:11:28Z"
+  finalizers:
+    - FLUENT_BIT_SECTIONS_CONFIG_MAP
+  generation: 1
+  name: logs-mtls-invalid-ca
+  resourceVersion: "855"
+  uid: cf0225d9-4429-4bce-adef-0ec6a0b0439a
+spec:
+  input:
+    application:
+      containers: {}
+      namespaces: {}
+  output:
+    http:
+      format: json
+      host:
+        value: backend.logs-mtls-invalid-ca.svc.cluster.local
+      password: {}
+      port: "9880"
+      tls:
+        ca:
+          value: invalid
+        cert:
+          value: |
+            -----BEGIN CERTIFICATE-----
+            MIICsTCCAZmgAwIBAgIBAjANBgkqhkiG9w0BAQsFADANMQswCQYDVQQDEwJjYTAi
+            GA8wMDAxMDEwMTAwMDAwMFoYDzAwMDEwMTAxMDAwMDAwWjAVMRMwEQYDVQQDEwpj
+            bGllbnQuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsdB1rLTk
+            +Qfw4uiPKX6DuWP141ZSeCUHVgjWQj1G76QuapZe+xOlB/6+xo41HtPwBmmoZ1yV
+            7wdW7U/G8034C8XgNZPDzBJTmJ8OaPpdkjL8LUPRi39Mn6G9J1zwHPyiyvLiTtIM
+            dTKfOyQderkFcHip/af5Ter7psbO989Las2O2OAyAZCJe7bkMc4UEMzsKQxtN8m5
+            vXNT0dbShk7VzJIRHF2UHP0bIBmardUlZr2B8jAqsQZ1+vj0fALO9pGhRvqt44qT
+            ojJE+JkGi0pNNQnfQD4Z+N6onHXY5ryE/J1Hx5jp0tDIqlEBdziRXHHF0dD4ID4T
+            e0E51Kd6yR3KUQIDAQABoxAwDjAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBCwUA
+            A4IBAQCLbyeLvEJsUYo3yS7m862tA9KKCHH478WtwUOu4lL8utdMa2BEywOvaPdg
+            s1H22P+wEslL6HJqSIIDA7hFVFLv7942mYkxxc0z0W/1XCZDYsUluFdWWMly0iJC
+            MkOVlNTtEcZFVVVa9MPIZU4Zvc/4TeQEVnKgIphAakvqxm+Zg7G9QAqVyRLd7t5A
+            t23NosS9ScdSsHIy2CNjNFpdUAU4XSuQjEkqYLEfT2Kbhck1t1Iu5pue+DCcLpaf
+            lL8v9BZDISSChXt/v++jOKdB2ItSyKZJ9EYBPnFSHM26OObMmrTSevuhYj/pB40f
+            3QrHFCRiW9J3D2ZUnTaOvaVDsEWy
+            -----END CERTIFICATE-----
+        key:
+          value: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAsdB1rLTk+Qfw4uiPKX6DuWP141ZSeCUHVgjWQj1G76QuapZe
+            +xOlB/6+xo41HtPwBmmoZ1yV7wdW7U/G8034C8XgNZPDzBJTmJ8OaPpdkjL8LUPR
+            i39Mn6G9J1zwHPyiyvLiTtIMdTKfOyQderkFcHip/af5Ter7psbO989Las2O2OAy
+            AZCJe7bkMc4UEMzsKQxtN8m5vXNT0dbShk7VzJIRHF2UHP0bIBmardUlZr2B8jAq
+            sQZ1+vj0fALO9pGhRvqt44qTojJE+JkGi0pNNQnfQD4Z+N6onHXY5ryE/J1Hx5jp
+            0tDIqlEBdziRXHHF0dD4ID4Te0E51Kd6yR3KUQIDAQABAoIBADuJF41e9/dlsELZ
+            KO30vTf6fx7CDVTK2Rz2Un7VM4YTS7NGa8DXP/9gTRIAFUsgHRKYl9kbx9vDclh8
+            yJk4NuACPeLSedE/JZxJTTLa+S91QLgLKALz+XzNU571YDPkZsFa92j6rU8kRuov
+            Wmt3vZl93TTf4/oxvlaF5FBWqOK2J7pMjXy6C6CUVwX0h57XuuIJ34NoaI9M4s+E
+            Yk6PPuR7aaZcop1UnSa691jhRmSndb+6PR8oURCzvNDA4zFlaWUXJ2x44z6ve8UB
+            5+Eedfe9G+DJZKXdyLdoSe596srCiMMh2qFiwEmG7bfGeADPc+SHr8uOrsyAPDLJ
+            qElSKZECgYEA25rqQgeK/hB78IesSmwxPaK0xzL7FEZx5xlk6lXPSf5EY4IU+JIH
+            8n5arsjsFvoSo4R5utHje/ZpkN4lVnkjDekUZwWHxp+APudMvZEEFalvtP6K6TEl
+            PU8Unud7GaK3KnpHKj3ifCDqtfhTnTs4Wl+VPVxOqcUkdj6+0DWEwHUCgYEAz0iB
+            B2xZGLqfLyMtlmkgtRiEFIKBBGk14FrjZtG8WNxtmKzpbouPyDcQqxmH9rr/qC0+
+            Qt50cRwy7ORGxiC43vXfsNzRO5dpoJAAPlldXMte8y4M3dbfyKT49VGEuHiZ/tsq
+            jSfs6ho545W2RzdKy3NnpoVflUK3vB5i5XVFZu0CgYEAi4lRlAcK8Ag1WE480UUR
+            vKInz/K6ytVABqGCF8vSXKeteLTs8kyHtDNJF4ofSTI4qaHBX02CCAA4b45Xlyx9
+            c5dIGXXQIgqzCEUb48/DEqiIjC64wRczHFOlPJrFAzL6w4jSsyqDQHAB8wIIzv0T
+            /4iAYW7HpOPZGTEhOVboNQkCgYA/QCKPP1KYpym32oYopX+jgw2arI/t5qTYByPo
+            1gshGnIe6nR4lQGU2KivbST99uXYTaX4BaWGdlJb0vR9tLJ05pYRg/AcvQEwS4Cn
+            heFlVXFtxxmJ/+1dbmnBgdR77eEf0YTUeeBjNwl/Fsn+RTL/jgGM4JngE/G455TJ
+            69T3qQKBgA7HNYk69QeGlnmLq7aVxcboFuHlVE/ZSsYPSetvI2jAkEs3r6NGIpzB
+            Ivl/Bvh0qN9Z+NMP90bSND0ZZ0LmnQcjgIrVDtFOAe+2QHUls5OBTEJ6V/oU6flJ
+            WByt1fywcjElsr4wIXjDC6MzedFUw1OVeLCSVCRYPM9pQHk3gtik
+            -----END RSA PRIVATE KEY-----
+      uri: /
+      user: {}
+status:
+  conditions:
+    - lastTransitionTime: "2024-06-20T13:11:41Z"
+      message: Fluent Bit agent DaemonSet is ready
+      observedGeneration: 1
+      reason: AgentReady
+      status: "True"
+      type: AgentHealthy
+    - lastTransitionTime: "2024-06-20T13:11:33Z"
+      message: TLS certificate expired on 0001-01-01
+      observedGeneration: 1
+      reason: TLSCertificateExpired
+      status: "False"
+      type: ConfigurationGenerated
+    - lastTransitionTime: "2024-06-20T13:11:33Z"
+      message:
+        No logs delivered to backend because LogPipeline specification is not
+        applied to the configuration of Fluent Bit agent. Check the 'ConfigurationGenerated'
+        condition for more details
+      observedGeneration: 1
+      reason: ConfigurationNotGenerated
+      status: "False"
+      type: TelemetryFlowHealthy
+    - lastTransitionTime: "2024-06-20T13:11:33Z"
+      message:
+        '[NOTE: The "Pending" type is deprecated] TLS certificate expired on
+        0001-01-01'
+      observedGeneration: 1
+      reason: TLSCertificateExpired
+      status: "True"
+      type: Pending
