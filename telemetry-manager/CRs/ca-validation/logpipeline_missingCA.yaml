@@ -1,0 +1,188 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: log-tls
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-tls
+  namespace: log-tls
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-tls
+  template:
+    metadata:
+      labels:
+        app: log-tls
+      name: log-tls
+    spec:
+      containers:
+        - args:
+            - -i http
+            - -o stdout
+            - -q
+          image: fluent/fluent-bit:latest
+          livenessProbe:
+            tcpSocket:
+              port: http-ingest
+          name: log-tls
+          ports:
+            - containerPort: 9880
+              name: http-ingest
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: http-ingest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: log-tls
+  namespace: log-tls
+spec:
+  ports:
+    - name: http-ingest
+      port: 9880
+      protocol: TCP
+      targetPort: http-ingest
+  selector:
+    app: log-tls
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: log-gen
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-gen
+  namespace: log-gen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-gen
+  template:
+    metadata:
+      labels:
+        app: log-gen
+    spec:
+      containers:
+        - image: mingrammer/flog:latest
+          name: flog
+          args:
+            - -b=64
+            - -f=json
+            - -l
+---
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: LogPipeline
+metadata:
+  name: tls-ca-missing
+spec:
+  input:
+    application:
+      namespaces:
+        include:
+          - log-gen
+  output:
+    http:
+      dedot: true
+      host:
+        value: log-tls.log-tls.svc.cluster.local
+      port: "9880"
+      uri: /
+      format: json
+      tls:
+        cert:
+          value: |
+            -----BEGIN CERTIFICATE-----
+            MIIFiDCCA3CgAwIBAgIURMBtfF6jFwc0efO1jMebDXnGr/0wDQYJKoZIhvcNAQEL
+            BQAwYDELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAk5ZMREwDwYDVQQHDAhOZXcgWW9y
+            azEaMBgGA1UECgwRTW9jayBPcmdhbml6YXRpb24xFTATBgNVBAMMDHd3dy5tb2Nr
+            LmNvbTAgFw0yNDA2MjYxNTA3MjRaGA81MDI0MDMxOTE0MjQxNFowYDELMAkGA1UE
+            BhMCVVMxCzAJBgNVBAgMAk5ZMREwDwYDVQQHDAhOZXcgWW9yazEaMBgGA1UECgwR
+            TW9jayBPcmdhbml6YXRpb24xFTATBgNVBAMMDHd3dy5tb2NrLmNvbTCCAiIwDQYJ
+            KoZIhvcNAQEBBQADggIPADCCAgoCggIBAMCfOYv1JJI5L+TzKIIYOxIebs/dVMRU
+            0ktCfWV7zOfgO2MtoJMtbd7OqsyeT3DI4VqRGqBa+iiVQf+DtyZ0+wBgkm/20k9g
+            IjB9RlH3ttut9iOX8ZJ7xC9c2GFqhsuBJ3ff31l+AmXjeVhOgpmmfIE3xJq+K+r0
+            Ro9NQ/0RGgWQaXTAi2H5+ZVX113PxMhfdhihx9KnmUDkRWH1LVWjIcYJcmfAp7Xb
+            vxEbA67VJzYLZLvuX98IMEmupcsbfCYj1JTZeyGOh7av8u4ovvnv1dTGQSMuvcBO
+            vnOgDcl2eaZ1imh5DqmMnwlbSGKLahAom1KrjaBt67FAzCgexR+db2XJEbXiF7i4
+            6BIOFJbib1aH9DHUhSSH1+fGA2s7Y51niO8fdwEVqFjgjbgTt1qnqqMUt1lEBNYw
+            zljOCS7XOnXPajlV/Vi1wuUjMJYMOmciKFHF2E6aZraSqLLIKlCezgzNK4+qV5Du
+            Sic5SdYIU9bgPsXN5l85TX5e7KbJ3CrcazttInviZL6f4AsrmAGyh8wc2QBroVlv
+            jAc0QCOYrXpePRbUy6Di7OXU99YhAX2wlT0Nj7PjhxiHF3+tpwvm6rx8Zqa7AzzP
+            bHuCpi0sibE5MG+m8fFvwpI+bNA3IQ1KimdgtU1hJTeZHPf9oe62fb7BKuroqo9W
+            K7D4TWBRUHX/AgMBAAGjODA2MAwGA1UdEwEB/wQCMAAwDgYDVR0PAQH/BAQDAgWg
+            MBYGA1UdJQEB/wQMMAoGCCsGAQUFBwMBMA0GCSqGSIb3DQEBCwUAA4ICAQBR22X/
+            WTI1AW/qiflcNGf0FQqN5wB4cqypYk4dHHIPR/MyRNrmCoI7rovOC6YqgFQCajPE
+            sDeOx1o0A+zP9QQc6QwQjx/9wYtJTYY6nEHcaTMoTcaOSI9gseBhDnto2Rw/qBVH
+            pYnztJ4rzo3E0L1zCRInQhszoGyheGs3Q30016Ae2xvYY4BCVgGuJcs5hdVJNtUM
+            TOrkLFOp1tURThTNJtAs/wChSTUf6QB5Mn6todS/NT0SY6LAp1q7S7H0MUXjVrs1
+            RyQy3LOaqAWxqFQGw4+PD8vBVgweiKLbwO9/h4AhpizqSXy7Y4tMtv5dMKyuQv/D
+            W4N+PRCV1198W7UttkDuvHbwLxjtEURH2l76IcWGRfg8a0b2RitjN+1QMiNyMCnW
+            9350eVUzO2+3SpYvbtVisUYixCO/FiZXUEAtA3SwkH92zrLLgpQ20dIpQV1L2JeP
+            HYP6HVCb7ZvyJO6WsgHRW/of+2ZhVfbHViO9zmcwYla4N3JP53xlul4+L6lgrzsi
+            3yFN/DLE6G30InFDcfMGhb61G9NRycSfRkhv94vlzcP09pwrhBBwCfNlcUrRU2jd
+            dareQApBoBw0GKvJQSG7FXWFTr2uUMrso4J7UH254jEphz1UU+PP/h3ipD9d1BCE
+            0lB/NMLqgCiH5rZYzgLhlxvTj6yA7pd1IH+dyg==
+            -----END CERTIFICATE-----
+        key:
+          value: |
+            -----BEGIN RSA PRIVATE KEY-----
+            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
+            -----END RSA PRIVATE KEY-----

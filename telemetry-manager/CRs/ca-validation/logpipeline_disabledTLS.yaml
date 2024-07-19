@@ -83,7 +83,7 @@ spec:
 apiVersion: telemetry.kyma-project.io/v1alpha1
 kind: LogPipeline
 metadata:
-  name: sample-tls
+  name: tls-ca-missing
 spec:
   input:
     application:
@@ -99,7 +99,5 @@ spec:
       uri: /
       format: json
       tls:
-        cert:
-          value: cert
-        key:
-          value: key
+        disabled: true
+        skipCertificateValidation: true

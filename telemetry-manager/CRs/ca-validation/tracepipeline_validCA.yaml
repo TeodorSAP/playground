@@ -1,0 +1,176 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trace-tls-valid
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trace-tls-config
+  namespace: trace-tls-valid
+data:
+  config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc: {}
+          http: {}
+    exporters:
+      debug:
+        verbosity: detailed
+    service:
+      pipelines:
+        traces:
+          receivers:
+            - otlp
+          exporters:
+            - debug
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trace-tls
+  namespace: trace-tls-valid
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trace-tls
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: trace-tls
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: trace-tls-config
+      securityContext:
+        fsGroup: 101
+      containers:
+        - image: otel/opentelemetry-collector-contrib:latest
+          name: collector
+          volumeMounts:
+            - name: config
+              mountPath: /etc/collector
+          args:
+            - --config=/etc/collector/config.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trace-tls
+  namespace: trace-tls-valid
+spec:
+  ports:
+    - name: grpc-otlp
+      port: 4317
+      protocol: TCP
+      targetPort: 4317
+    - name: http-otlp
+      port: 4318
+      protocol: TCP
+      targetPort: 4318
+  selector:
+    app: trace-tls
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trace-gen
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trace-gen
+  namespace: trace-gen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trace-gen
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: trace-gen
+    spec:
+      containers:
+        - command:
+            - /telemetrygen
+            - traces
+            - --otlp-endpoint
+            - telemetry-otlp-traces.kyma-system:4317
+            - --otlp-insecure
+            - --duration
+            - 1h
+            - --rate
+            - "10"
+          image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
+          name: telemetrygen
+---
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: TracePipeline
+metadata:
+  name: tls-ca-valid
+spec:
+  output:
+    otlp:
+      endpoint:
+        value: http://trace-tls-valid.trace-tls:4317
+      tls:
+        cert:
+          value: |
+            -----BEGIN CERTIFICATE-----
+            MIICgzCCAeygAwIBAgIUB7yRTrBuy/xL2GR3acRZvxKaEHMwDQYJKoZIhvcNAQEL
+            BQAwYDELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAk5ZMREwDwYDVQQHDAhOZXcgWW9y
+            azEaMBgGA1UECgwRTW9jayBPcmdhbml6YXRpb24xFTATBgNVBAMMDHd3dy5tb2Nr
+            LmNvbTAgFw0yNDA2MjQwOTI5MzZaGA81MDI0MDMxOTE0MjQxNFowYDELMAkGA1UE
+            BhMCVVMxCzAJBgNVBAgMAk5ZMREwDwYDVQQHDAhOZXcgWW9yazEaMBgGA1UECgwR
+            TW9jayBPcmdhbml6YXRpb24xFTATBgNVBAMMDHd3dy5tb2NrLmNvbTCBnzANBgkq
+            hkiG9w0BAQEFAAOBjQAwgYkCgYEA2y8lHVSE9b2EmERGa1Y+hMNAhKb1v3891466
+            0E38X0IbLESKfsLNG+9mzz+xqSsjX3fLxsr3wCbbmV5jZb4Rs0C2FLMFZiRQzr+A
+            t+bvN0SNB7GsjFNMYzTmtuUDlOS7w3Ps9mFDdh3KusgIj5+qJ06EA/UnFONrRGFK
+            BMvgHDsCAwEAAaM4MDYwDAYDVR0TAQH/BAIwADAOBgNVHQ8BAf8EBAMCBaAwFgYD
+            VR0lAQH/BAwwCgYIKwYBBQUHAwEwDQYJKoZIhvcNAQELBQADgYEAMV1fb/4YhEBa
+            Uh0DODdZSpXPETGmIV+o9/gVgnVO/Ds+xqIKAFX7/8vbaooxzxlEwkYKFmIrO336
+            IQIphTZefXB8wcN0lbhRN1UI2IHTzvQBPjvvlTtv8xbnjrsoaj/RjdroFRZFaTYx
+            fQyIWzaKL3E301Thr6ufUzcjezXugDs=
+            -----END CERTIFICATE-----
+        key:
+          value: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIICXgIBAAKBgQDbLyUdVIT1vYSYREZrVj6Ew0CEpvW/fz3XjrrQTfxfQhssRIp+
+            ws0b72bPP7GpKyNfd8vGyvfAJtuZXmNlvhGzQLYUswVmJFDOv4C35u83RI0HsayM
+            U0xjNOa25QOU5LvDc+z2YUN2Hcq6yAiPn6onToQD9ScU42tEYUoEy+AcOwIDAQAB
+            AoGAbFpcEKnNqOXtfJCT91AFTAByDqGy7t3qJnuqontK/ZRidnnTtWJ7nwm0W1Pz
+            cdufevxvwnBoFZegC6t7m7pgaMCqLUNy9blVc7MIQC97RxchdTckjIRL7jSkG2hL
+            /yHIyubMfhdzsx/0YxvUnAxa+9jnWvmDo+Yp6e/3/3XmOJECQQDt6BX+CPK1e+Wa
+            vvGWOy0erJeKQn2IHSubMEBDr53qNKhDu9chFD/z1tAkp0w7m4ACYBPkOvcqGonB
+            GH4ngPZFAkEA69qLH6BCmRSvbPKM3zD+MoPf5TcsYwlE5wVOcFeOgPffyUzpzcz9
+            FaYz3qEYJR6pKcIlogZSprNLVr1T5eUwfwJBAJ3P0y7VHrLWQeNZgAXosTBkyo0z
+            N/QfbXqfEjIT/4uJbIipxLWzqgyE1UNLGp17s/lfZDKEDsqGGhTVu3FW8YUCQQCX
+            DFvVYVnFmE3RRHWb61ChIXwe3Hr84k7Sdb+Ki0ikqBsWXL/QIdxkJRFLH3jLLRvB
+            tqlLXylHwcQaRR6aOXIZAkEAwKHc5Ueb86nD/s/5AjukBhEW86G56sxbbOMt1lNA
+            cSKwQXGt4Yz7dQRtOHNoZtIibvAJYtmJIxpAuKLNpFPq2A==
+            -----END RSA PRIVATE KEY-----
+        ca:
+          value: |
+            -----BEGIN CERTIFICATE-----
+            MIICWzCCAcSgAwIBAgIUIIZAtPZU64vWKjQ2gu0zZFdOgdQwDQYJKoZIhvcNAQEL
+            BQAwXjELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAk5ZMREwDwYDVQQHDAhOZXcgWW9y
+            azEdMBsGA1UECgwUTW9jayBDQSBPcmdhbml6YXRpb24xEDAOBgNVBAMMB01vY2sg
+            Q0EwHhcNMjQwNjI0MDkyOTM2WhcNMzQwNjIyMDkyOTM2WjBeMQswCQYDVQQGEwJV
+            UzELMAkGA1UECAwCTlkxETAPBgNVBAcMCE5ldyBZb3JrMR0wGwYDVQQKDBRNb2Nr
+            IENBIE9yZ2FuaXphdGlvbjEQMA4GA1UEAwwHTW9jayBDQTCBnzANBgkqhkiG9w0B
+            AQEFAAOBjQAwgYkCgYEAp2+QqMq9GMjy5UF0HTysAFOJUI96I0eHkggroBsAAVGY
+            9TjLq9/9ZagdYIok8szL4v75BPUonqYcB0uWkAqbWLmQ5p/c0qVlaBkul5+2BiVY
+            obCS18GQb95SGELLZYSAVMgrxFGmPp8zR1sq/2a1/KaGG4DVlUWG2xy9u60PY9kC
+            AwEAAaMWMBQwEgYDVR0TAQH/BAgwBgEB/wIBADANBgkqhkiG9w0BAQsFAAOBgQCf
+            7E3kNh/sFnQ++qp0PTn7SVk9TLZ5EUHL+ct8hTeJH9ZQNKv5dK3TySdovgg5IdXt
+            wqT5s+i3/cyZfe/vyteZj18MKEAqrLnxyye4Ur7u/6uXJfuiu0CCkNKfbFOIWLCk
+            bMxjfyqP0kIdYFvfLT9S6CHUjWFuW1cs1oxktMu0wg==
+            -----END CERTIFICATE-----
+

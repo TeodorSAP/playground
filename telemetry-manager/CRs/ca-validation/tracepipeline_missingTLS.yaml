@@ -114,15 +114,12 @@ spec:
 apiVersion: telemetry.kyma-project.io/v1alpha1
 kind: TracePipeline
 metadata:
-  name: sample-tls
+  name: tls-missing
 spec:
   output:
     otlp:
       endpoint:
         value: http://trace-tls.trace-tls:4317
       tls:
-        cert:
-          value: "cert"
-        key:
-          value: "key"
-
+        insecure: false
+        insecureSkipVerify: false
