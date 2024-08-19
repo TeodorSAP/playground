@@ -1,0 +1,33 @@
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: MetricPipeline
+metadata:
+  name: invalid-url-secret
+spec:
+  output:
+    otlp:
+      endpoint:
+        valueFrom:
+          secretKeyRef:
+            key: apiurl
+            name: test
+            namespace: default
+---
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: MetricPipeline
+metadata:
+  name: invalid-url-plain
+spec:
+  output:
+    otlp:
+      endpoint:
+        value: "'http://example.com'"
+---
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: MetricPipeline
+metadata:
+  name: invalid-url-missing
+spec:
+  output:
+    otlp:
+      endpoint:
+        value: ""

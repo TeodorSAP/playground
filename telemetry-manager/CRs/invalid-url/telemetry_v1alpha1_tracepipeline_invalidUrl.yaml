@@ -1,0 +1,35 @@
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: TracePipeline
+metadata:
+  name: sample-invalid-url
+spec:
+  output:
+    otlp:
+      endpoint:
+        valueFrom:
+          secretKeyRef:
+            key: apiurl
+            name: test
+            namespace: default
+      path: v2/otlp/v1/traces
+      protocol: http
+---
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: TracePipeline
+metadata:
+  name: sample-invalid-url-plain
+spec:
+  output:
+    otlp:
+      endpoint:
+        value: "'http://trace-sink.trace-sink:4317'"
+---
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: TracePipeline
+metadata:
+  name: sample-no-url
+spec:
+  output:
+    otlp:
+      endpoint:
+        value: ""
