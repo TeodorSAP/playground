@@ -24,4 +24,11 @@ kubectl run --image=curlimages/curl -it --restart=Never --rm client-pod curl 10.
 ### Port-forwarding
 ```
 kubectl port-forward <POD_NAME> <PORT>
+kubectl port-forward <POD_NAME> <PORT1> <PORT2> <...>
+kubectl port-forward <POD_NAME> <LOCAL_PORT>:<POD_PORT>
+```
+
+### Attach to pod (std in/out/err)
+```
+kubectl attach <POD_NAME>
 ```
