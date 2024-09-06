@@ -1,0 +1,35 @@
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: MetricPipeline
+metadata:
+  name: sample-with-scheme
+spec:
+  input:
+    runtime:
+      enabled: true
+    prometheus:
+      enabled: true
+    istio:
+      enabled: true
+  output:
+    otlp:
+      endpoint:
+        value: http://metric-sink.metric-sink
+      protocol: http
+---
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: MetricPipeline
+metadata:
+  name: sample-without-scheme
+spec:
+  input:
+    runtime:
+      enabled: true
+    prometheus:
+      enabled: true
+    istio:
+      enabled: true
+  output:
+    otlp:
+      endpoint:
+        value: metric-sink.metric-sink
+      protocol: http
