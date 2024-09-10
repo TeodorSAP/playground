@@ -1,0 +1,43 @@
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: LogPipeline
+metadata:
+  name: sample-no-scheme
+spec:
+  input:
+    application:
+      namespaces:
+        include:
+        - log-gen
+  output:
+    http:
+      dedot: true
+      host:
+        value: log-sink.log-sink.svc.cluster.local
+      port: "9880"
+      uri: /
+      format: json
+      tls:
+        disabled: true
+        skipCertificateValidation: true
+---
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: LogPipeline
+metadata:
+  name: sample-with-scheme
+spec:
+  input:
+    application:
+      namespaces:
+        include:
+        - log-gen
+  output:
+    http:
+      dedot: true
+      host:
+        value: http://log-sink.log-sink.svc.cluster.local
+      port: "9880"
+      uri: /
+      format: json
+      tls:
+        disabled: true
+        skipCertificateValidation: true

@@ -1,0 +1,53 @@
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: MetricPipeline
+metadata:
+  name: sample-scheme-grpc
+spec:
+  input:
+    runtime:
+      enabled: true
+    prometheus:
+      enabled: true
+    istio:
+      enabled: true
+  output:
+    otlp:
+      endpoint:
+        value: grpc://metric-sink.metric-sink
+      protocol: http
+---
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: MetricPipeline
+metadata:
+  name: sample-scheme-test
+spec:
+  input:
+    runtime:
+      enabled: true
+    prometheus:
+      enabled: true
+    istio:
+      enabled: true
+  output:
+    otlp:
+      endpoint:
+        value: test://metric-sink.metric-sink
+      protocol: http
+---
+apiVersion: telemetry.kyma-project.io/v1alpha1
+kind: MetricPipeline
+metadata:
+  name: sample-scheme-https
+spec:
+  input:
+    runtime:
+      enabled: true
+    prometheus:
+      enabled: true
+    istio:
+      enabled: true
+  output:
+    otlp:
+      endpoint:
+        value: https://metric-sink.metric-sink
+      protocol: http
