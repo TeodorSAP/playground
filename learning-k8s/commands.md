@@ -1,3 +1,11 @@
+## Switch between clusters
+
+```
+kubectl config current-context
+kubectl config get-contexts
+kubectl config use-context <CONTEXT_NAME>
+```
+
 ## Accessing pods and debugging from inside
 
 ### Enter the DockerDesktop VM
