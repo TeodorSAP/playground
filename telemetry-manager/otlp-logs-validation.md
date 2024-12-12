@@ -1,6 +1,6 @@
 # OTel LogPipeline set-up validation
 
-## Set-up configuration steps
+## 1. Set-up configuration steps
 
 ```
 k create ns otel-logging
@@ -16,9 +16,9 @@ tm && helm install -n otel-logging logging open-telemetry/opentelemetry-collecto
 tm && helm install -n otel-logging logging open-telemetry/opentelemetry-collector -f ./docs/contributor/pocs/assets/otel-log-agent-values.yaml
 ```
 
-## Resulting Resources
+## 2. Resulting Resources
 
-### LogPipeline ConfigMap
+### Agent ConfigMap
 
 ```
 exporters:
@@ -143,7 +143,12 @@ service:
       - filelog
   telemetry:
     metrics:
-      address: ${MY_POD_IP}:8888
+      readers:
+      - pull:
+          exporter:
+            prometheus:
+              host: ${MY_POD_IP}
+              port: 8888
 
 ```
 
@@ -153,10 +158,160 @@ service:
 - `receivers/filelog/operators`: The copy body to `attributes.original` must be avoided if `dropLogRawBody` flag is enabled
 
 
-### HostPath VolumeMount Daemonset spec
+### Agent Daemonset
 
-TODO
+```
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    deprecated.daemonset.template.generation: "1"
+    meta.helm.sh/release-name: logging
+    meta.helm.sh/release-namespace: otel-logging
+  labels:
+    app.kubernetes.io/component: agent-collector
+    app.kubernetes.io/instance: logging
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: opentelemetry-collector
+    app.kubernetes.io/version: 0.114.0
+    helm.sh/chart: opentelemetry-collector-0.110.3
+  name: logging-opentelemetry-collector-agent
+  namespace: otel-logging
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: logging
+      app.kubernetes.io/name: opentelemetry-collector
+      component: agent-collector
+  template:
+    metadata:
+      annotations:
+        checksum/config: bae3842cd432b970200d5a39fd42e45bd45459a3f89cda4a87939d99d5481fba
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/instance: logging
+        app.kubernetes.io/name: opentelemetry-collector
+        component: agent-collector
+    spec:
+      containers:
+      - args:
+        - --config=/conf/relay.yaml
+        env:
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        image: otel/opentelemetry-collector-k8s:0.114.0
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 13133
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: opentelemetry-collector
+        ports:
+        - containerPort: 6831
+          hostPort: 6831
+          name: jaeger-compact
+          protocol: UDP
+        - containerPort: 14250
+          hostPort: 14250
+          name: jaeger-grpc
+          protocol: TCP
+        - containerPort: 14268
+          hostPort: 14268
+          name: jaeger-thrift
+          protocol: TCP
+        - containerPort: 8888
+          name: metrics
+          protocol: TCP
+        - containerPort: 4317
+          hostPort: 4317
+          name: otlp
+          protocol: TCP
+        - containerPort: 4318
+          hostPort: 4318
+          name: otlp-http
+          protocol: TCP
+        - containerPort: 9411
+          hostPort: 9411
+          name: zipkin
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 13133
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        securityContext:
+          runAsGroup: 0
+          runAsUser: 0
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /conf
+          name: opentelemetry-collector-configmap
+        - mountPath: /var/log/pods
+          name: varlogpods
+          readOnly: true
+        - mountPath: /var/lib/docker/containers
+          name: varlibdockercontainers
+          readOnly: true
+        - mountPath: /var/lib/otelcol
+          name: varlibotelcol
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: logging-opentelemetry-collector
+      serviceAccountName: logging-opentelemetry-collector
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: relay
+            path: relay.yaml
+          name: logging-opentelemetry-collector-agent
+        name: opentelemetry-collector-configmap
+      - hostPath:
+          path: /var/log/pods
+          type: ""
+        name: varlogpods
+      - hostPath:
+          path: /var/lib/otelcol
+          type: DirectoryOrCreate
+        name: varlibotelcol
+      - hostPath:
+          path: /var/lib/docker/containers
+          type: ""
+        name: varlibdockercontainers
+  updateStrategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+```
 
-## Benchmarking and Performance Tests
+### How does checkpointing work
+
+- By enabling the storeCheckpoint preset (Helm) the `file_storage` extension is activated in the receiver
+- The `file_storage` has the path `/var/lib/otelcol`
+- This is later mounted as a `hostPath` volume in the DaemonSet spec
+- Also set in the `storage` property of the filelog receiver
+
+> `storage` = The ID of a storage extension to be used to store file offsets. File offsets allow the receiver to pick up where it left off in the case of a collector restart. If no storage extension is used, the receiver will manage offsets in memory only.
+
+## 3. Benchmarking and Performance Tests
 
 TODO
