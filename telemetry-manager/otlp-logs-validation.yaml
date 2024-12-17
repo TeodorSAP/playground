@@ -21,13 +21,13 @@ metadata:
 spec:
   internalTrafficPolicy: Cluster
   ipFamilies:
-  - IPv4
+    - IPv4
   ipFamilyPolicy: SingleStack
   ports:
-  - name: http-metrics
-    port: 8888
-    protocol: TCP
-    targetPort: 8888
+    - name: http-metrics
+      port: 8888
+      protocol: TCP
+      targetPort: 8888
   selector:
     app.kubernetes.io/name: telemetry-log-agent
   sessionAffinity: None
@@ -186,6 +186,10 @@ spec:
       labels:
         app.kubernetes.io/name: telemetry-log-agent
         sidecar.istio.io/inject: "true"
+      annotations:
+        traffic.sidecar.istio.io/excludeInboundPorts: 8888,15020
+        traffic.sidecar.istio.io/includeInboundPorts: "*"
+        traffic.sidecar.istio.io/includeOutboundIPRanges: "*"
     spec:
       containers:
         - args:
