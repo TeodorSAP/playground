@@ -94,14 +94,14 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
 - **Agent:** no CPU limit, no queue
 - **Results:**
   - Agent RECEIVED/EXPORTED: 6.06K
-  - Gateway RECEIVED/EXPORTED: 6.09K
-  - Gateway QUEUE: 0
-  - Memory:
+  - Agent Memory:
     - Pod1: 70
     - Pod2: 70
-  - CPU:
+  - Agent CPU:
     - Pod1: 0.5
     - Pod2: 0.4
+  - Gateway RECEIVED/EXPORTED: 6.09K
+  - Gateway QUEUE: 0
 
 ![alt text](image.png)
 ![alt text](image-1.png)
@@ -111,12 +111,16 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
 - **Generator:** 20 replicas x 10 MB
 - **Agent:** no CPU limit, no queue
 - **Results:**
-  - Agent RECEIVED/EXPORTED: ?
-  - Gateway RECEIVED/EXPORTED: ?
-  - Gateway QUEUE: ?
-  - Memory:
-    - Pod1: ?
-    - Pod2: ?
-  - CPU:
-    - Pod1: ?
-    - Pod2: ?
+  - Agent RECEIVED/EXPORTED: 4.93K
+  - Agent Memory:
+    - Pod1: 71
+    - Pod2: 72
+  - Agent CPU:
+    - Pod1: 0.5
+    - Pod2: 0.4
+  - Gateway RECEIVED/EXPORTED: 4.93K
+  - Gateway QUEUE: 0 (max. 6 at some point)
+
+![alt text](image-3.png)
+![alt text](image-4.png)
+![alt text](image-5.png)
