@@ -124,3 +124,56 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
 ![alt text](image-3.png)
 ![alt text](image-4.png)
 ![alt text](image-5.png)
+
+#### ⏳ 14:50 - 15:10 (20 min)
+- **Generator:** 10 replicas x 20 MB
+- **Agent:** no CPU limit, no queue
+- **Results:**
+  - Agent RECEIVED/EXPORTED: 5.94K
+  - Agent Memory:
+    - Pod1: 76
+    - Pod2: 81
+  - Agent CPU:
+    - Pod1: 0.5
+    - Pod2: 0.5
+  - Gateway RECEIVED/EXPORTED: 5.94K
+  - Gateway QUEUE: 0
+
+![alt text](image-6.png)
+![alt text](image-7.png)
+![alt text](image-8.png)
+
+#### ⏳ 15:24 - 15:34 (10 min)
+- **Generator:** 10 replicas x 10 MB
+- **Agent:** with CPU limit (1), no queue
+- **Results:**
+  - Agent RECEIVED/EXPORTED: 8.9K
+  - Agent Memory:
+    - Pod1: 64
+    - Pod2: 62
+  - Agent CPU:
+    - Pod1: 0.5
+    - Pod2: 0.5
+  - Gateway RECEIVED/EXPORTED: 8.9K
+  - Gateway QUEUE: 0
+
+#### ❌ 15:36 - 15:56 (20 min) (backpressure scenario)
+- **Generator:** 10 replicas x 10 MB
+- **Agent:** with CPU limit (1), no queue
+- **Results:**
+  - Agent RECEIVED/EXPORTED: 6.8K
+  - Agent Memory:
+    - Pod1: 66
+    - Pod2: 67
+  - Agent CPU:
+    - Pod1: 0.6
+    - Pod2: 0.5
+  - Gateway RECEIVED: 6.8K
+  - Gateway EXPORTED: 256
+  - Gateway QUEUE: 328
+- **Remarks:**
+  - Agent does not stop when gateway refuses logs
+
+![alt text](image-9.png)
+![alt text](image-10.png)
+![alt text](image-11.png)
