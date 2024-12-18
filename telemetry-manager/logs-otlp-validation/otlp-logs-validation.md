@@ -49,10 +49,7 @@ See [OTLP Logs Validation YAML](./otlp-logs-validation.yaml)
 
 > `storage` = The ID of a storage extension to be used to store file offsets. File offsets allow the receiver to pick up where it left off in the case of a collector restart. If no storage extension is used, the receiver will manage offsets in memory only.
 
-## 3. Benchmarking and Performance Tests
-
-TODO: Performance test: overall throughput si comparable to what we have with FB
-TODO: Check backpressure scenario: That agent is pausing if backend is slow/rejecting
+## 3. Benchmarking and Performance Tests Results
 
 ``` bash
 k create ns prometheus
@@ -79,3 +76,47 @@ round(sum(avg_over_time(container_memory_working_set_bytes{namespace="kyma-syste
 -- CPU
 round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace="kyma-system"}[20m]) * on(namespace,pod) group_left(workload) avg_over_time(namespace_workload_pod:kube_pod_owner:relabel{namespace="kyma-system", workload="telemetry-log-agent"}[20m])) by (pod), 0.1)
 ```
+
+### Scenario: Single Pipeline
+| RECEIVED | EXPORTED | QUEUE | MEMORY |  CPU  |
+| :------: | :------: | :---: | :----: | :---: |
+|    ?     |    ?     |   ?   |   ?    |   ?   |
+
+### Scenario: Single Pipeline (Backpressure)
+| RECEIVED | EXPORTED | QUEUE | MEMORY |  CPU  |
+| :------: | :------: | :---: | :----: | :---: |
+|    ?     |    ?     |   ?   |   ?    |   ?   |
+
+### Sessions
+
+#### ⏳ 13:45 - 14:05 (20 min)
+- **Generator:** 10 replicas x 10 MB
+- **Agent:** no CPU limit, no queue
+- **Results:**
+  - Agent RECEIVED/EXPORTED: 6.06K
+  - Gateway RECEIVED/EXPORTED: 6.09K
+  - Gateway QUEUE: 0
+  - Memory:
+    - Pod1: 70
+    - Pod2: 70
+  - CPU:
+    - Pod1: 0.5
+    - Pod2: 0.4
+
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+
+#### ⏳ 14:08 - 14:28 (20 min)
+- **Generator:** 20 replicas x 10 MB
+- **Agent:** no CPU limit, no queue
+- **Results:**
+  - Agent RECEIVED/EXPORTED: ?
+  - Gateway RECEIVED/EXPORTED: ?
+  - Gateway QUEUE: ?
+  - Memory:
+    - Pod1: ?
+    - Pod2: ?
+  - CPU:
+    - Pod1: ?
+    - Pod2: ?

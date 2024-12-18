@@ -54,6 +54,8 @@ data:
             initial_interval: 5s
             max_interval: 30s
             max_elapsed_time: 300s
+        sending_queue:
+          enabled: false
 
     extensions:
       file_storage:
@@ -79,10 +81,10 @@ data:
     receivers:
       filelog:
         exclude:
-        - /var/log/pods/kyma-system_telemetry-log-agent_*/*/*.log # exclude self
-        - /var/log/pods/kyma-system_telemetry-fluent-bit_*/*/*.log # exclude FluentBit
+        - /var/log/pods/kyma-system_telemetry-log-agent*/*/*.log # exclude self
+        - /var/log/pods/kyma-system_telemetry-fluent-bit*/*/*.log # exclude FluentBit
         include:
-        - /var/log/pods/*/*/*.log
+        - /var/log/pods/log-load-test*/*flog*/*.log
         include_file_name: false
         include_file_path: true
         operators:
@@ -223,7 +225,7 @@ spec:
             timeoutSeconds: 1
           resources:
             limits:
-              cpu: "1"
+              # cpu: "1"
               memory: 1Gi
             requests:
               cpu: 100m
