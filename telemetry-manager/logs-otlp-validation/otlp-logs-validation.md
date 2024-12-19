@@ -87,7 +87,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
 | :------: | :------: | :---: | :----: | :---: |
 |    ?     |    ?     |   ?   |   ?    |   ?   |
 
-### Sessions
+### Benchmarking Sessions
 
 #### ⏳ 13:45 - 14:05 (20 min)
 - **Generator:** 10 replicas x 10 MB
@@ -172,8 +172,43 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Gateway EXPORTED: 256
   - Gateway QUEUE: 328
 - **Remarks:**
-  - Agent does not stop when gateway refuses logs
+  - Agent does not stop when gateway refuses logs (because backpressure does not backpropagate)
+  - It slows down/stops in other scenarios
 
 ![alt text](image-9.png)
 ![alt text](image-10.png)
 ![alt text](image-11.png)
+
+#### Agent exports logs to a debug endpoint (5 min)
+- no networking involved
+- 12/14 log generators x 10 MB
+  - 19.5K => ~20K
+  - MEM: 43/47
+  - CPU: 0.7/0.8
+
+#### Agent exports logs directly to mock backend (5 min)
+- networking, but avoiding gateway
+- 10 log generators x 10 MB
+  - 5.3K
+  - MEM: 58/59
+  - CPU: 0.4/0.5
+- 12 log generators x 10 MB
+  - not increasing
+
+
+#### Agent exports logs directly to mock backend with batching processor (5 min)
+- networking, but with batching mechanism in-place
+- 10 log generators x 10 MB, batch size: 1024
+  - 8.3K
+  - MEM: 68/73
+  - CPU: 0.5/0.6
+- 12 log generators x 10 MB, batch size: 1024
+  - starts decreasing (~7.5K)
+- 10 log generators x 10 MB, batch size: 2048
+  - ~9K
+  - MEM: 74/79
+  - CPU: 0.6/0.7
+
+TODO: Gateway with batch processing (1024) 20min
+TODO: Gateway with batch processing (2048) 20min
+TODO: With increased memory limit for the log-receiver (x2) 20min
