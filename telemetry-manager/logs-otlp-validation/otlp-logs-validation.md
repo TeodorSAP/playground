@@ -255,5 +255,3 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Agent Memory: 74/81
   - Agent CPU: 0.6/0.5
   - Gateway QUEUE: 0 (max 2)
-
-TODO: Try the container-parser for the filelog receiver instead of the regex-parser (unrelated to performance)
