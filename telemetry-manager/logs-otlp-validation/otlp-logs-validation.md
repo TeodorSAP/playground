@@ -148,12 +148,8 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
 - **Agent:** with CPU limit (1), no queue
 - **Results:**
   - Agent RECEIVED/EXPORTED: 8.9K
-  - Agent Memory:
-    - Pod1: 64
-    - Pod2: 62
-  - Agent CPU:
-    - Pod1: 0.5
-    - Pod2: 0.5
+  - Agent Memory: 64/62
+  - Agent CPU: 0.5/0.5
   - Gateway RECEIVED/EXPORTED: 8.9K
   - Gateway QUEUE: 0
 
@@ -173,7 +169,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Gateway QUEUE: 328
 - **Remarks:**
   - Agent does not stop when gateway refuses logs (because backpressure does not backpropagate)
-  - It slows down/stops in other scenarios (see bellow)
+  - It slows down/stops in other scenarios (see bellow) => SUCCESS
 
 ![alt text](image-9.png)
 ![alt text](image-10.png)
@@ -209,34 +205,55 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - MEM: 74/79
   - CPU: 0.6/0.7
 
-#### TODO ⏳ ??:?? - ??:?? (20 min)
+#### ⏳ 13:46 - 14:06 (20 min)
 - **Generator:** 10 replicas x 10 MB
 - **Agent:** with CPU limit (1), no queue, with batch processing (1024)
 - **Results:**
-  - Agent RECEIVED/EXPORTED: ?K
-  - Gateway RECEIVED/EXPORTED: ?K
-  - Agent Memory: ?/?
-  - Agent CPU: ?/?
-  - Gateway QUEUE: ?
+  - Agent RECEIVED/EXPORTED: 8.46K
+  - Gateway RECEIVED/EXPORTED: 8.46K
+  - Agent Memory: 69/76
+  - Agent CPU: 0.5/0.7
+  - Gateway QUEUE: 0 (max 191)
 
 
-#### TODO ⏳ ??:?? - ??:?? (20 min)
+#### ⏳ ??:?? - ??:?? (20 min)
 - **Generator:** 10 replicas x 10 MB
 - **Agent:** with CPU limit (1), no queue, with batch processing (2048)
 - **Results:**
-  - Agent RECEIVED/EXPORTED: ?K
-  - Gateway RECEIVED/EXPORTED: ?K
-  - Agent Memory: ?/?
-  - Agent CPU: ?/?
-  - Gateway QUEUE: ?
+  - lower throughput as for the 1024 scenario
 
-#### TODO ⏳ ??:?? - ??:?? (20 min)
+#### ⏳⭐️ 15:55 - 16:15 (20 min)
+- **Agent:** with CPU limit (1), no queue, with batch processing (1024)
+- **Mock Backend:** memory limit x2 (2048Mi)
 - **Generator:** 10 replicas x 10 MB
-- **Agent:** with CPU limit (1), no queue, with batch processing (?)
+  - **Results:**
+    - Agent RECEIVED/EXPORTED: 8.18K
+    - Gateway RECEIVED/EXPORTED: 8.18K
+    - Agent Memory: 70/71
+    - Agent CPU: 0.6/0.6
+    - Gateway QUEUE: 0
+- **Generator:** 12 replicas x 10 MB (16:18 - 16:35)
+  - **Results:**
+    - Agent RECEIVED/EXPORTED: 8.6k
+    - Gateway RECEIVED/EXPORTED: 8.6k
+    - Agent Memory: 73/74
+    - Agent CPU: 0.7/0.6
+    - Gateway QUEUE: 0
+- - **Generator:** 14 replicas x 10 MB (16:35 - 16:40)
+  - **Results:**
+    - Agent RECEIVED/EXPORTED: 7.54K
+    - Gateway RECEIVED/EXPORTED: 7.54K
+    - lower
+
+#### ⏳ 16:50 - 17:10 (20 min)
+- **Generator:** 12 replicas x 10 MB
+- **Agent:** with CPU limit (1), no queue, with batch processing (2048)
 - **Mock Backend:** memory limit x2 (2048Mi)
 - **Results:**
-  - Agent RECEIVED/EXPORTED: ?K
-  - Gateway RECEIVED/EXPORTED: ?K
-  - Agent Memory: ?/?
-  - Agent CPU: ?/?
-  - Gateway QUEUE: ?
+  - Agent RECEIVED/EXPORTED: 8.1K
+  - Gateway RECEIVED/EXPORTED: 8.11K
+  - Agent Memory: 74/81
+  - Agent CPU: 0.6/0.5
+  - Gateway QUEUE: 0 (max 2)
+
+TODO: Try the container-parser for the filelog receiver instead of the regex-parser (unrelated to performance)
