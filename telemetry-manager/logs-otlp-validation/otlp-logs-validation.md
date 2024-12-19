@@ -157,7 +157,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Gateway RECEIVED/EXPORTED: 8.9K
   - Gateway QUEUE: 0
 
-#### ❌ 15:36 - 15:56 (20 min) (backpressure scenario)
+#### 🏋️‍♀️ 15:36 - 15:56 (20 min) (backpressure scenario)
 - **Generator:** 10 replicas x 10 MB
 - **Agent:** with CPU limit (1), no queue
 - **Results:**
@@ -173,20 +173,20 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Gateway QUEUE: 328
 - **Remarks:**
   - Agent does not stop when gateway refuses logs (because backpressure does not backpropagate)
-  - It slows down/stops in other scenarios
+  - It slows down/stops in other scenarios (see bellow)
 
 ![alt text](image-9.png)
 ![alt text](image-10.png)
 ![alt text](image-11.png)
 
-#### Agent exports logs to a debug endpoint (5 min)
+#### 🪲 Agent exports logs to a debug endpoint (5 min)
 - no networking involved
 - 12/14 log generators x 10 MB
   - 19.5K => ~20K
   - MEM: 43/47
   - CPU: 0.7/0.8
 
-#### Agent exports logs directly to mock backend (5 min)
+#### 🪲 Agent exports logs directly to mock backend (5 min)
 - networking, but avoiding gateway
 - 10 log generators x 10 MB
   - 5.3K
@@ -196,7 +196,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - not increasing
 
 
-#### Agent exports logs directly to mock backend with batching processor (5 min)
+#### 🪲 Agent exports logs directly to mock backend with batching processor (5 min)
 - networking, but with batching mechanism in-place
 - 10 log generators x 10 MB, batch size: 1024
   - 8.3K
@@ -209,6 +209,34 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - MEM: 74/79
   - CPU: 0.6/0.7
 
-TODO: Gateway with batch processing (1024) 20min
-TODO: Gateway with batch processing (2048) 20min
-TODO: With increased memory limit for the log-receiver (x2) 20min
+#### TODO ⏳ ??:?? - ??:?? (20 min)
+- **Generator:** 10 replicas x 10 MB
+- **Agent:** with CPU limit (1), no queue, with batch processing (1024)
+- **Results:**
+  - Agent RECEIVED/EXPORTED: ?K
+  - Gateway RECEIVED/EXPORTED: ?K
+  - Agent Memory: ?/?
+  - Agent CPU: ?/?
+  - Gateway QUEUE: ?
+
+
+#### TODO ⏳ ??:?? - ??:?? (20 min)
+- **Generator:** 10 replicas x 10 MB
+- **Agent:** with CPU limit (1), no queue, with batch processing (2048)
+- **Results:**
+  - Agent RECEIVED/EXPORTED: ?K
+  - Gateway RECEIVED/EXPORTED: ?K
+  - Agent Memory: ?/?
+  - Agent CPU: ?/?
+  - Gateway QUEUE: ?
+
+#### TODO ⏳ ??:?? - ??:?? (20 min)
+- **Generator:** 10 replicas x 10 MB
+- **Agent:** with CPU limit (1), no queue, with batch processing (?)
+- **Mock Backend:** memory limit x2 (2048Mi)
+- **Results:**
+  - Agent RECEIVED/EXPORTED: ?K
+  - Gateway RECEIVED/EXPORTED: ?K
+  - Agent Memory: ?/?
+  - Agent CPU: ?/?
+  - Gateway QUEUE: ?
