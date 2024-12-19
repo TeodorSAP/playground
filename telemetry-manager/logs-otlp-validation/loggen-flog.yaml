@@ -9,7 +9,7 @@ metadata:
   name: log-gen-flog
   namespace: logs-generation
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: log-gen-flog
@@ -35,7 +35,6 @@ spec:
             - -b=1024 # 1KB
             - -f=json
             - -l
-            - -s=10s
           image: mingrammer/flog
           imagePullPolicy: Always
           name: flog
