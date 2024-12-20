@@ -1,5 +1,9 @@
 # OTel LogPipeline set-up validation
 
+This file documents the process of validating the whole LogPipeline with OTLP output flow. It starts by defining the setup, that consists of the manually deployed log agent, the already-implemented log gateway, and log generators using flog.
+
+The scope is to load test the agent, observing the resulted values, in terms of throughput, resource consumption, backpressure, etc.
+
 ## 1. Set-up configuration steps
 
 ### With Helm
@@ -50,6 +54,7 @@ See [OTLP Logs Validation YAML](./otlp-logs-validation.yaml)
 
 ## 3. Benchmarking and Performance Tests Results
 
+Setup Configuration:
 ``` bash
 k create ns prometheus
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -59,6 +64,12 @@ helm upgrade --install -n "prometheus" "prometheus" prometheus-community/kube-pr
 k apply -f telemetry-manager/hack/load-tests/log-agent-test-setup.yaml
 ```
 
+For the 🏋️‍♀️ Backpressure Scenario additionally apply:
+``` bash
+k apply -f telemetry-manager/hack/load-tests/log-backpressure-config.yaml
+```
+
+PromQL Queries:
 ``` sql
 -- RECEIVED
 round(sum(rate(otelcol_receiver_accepted_log_records{service="telemetry-log-agent-metrics"}[20m])))
@@ -249,22 +260,20 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
 #### 🪲 20 Dec 2024, Multiple agents loading the gateway
 - **Setup:** 10 nodes, 10 agents, 1 generator / node (DaemonSet)
 - **Results (WITH BATCHING):**
-  - Agent RECEIVED/EXPORTED: 122K => 12.2K / agent instance
-  - Gateway RECEIVED/EXPORTED: 122K/70.3K => 61K/35K / gateway instance
-  - Agent Memory: 62-75/agent
-  - Agent CPU: ~0.9/agent
-  - Gateway QUEUE: 512 (full)
-  - ~17% exporter failed enqueue logs
+  - Agent RECEIVED/EXPORTED: 61.5K => 6.1K / agent instance
+  - Gateway RECEIVED/EXPORTED: 61.5K/29.5K => 30K/14.7K / gateway instance
+  - Agent Memory: 61-68/agent
+  - Agent CPU: 0.4-0.8/agent
+  - Gateway QUEUE: 510 (max 512, full)
+  - ~10% exporter failed enqueue logs
   - 0% receiver refused logs
   - 0% exporter send failed logs
 - **Results (WITHOUT BATCHING):**
-  - Agent RECEIVED/EXPORTED: 22.8K => 11.4K / agent instance
-  - Gateway RECEIVED/EXPORTED: 22.8K => 11.4K / gateway instance
+  - Agent RECEIVED/EXPORTED: 31.4K => 3.1K / agent instance
+  - Gateway RECEIVED/EXPORTED: 31.4K => 11.4K / gateway instance
   - Agent Memory: 61-68/agent
-  - Agent CPU: 0.3-0.4/agent
-  - Gateway QUEUE: 71 (max 73)
-  - ~17% exporter failed enqueue logs
+  - Agent CPU: 0.4-0.5/agent
+  - Gateway QUEUE: 0 (max 6)
+  - 0% exporter failed enqueue logs
   - 0% receiver refused logs
   - 0% exporter send failed logs
-  
-#### TODO: Do some more load tests using telemetrygen instead of flog
