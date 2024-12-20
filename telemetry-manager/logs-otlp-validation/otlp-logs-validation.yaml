@@ -77,10 +77,6 @@ data:
               statements:
                 - set(version, "main")
                 - set(name, "io.kyma-project.telemetry/runtime")
-      batch:
-        send_batch_size: 1024
-        timeout: 10s
-        send_batch_max_size: 1024
 
     receivers:
       filelog:
@@ -95,6 +91,7 @@ data:
         - type: container
           id: container-parser
           add_metadata_from_filepath: true
+          format: containerd
         - from: attributes.stream
           if: attributes.stream != nil
           to: attributes["log.iostream"]
@@ -134,7 +131,6 @@ data:
           processors:
           - memory_limiter
           - transform/set-instrumentation-scope-runtime
-          - batch
           receivers:
           - filelog
       telemetry:

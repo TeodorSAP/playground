@@ -7,11 +7,11 @@
 ``` bash
 k apply -f telemetry-manager/config/samples/operator_v1alpha1_telemetry.yaml
 
-kh-cls-log // Execute knowledge-hub/scripts/create_cls_log_pipeline.sh with the corresponding environment variables 
+// Execute knowledge-hub/scripts/create_cls_log_pipeline.sh with the corresponding environment variables 
 
 helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
 
-tm && helm install -n kyma-system logging open-telemetry/opentelemetry-collector -f ./docs/contributor/pocs/assets/otel-log-agent-values.yaml
+helm install -n kyma-system logging open-telemetry/opentelemetry-collector -f telemetry-manager/docs/contributor/pocs/assets/otel-log-agent-values.yaml
 ```
 
 ### Manual
@@ -19,7 +19,7 @@ tm && helm install -n kyma-system logging open-telemetry/opentelemetry-collector
 ``` bash
 k apply -f telemetry-manager/config/samples/operator_v1alpha1_telemetry.yaml
 
-kh-cls-log // Execute knowledge-hub/scripts/create_cls_log_pipeline.sh with the corresponding environment variables 
+// Execute knowledge-hub/scripts/create_cls_log_pipeline.sh with the corresponding environment variables 
 
 k apply -f ./otlp-logs-validation.yaml
 ```
@@ -34,7 +34,6 @@ See [OTLP Logs Validation YAML](./otlp-logs-validation.yaml)
 - Dynamically inclusion/exclusion of namespaces, based on LogPipeline spec attributes
 - Exclude FluentBit container in OTel configuration and OTel container in FluentBit configuration
 - `receivers/filelog/operators`: The copy body to `attributes.original` must be avoided if `dropLogRawBody` flag is enabled
-
 
 ### Agent DaemonSet
 
@@ -77,19 +76,28 @@ round(sum(avg_over_time(container_memory_working_set_bytes{namespace="kyma-syste
 round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace="kyma-system"}[20m]) * on(namespace,pod) group_left(workload) avg_over_time(namespace_workload_pod:kube_pod_owner:relabel{namespace="kyma-system", workload="telemetry-log-agent"}[20m])) by (pod), 0.1)
 ```
 
-### Scenario: Single Pipeline
-| RECEIVED | EXPORTED | QUEUE | MEMORY |  CPU  |
-| :------: | :------: | :---: | :----: | :---: |
-|    ?     |    ?     |   ?   |   ?    |   ?   |
+### ⭐️ Best Results (Scenario: Single Pipeline)
+| Batching | RECEIVED | EXPORTED | QUEUE | MEMORY |  CPU  |
+| :------: | :------: | :------: | :---: | :----: | :---: |
+|    ❌     |    ?     |    ?     |   ?   |   ?    |   ?   |
+|    ✅     |    ?     |    ?     |   ?   |   ?    |   ?   |
 
-### Scenario: Single Pipeline (Backpressure)
-| RECEIVED | EXPORTED | QUEUE | MEMORY |  CPU  |
-| :------: | :------: | :---: | :----: | :---: |
-|    ?     |    ?     |   ?   |   ?    |   ?   |
+### ⭐️ Best Results (Scenario: Single Pipeline (Backpressure))
+| Batching | RECEIVED | EXPORTED | QUEUE | MEMORY |  CPU  |
+| :------: | :------: | :------: | :---: | :----: | :---: |
+|    ❌     |    ?     |    ?     |   ?   |   ?    |   ?   |
+|    ✅     |    ?     |    ?     |   ?   |   ?    |   ?   |
 
-### Benchmarking Sessions
+### 📊 Benchmarking Sessions
 
-#### ⏳ 13:45 - 14:05 (20 min)
+| Icon | Meaning                                              |
+| ---- | ---------------------------------------------------- |
+| ⏳    | Full-test, involving the whole setup, usually 20 min |
+| 🪲    | Debugging session, usually shorter, not so reliable  |
+| 🏋️‍♀️    | Backpressure Scenario                                |
+| ⭐️    | Best results in a given scenario/category            |
+
+#### ⏳ 18 Dec 2024, 13:45 - 14:05 (20 min)
 - **Generator:** 10 replicas x 10 MB
 - **Agent:** no CPU limit, no queue
 - **Results:**
@@ -103,11 +111,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Gateway RECEIVED/EXPORTED: 6.09K
   - Gateway QUEUE: 0
 
-![alt text](image.png)
-![alt text](image-1.png)
-![alt text](image-2.png)
-
-#### ⏳ 14:08 - 14:28 (20 min)
+#### ⏳ 18 Dec 2024, 14:08 - 14:28 (20 min)
 - **Generator:** 20 replicas x 10 MB
 - **Agent:** no CPU limit, no queue
 - **Results:**
@@ -121,11 +125,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Gateway RECEIVED/EXPORTED: 4.93K
   - Gateway QUEUE: 0 (max. 6 at some point)
 
-![alt text](image-3.png)
-![alt text](image-4.png)
-![alt text](image-5.png)
-
-#### ⏳ 14:50 - 15:10 (20 min)
+#### ⏳ 18 Dec 2024, 14:50 - 15:10 (20 min)
 - **Generator:** 10 replicas x 20 MB
 - **Agent:** no CPU limit, no queue
 - **Results:**
@@ -139,11 +139,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Gateway RECEIVED/EXPORTED: 5.94K
   - Gateway QUEUE: 0
 
-![alt text](image-6.png)
-![alt text](image-7.png)
-![alt text](image-8.png)
-
-#### ⏳ 15:24 - 15:34 (10 min)
+#### ⏳ 18 Dec 2024, 15:24 - 15:34 (10 min)
 - **Generator:** 10 replicas x 10 MB
 - **Agent:** with CPU limit (1), no queue
 - **Results:**
@@ -153,7 +149,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Gateway RECEIVED/EXPORTED: 8.9K
   - Gateway QUEUE: 0
 
-#### 🏋️‍♀️ 15:36 - 15:56 (20 min) (backpressure scenario)
+#### 🏋️‍♀️ 18 Dec 2024, 15:36 - 15:56 (20 min) (backpressure scenario)
 - **Generator:** 10 replicas x 10 MB
 - **Agent:** with CPU limit (1), no queue
 - **Results:**
@@ -171,18 +167,14 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Agent does not stop when gateway refuses logs (because backpressure does not backpropagate)
   - It slows down/stops in other scenarios (see bellow) => SUCCESS
 
-![alt text](image-9.png)
-![alt text](image-10.png)
-![alt text](image-11.png)
-
-#### 🪲 Agent exports logs to a debug endpoint (5 min)
+#### 🪲 19 Dec 2024, Agent exports logs to a debug endpoint (5 min)
 - no networking involved
 - 12/14 log generators x 10 MB
   - 19.5K => ~20K
   - MEM: 43/47
   - CPU: 0.7/0.8
 
-#### 🪲 Agent exports logs directly to mock backend (5 min)
+#### 🪲 19 Dec 2024, Agent exports logs directly to mock backend (5 min)
 - networking, but avoiding gateway
 - 10 log generators x 10 MB
   - 5.3K
@@ -191,8 +183,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
 - 12 log generators x 10 MB
   - not increasing
 
-
-#### 🪲 Agent exports logs directly to mock backend with batching processor (5 min)
+#### 🪲 19 Dec 2024, Agent exports logs directly to mock backend with batching processor (5 min)
 - networking, but with batching mechanism in-place
 - 10 log generators x 10 MB, batch size: 1024
   - 8.3K
@@ -205,7 +196,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - MEM: 74/79
   - CPU: 0.6/0.7
 
-#### ⏳ 13:46 - 14:06 (20 min)
+#### ⏳ 19 Dec 2024, 13:46 - 14:06 (20 min)
 - **Generator:** 10 replicas x 10 MB
 - **Agent:** with CPU limit (1), no queue, with batch processing (1024)
 - **Results:**
@@ -215,14 +206,13 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Agent CPU: 0.5/0.7
   - Gateway QUEUE: 0 (max 191)
 
-
-#### ⏳ ??:?? - ??:?? (20 min)
+#### ⏳ 19 Dec 2024, ??:?? - ??:?? (20 min)
 - **Generator:** 10 replicas x 10 MB
 - **Agent:** with CPU limit (1), no queue, with batch processing (2048)
 - **Results:**
   - lower throughput as for the 1024 scenario
 
-#### ⏳⭐️ 15:55 - 16:15 (20 min)
+#### ⏳⭐️ 19 Dec 2024, 15:55 - 16:15 (20 min)
 - **Agent:** with CPU limit (1), no queue, with batch processing (1024)
 - **Mock Backend:** memory limit x2 (2048Mi)
 - **Generator:** 10 replicas x 10 MB
@@ -245,7 +235,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
     - Gateway RECEIVED/EXPORTED: 7.54K
     - lower
 
-#### ⏳ 16:50 - 17:10 (20 min)
+#### ⏳ 19 Dec 2024, 16:50 - 17:10 (20 min)
 - **Generator:** 12 replicas x 10 MB
 - **Agent:** with CPU limit (1), no queue, with batch processing (2048)
 - **Mock Backend:** memory limit x2 (2048Mi)
@@ -255,3 +245,26 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Agent Memory: 74/81
   - Agent CPU: 0.6/0.5
   - Gateway QUEUE: 0 (max 2)
+
+#### 🪲 20 Dec 2024, Multiple agents loading the gateway
+- **Setup:** 10 nodes, 10 agents, 1 generator / node (DaemonSet)
+- **Results (WITH BATCHING):**
+  - Agent RECEIVED/EXPORTED: 122K => 12.2K / agent instance
+  - Gateway RECEIVED/EXPORTED: 122K/70.3K => 61K/35K / gateway instance
+  - Agent Memory: 62-75/agent
+  - Agent CPU: ~0.9/agent
+  - Gateway QUEUE: 512 (full)
+  - ~17% exporter failed enqueue logs
+  - 0% receiver refused logs
+  - 0% exporter send failed logs
+- **Results (WITHOUT BATCHING):**
+  - Agent RECEIVED/EXPORTED: 22.8K => 11.4K / agent instance
+  - Gateway RECEIVED/EXPORTED: 22.8K => 11.4K / gateway instance
+  - Agent Memory: 61-68/agent
+  - Agent CPU: 0.3-0.4/agent
+  - Gateway QUEUE: 71 (max 73)
+  - ~17% exporter failed enqueue logs
+  - 0% receiver refused logs
+  - 0% exporter send failed logs
+  
+#### TODO: Do some more load tests using telemetrygen instead of flog
