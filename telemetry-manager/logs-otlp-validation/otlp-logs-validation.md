@@ -2,7 +2,9 @@
 
 This file documents the process of validating the whole LogPipeline with OTLP output flow. It starts by defining the setup, that consists of the manually deployed log agent, the already-implemented log gateway, and log generators using flog.
 
-The scope is to load test the agent, observing the resulted values, in terms of throughput, resource consumption, backpressure, etc.
+The scope is to performance test the agent, observing the resulting values, in terms of throughput, resource consumption, reaction to backpressure, etc.
+
+
 
 ## 1. Set-up configuration steps
 
@@ -28,6 +30,8 @@ k apply -f telemetry-manager/config/samples/operator_v1alpha1_telemetry.yaml
 k apply -f ./otlp-logs-validation.yaml
 ```
 
+
+
 ## 2. Resulting Resources
 
 ### Agent ConfigMap (OTel Config)
@@ -51,6 +55,8 @@ See [OTLP Logs Validation YAML](./otlp-logs-validation.yaml)
 - Also set in the `storage` property of the filelog receiver
 
 > `storage` = The ID of a storage extension to be used to store file offsets. File offsets allow the receiver to pick up where it left off in the case of a collector restart. If no storage extension is used, the receiver will manage offsets in memory only.
+
+
 
 ## 3. Benchmarking and Performance Tests Results
 
@@ -88,16 +94,16 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
 ```
 
 ### ⭐️ Best Results (Scenario: Single Pipeline)
-| Batching | RECEIVED | EXPORTED | QUEUE | MEMORY |  CPU  |
-| :------: | :------: | :------: | :---: | :----: | :---: |
-|    ❌     |    ?     |    ?     |   ?   |   ?    |   ?   |
-|    ✅     |    ?     |    ?     |   ?   |   ?    |   ?   |
+| Batching | RECEIVED  | EXPORTED  | QUEUE | MEMORY |  CPU  |
+| :------: | :-------: | :-------: | :---: | :----: | :---: |
+|    ❌     | max. 8.9K | max. 8.9K |   0   |  ~63   | ~0.5  |
+|    ✅     |   8.6K    |   8.6k    |   0   |  ~73   | ~0.6  |
 
-### ⭐️ Best Results (Scenario: Single Pipeline (Backpressure))
+### ⭐️🏋️‍♀️ Best Results (Scenario: Single Pipeline with Backpressure)
 | Batching | RECEIVED | EXPORTED | QUEUE | MEMORY |  CPU  |
 | :------: | :------: | :------: | :---: | :----: | :---: |
-|    ❌     |    ?     |    ?     |   ?   |   ?    |   ?   |
-|    ✅     |    ?     |    ?     |   ?   |   ?    |   ?   |
+|    ❌     |   6.8K   |   6.8K   | ~328  |  ~66   | ~0.5  |
+|    ✅     |    -     |    -     |   -   |   -    |   -   |
 
 ### 📊 Benchmarking Sessions
 
@@ -106,7 +112,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
 | ⏳    | Full-test, involving the whole setup, usually 20 min |
 | 🪲    | Debugging session, usually shorter, not so reliable  |
 | 🏋️‍♀️    | Backpressure Scenario                                |
-| ⭐️    | Best results in a given scenario/category            |
+| ⭐️    | Best results observed (in a given scenario)          |
 
 #### ⏳ 18 Dec 2024, 13:45 - 14:05 (20 min)
 - **Generator:** 10 replicas x 10 MB
@@ -150,7 +156,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Gateway RECEIVED/EXPORTED: 5.94K
   - Gateway QUEUE: 0
 
-#### ⏳ 18 Dec 2024, 15:24 - 15:34 (10 min)
+#### ⏳⭐️ 18 Dec 2024, 15:24 - 15:34 (10 min)
 - **Generator:** 10 replicas x 10 MB
 - **Agent:** with CPU limit (1), no queue
 - **Results:**
@@ -160,7 +166,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Gateway RECEIVED/EXPORTED: 8.9K
   - Gateway QUEUE: 0
 
-#### 🏋️‍♀️ 18 Dec 2024, 15:36 - 15:56 (20 min) (backpressure scenario)
+#### 🏋️‍♀️⭐️ 18 Dec 2024, 15:36 - 15:56 (20 min) (backpressure scenario)
 - **Generator:** 10 replicas x 10 MB
 - **Agent:** with CPU limit (1), no queue
 - **Results:**
@@ -257,7 +263,7 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - Agent CPU: 0.6/0.5
   - Gateway QUEUE: 0 (max 2)
 
-#### 🪲 20 Dec 2024, Multiple agents loading the gateway
+#### 🪲 20 Dec 2024, Multiple agents loading the gateway (5 min)
 - **Setup:** 10 nodes, 10 agents, 1 generator / node (DaemonSet)
 - **Results (WITH BATCHING):**
   - Agent RECEIVED/EXPORTED: 61.5K => 6.1K / agent instance
@@ -277,3 +283,14 @@ round(sum(avg_over_time(node_namespace_pod_container:container_cpu_usage_seconds
   - 0% exporter failed enqueue logs
   - 0% receiver refused logs
   - 0% exporter send failed logs
+
+
+## 4. Conclusions
+
+- A lower performance can be expected, compared to the FluentBit counterpart setup.
+- Backpressure is currently not backpropagated from the gateway to the agent, resulting in logs being queued/lost on the gateway end, since the agent has no way of knowing when to stop, thus exports data continuously. (This is a known issue, that should get solved by the OTel community in the next half year)
+- Agent slows down if the load is increased (i.e. more generators / more logs / more data).
+- The network communication between the agent and the gateway or/and the gateway represent a bottleneck in this setup, since when using just a debug endpoint as an exporter, higher throughput was observed.
+- CPU and Memory consumption are surprisingly low, and this was not improved by removing the limits (quite the opposite was observed, with the CPU throttling more often and the throughput decreasing).
+- When enabling the batch processor, throughput was increasing, but this comes at the cost of losing logs in some scenarios.
+- More/other methods of improving the throughput might still be worth investigating.
