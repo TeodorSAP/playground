@@ -1,0 +1,2854 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "2"
+    creationTimestamp: "2024-12-13T14:42:16Z"
+    generation: 3
+    labels:
+      app: istio-ingressgateway
+      install.operator.istio.io/owning-resource: installed-state-default-operator
+      install.operator.istio.io/owning-resource-namespace: istio-system
+      istio: ingressgateway
+      istio.io/rev: default
+      kyma-project.io/module: istio
+      operator.istio.io/component: IngressGateways
+      operator.istio.io/managed: Reconcile
+      operator.istio.io/version: unknown
+      release: istio
+    name: istio-ingressgateway
+    namespace: istio-system
+    resourceVersion: "15695134"
+    uid: 83a9371b-8bc9-4dae-8d81-5e13030b959c
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 3
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: istio-ingressgateway
+        istio: ingressgateway
+    strategy:
+      rollingUpdate:
+        maxSurge: 100%
+        maxUnavailable: 0
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          istio.io/rev: default
+          istios.operator.kyma-project.io/managed-by-disclaimer: |
+            DO NOT EDIT - This resource is managed by Kyma.
+            Any modifications are discarded and the resource is reverted to the original state.
+          sidecar.istio.io/inject: "false"
+        creationTimestamp: null
+        labels:
+          app: istio-ingressgateway
+          chart: gateways
+          heritage: Tiller
+          install.operator.istio.io/owning-resource: unknown
+          istio: ingressgateway
+          istio.io/rev: default
+          kyma-project.io/module: istio
+          operator.istio.io/component: IngressGateways
+          release: istio
+          service.istio.io/canonical-name: istio-ingressgateway
+          service.istio.io/canonical-revision: latest
+          sidecar.istio.io/inject: "false"
+      spec:
+        affinity:
+          nodeAffinity: {}
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - istio-ingressgateway
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - istio-ingressgateway
+                topologyKey: topology.kubernetes.io/zone
+              weight: 100
+        containers:
+        - args:
+          - proxy
+          - router
+          - --domain
+          - $(POD_NAMESPACE).svc.cluster.local
+          - --proxyLogLevel=warning
+          - --proxyComponentLogLevel=misc:error
+          - --log_output_level=all:warn
+          env:
+          - name: PILOT_CERT_PROVIDER
+            value: istiod
+          - name: CA_ADDR
+            value: istiod.istio-system.svc:15012
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: INSTANCE_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          - name: HOST_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.hostIP
+          - name: ISTIO_CPU_LIMIT
+            valueFrom:
+              resourceFieldRef:
+                divisor: "0"
+                resource: limits.cpu
+          - name: SERVICE_ACCOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.serviceAccountName
+          - name: ISTIO_META_WORKLOAD_NAME
+            value: istio-ingressgateway
+          - name: ISTIO_META_OWNER
+            value: kubernetes://apis/apps/v1/namespaces/istio-system/deployments/istio-ingressgateway
+          - name: ISTIO_META_MESH_ID
+            value: cluster.local
+          - name: TRUST_DOMAIN
+            value: cluster.local
+          - name: ISTIO_META_UNPRIVILEGED_POD
+            value: "true"
+          - name: BOOTSTRAP_XDS_AGENT
+            value: "true"
+          - name: CITADEL_SELF_SIGNED_CA_RSA_KEY_SIZE
+            value: "4096"
+          - name: WORKLOAD_RSA_KEY_SIZE
+            value: "3072"
+          - name: ISTIO_META_CLUSTER_ID
+            value: Kubernetes
+          - name: ISTIO_META_NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          image: europe-docker.pkg.dev/kyma-project/prod/external/istio/proxyv2:1.24.1-distroless
+          imagePullPolicy: IfNotPresent
+          name: istio-proxy
+          ports:
+          - containerPort: 15021
+            protocol: TCP
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          - containerPort: 15090
+            name: http-envoy-prom
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /healthz/ready
+              port: 15021
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "2"
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/run/secrets/workload-spiffe-uds
+            name: workload-socket
+          - mountPath: /var/run/secrets/credential-uds
+            name: credential-socket
+          - mountPath: /var/run/secrets/workload-spiffe-credentials
+            name: workload-certs
+          - mountPath: /etc/istio/proxy
+            name: istio-envoy
+          - mountPath: /etc/istio/config
+            name: config-volume
+          - mountPath: /var/run/secrets/istio
+            name: istiod-ca-cert
+          - mountPath: /var/run/secrets/tokens
+            name: istio-token
+            readOnly: true
+          - mountPath: /var/lib/istio/data
+            name: istio-data
+          - mountPath: /etc/istio/pod
+            name: podinfo
+          - mountPath: /etc/istio/ingressgateway-certs
+            name: ingressgateway-certs
+            readOnly: true
+          - mountPath: /etc/istio/ingressgateway-ca-certs
+            name: ingressgateway-ca-certs
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        priorityClassName: istio-kyma-priority
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: istio-ingressgateway-service-account
+        serviceAccountName: istio-ingressgateway-service-account
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: workload-socket
+        - emptyDir: {}
+          name: credential-socket
+        - emptyDir: {}
+          name: workload-certs
+        - configMap:
+            defaultMode: 420
+            name: istio-ca-root-cert
+          name: istiod-ca-cert
+        - downwardAPI:
+            defaultMode: 420
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.labels
+              path: labels
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.annotations
+              path: annotations
+          name: podinfo
+        - emptyDir: {}
+          name: istio-envoy
+        - emptyDir: {}
+          name: istio-data
+        - name: istio-token
+          projected:
+            defaultMode: 420
+            sources:
+            - serviceAccountToken:
+                audience: istio-ca
+                expirationSeconds: 43200
+                path: istio-token
+        - configMap:
+            defaultMode: 420
+            name: istio
+            optional: true
+          name: config-volume
+        - name: ingressgateway-certs
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: istio-ingressgateway-certs
+        - name: ingressgateway-ca-certs
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: istio-ingressgateway-ca-certs
+  status:
+    availableReplicas: 3
+    conditions:
+    - lastTransitionTime: "2024-12-13T14:42:16Z"
+      lastUpdateTime: "2024-12-13T14:42:39Z"
+      message: ReplicaSet "istio-ingressgateway-69cc67476b" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:05:03Z"
+      lastUpdateTime: "2025-01-16T07:05:03Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 3
+    readyReplicas: 3
+    replicas: 3
+    updatedReplicas: 3
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "2"
+    creationTimestamp: "2024-12-13T14:42:02Z"
+    generation: 3
+    labels:
+      app: istiod
+      install.operator.istio.io/owning-resource: installed-state-default-operator
+      install.operator.istio.io/owning-resource-namespace: istio-system
+      istio: pilot
+      istio.io/rev: default
+      kyma-project.io/module: istio
+      operator.istio.io/component: Pilot
+      operator.istio.io/managed: Reconcile
+      operator.istio.io/version: unknown
+      release: istio
+    name: istiod
+    namespace: istio-system
+    resourceVersion: "15694926"
+    uid: 8691b6c5-3071-4327-849e-131c0c3a72b3
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        istio: pilot
+    strategy:
+      rollingUpdate:
+        maxSurge: 100%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          istios.operator.kyma-project.io/managed-by-disclaimer: |
+            DO NOT EDIT - This resource is managed by Kyma.
+            Any modifications are discarded and the resource is reverted to the original state.
+          prometheus.io/port: "15014"
+          prometheus.io/scrape: "true"
+          sidecar.istio.io/inject: "false"
+        creationTimestamp: null
+        labels:
+          app: istiod
+          install.operator.istio.io/owning-resource: unknown
+          istio: pilot
+          istio.io/dataplane-mode: none
+          istio.io/rev: default
+          kyma-project.io/module: istio
+          operator.istio.io/component: Pilot
+          sidecar.istio.io/inject: "false"
+      spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - istiod
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - istiod
+                topologyKey: topology.kubernetes.io/zone
+              weight: 100
+        containers:
+        - args:
+          - discovery
+          - --monitoringAddr=:15014
+          - --log_output_level=all:warn
+          - --domain
+          - cluster.local
+          - --keepaliveMaxServerConnectionAge
+          - 30m
+          env:
+          - name: PILOT_HTTP10
+            value: "1"
+          - name: METRIC_ROTATION_INTERVAL
+            value: 5m0s
+          - name: METRIC_GRACEFUL_DELETION_INTERVAL
+            value: 5m0s
+          - name: REVISION
+            value: default
+          - name: PILOT_CERT_PROVIDER
+            value: istiod
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: SERVICE_ACCOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.serviceAccountName
+          - name: KUBECONFIG
+            value: /var/run/secrets/remote/config
+          - name: CA_TRUSTED_NODE_ACCOUNTS
+            value: istio-system/ztunnel
+          - name: CITADEL_SELF_SIGNED_CA_RSA_KEY_SIZE
+            value: "4096"
+          - name: PILOT_TRACE_SAMPLING
+            value: "1"
+          - name: PILOT_ENABLE_ANALYSIS
+            value: "false"
+          - name: CLUSTER_ID
+            value: Kubernetes
+          - name: GOMEMLIMIT
+            valueFrom:
+              resourceFieldRef:
+                divisor: "0"
+                resource: limits.memory
+          - name: GOMAXPROCS
+            valueFrom:
+              resourceFieldRef:
+                divisor: "0"
+                resource: limits.cpu
+          - name: PLATFORM
+          image: europe-docker.pkg.dev/kyma-project/prod/external/istio/pilot:1.24.1-distroless
+          imagePullPolicy: IfNotPresent
+          name: discovery
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 15010
+            protocol: TCP
+          - containerPort: 15017
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: "4"
+              memory: 2Gi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/run/secrets/tokens
+            name: istio-token
+            readOnly: true
+          - mountPath: /var/run/secrets/istio-dns
+            name: local-certs
+          - mountPath: /etc/cacerts
+            name: cacerts
+            readOnly: true
+          - mountPath: /var/run/secrets/remote
+            name: istio-kubeconfig
+            readOnly: true
+          - mountPath: /var/run/secrets/istiod/tls
+            name: istio-csr-dns-cert
+            readOnly: true
+          - mountPath: /var/run/secrets/istiod/ca
+            name: istio-csr-ca-configmap
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        priorityClassName: istio-kyma-priority
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: istiod
+        serviceAccountName: istiod
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - key: cni.istio.io/not-ready
+          operator: Exists
+        volumes:
+        - emptyDir:
+            medium: Memory
+          name: local-certs
+        - name: istio-token
+          projected:
+            defaultMode: 420
+            sources:
+            - serviceAccountToken:
+                audience: istio-ca
+                expirationSeconds: 43200
+                path: istio-token
+        - name: cacerts
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: cacerts
+        - name: istio-kubeconfig
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: istio-kubeconfig
+        - name: istio-csr-dns-cert
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: istiod-tls
+        - configMap:
+            defaultMode: 420
+            name: istio-ca-root-cert
+            optional: true
+          name: istio-csr-ca-configmap
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2024-12-13T14:42:02Z"
+      lastUpdateTime: "2024-12-13T14:42:36Z"
+      message: ReplicaSet "istiod-569699f494" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:04:40Z"
+      lastUpdateTime: "2025-01-16T07:04:40Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 3
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "3"
+      reference.resources.gardener.cloud/configmap-10b28bf8: blackbox-exporter-config-54d85ef0
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/shoot-core-blackbox-exporter
+    creationTimestamp: "2024-07-30T08:08:43Z"
+    generation: 3
+    labels:
+      app: blackbox-exporter
+      gardener.cloud/role: monitoring
+      high-availability-config.resources.gardener.cloud/type: server
+      origin: gardener
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: blackbox-exporter
+    namespace: kube-system
+    resourceVersion: "15695255"
+    uid: 66371b02-13d4-4ac5-9f85-4d3cb09697e4
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 2
+    selector:
+      matchLabels:
+        app: blackbox-exporter
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          reference.resources.gardener.cloud/configmap-10b28bf8: blackbox-exporter-config-54d85ef0
+        creationTimestamp: null
+        labels:
+          app: blackbox-exporter
+          gardener.cloud/role: monitoring
+          networking.gardener.cloud/from-seed: allowed
+          networking.gardener.cloud/to-apiserver: allowed
+          networking.gardener.cloud/to-dns: allowed
+          networking.gardener.cloud/to-public-networks: allowed
+          origin: gardener
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - args:
+          - --config.file=/etc/blackbox_exporter/blackbox.yaml
+          - --log.level=debug
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/quay_io/prometheus/blackbox-exporter@sha256:c60a7314d91bf59638a5d4ca16e2db980e5d9e95186b050225eb492674ccca5c
+          imagePullPolicy: IfNotPresent
+          name: blackbox-exporter
+          ports:
+          - containerPort: 9115
+            name: probe
+            protocol: TCP
+          resources:
+            requests:
+              memory: 15M
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/blackbox_exporter
+            name: blackbox-exporter-config
+        dnsConfig:
+          options:
+          - name: ndots
+            value: "3"
+        dnsPolicy: ClusterFirst
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+          supplementalGroups:
+          - 1
+        serviceAccount: blackbox-exporter
+        serviceAccountName: blackbox-exporter
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 60
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 60
+        topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              app: blackbox-exporter
+              gardener.cloud/role: monitoring
+              networking.gardener.cloud/from-seed: allowed
+              networking.gardener.cloud/to-apiserver: allowed
+              networking.gardener.cloud/to-dns: allowed
+              networking.gardener.cloud/to-public-networks: allowed
+              origin: gardener
+              resources.gardener.cloud/managed-by: gardener
+              shoot.gardener.cloud/no-cleanup: "true"
+          maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: blackbox-exporter-config-54d85ef0
+          name: blackbox-exporter-config
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2024-07-30T08:08:43Z"
+      lastUpdateTime: "2024-10-07T07:56:02Z"
+      message: ReplicaSet "blackbox-exporter-7f77b7687f" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:04:19Z"
+      lastUpdateTime: "2025-01-16T07:04:19Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 3
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "2"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/extension-networking-calico-config
+    creationTimestamp: "2024-07-30T08:09:09Z"
+    generation: 2
+    labels:
+      k8s-app: calico-node-autoscaler
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: calico-node-vertical-autoscaler
+    namespace: kube-system
+    resourceVersion: "15694685"
+    uid: 08d68e9a-be9e-4fe0-8ccd-08a22d485430
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 5
+    selector:
+      matchLabels:
+        k8s-app: calico-node-autoscaler
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          checksum/configmap-calico-node-vertical-autoscaler: 258ff1ba51fce5f072436bcc189cb72f4895ba3979db3aa6d15db69a9f5f7207
+        creationTimestamp: null
+        labels:
+          k8s-app: calico-node-autoscaler
+          networking.gardener.cloud/to-apiserver: allowed
+          networking.gardener.cloud/to-dns: allowed
+          networking.gardener.cloud/to-public-networks: allowed
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - command:
+          - /cpvpa
+          - --target=daemonset/calico-node
+          - --namespace=kube-system
+          - --logtostderr=true
+          - --poll-period-seconds=30
+          - --v=2
+          - --config-file=/etc/config/node-autoscaler
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/cpa/cpvpa@sha256:718f252d47f13e9d47f0b9b51adbff72f43329602d3567cdf7f2c78d51505692
+          imagePullPolicy: IfNotPresent
+          name: autoscaler
+          resources:
+            limits:
+              memory: 130Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/config
+            name: config
+        dnsPolicy: Default
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 1
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+          supplementalGroups:
+          - 1
+        serviceAccount: calico-node-cpva
+        serviceAccountName: calico-node-cpva
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 60
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 60
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: calico-node-vertical-autoscaler
+          name: config
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-07-30T08:09:09Z"
+      lastUpdateTime: "2024-10-02T09:09:42Z"
+      message: ReplicaSet "calico-node-vertical-autoscaler-55d75765f4" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:04:27Z"
+      lastUpdateTime: "2025-01-16T07:04:27Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      deployment.kubernetes.io/revision: "121"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/extension-networking-calico-config
+      resources.gardener.cloud/preserve-resources: "true"
+    creationTimestamp: "2024-07-30T08:09:09Z"
+    generation: 268
+    labels:
+      gardener.cloud/role: system-component
+      k8s-app: calico-typha
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: calico-typha-deploy
+    namespace: kube-system
+    resourceVersion: "15694502"
+    uid: e7b93390-fcb6-42bd-9540-9c99072759df
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 5
+    selector:
+      matchLabels:
+        k8s-app: calico-typha
+    strategy:
+      rollingUpdate:
+        maxSurge: 100%
+        maxUnavailable: 1
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          gardener.cloud/role: system-component
+          k8s-app: calico-typha
+          networking.gardener.cloud/to-apiserver: allowed
+          networking.gardener.cloud/to-dns: allowed
+          networking.gardener.cloud/to-public-networks: allowed
+          origin: gardener
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - env:
+          - name: USE_POD_CIDR
+            value: "true"
+          - name: TYPHA_PROMETHEUSMETRICSENABLED
+            value: "true"
+          - name: TYPHA_PROMETHEUSMETRICSPORT
+            value: "9093"
+          - name: TYPHA_LOGSEVERITYSCREEN
+            value: info
+          - name: TYPHA_LOGFILEPATH
+            value: none
+          - name: TYPHA_LOGSEVERITYSYS
+            value: none
+          - name: TYPHA_CONNECTIONREBALANCINGMODE
+            value: kubernetes
+          - name: TYPHA_DATASTORETYPE
+            value: kubernetes
+          - name: TYPHA_HEALTHENABLED
+            value: "true"
+          - name: TYPHA_SHUTDOWNTIMEOUTSECS
+            value: "300"
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/quay_io/calico/typha@sha256:1c42c4d7a3e89eb0033f564994f4c2317e395c259787284ef30ebbed929a2a56
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              host: localhost
+              path: /liveness
+              port: 9098
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: calico-typha
+          ports:
+          - containerPort: 5473
+            name: calico-typha
+            protocol: TCP
+          - containerPort: 9093
+            name: metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              host: localhost
+              path: /readiness
+              port: 9098
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              memory: 4194304k
+            requests:
+              cpu: 320m
+              memory: 262144k
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        hostNetwork: true
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+          supplementalGroups:
+          - 1
+        serviceAccount: calico-typha
+        serviceAccountName: calico-typha
+        terminationGracePeriodSeconds: 300
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 60
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 60
+        topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              gardener.cloud/role: system-component
+              k8s-app: calico-typha
+              networking.gardener.cloud/to-apiserver: allowed
+              networking.gardener.cloud/to-dns: allowed
+              networking.gardener.cloud/to-public-networks: allowed
+              origin: gardener
+              resources.gardener.cloud/managed-by: gardener
+              shoot.gardener.cloud/no-cleanup: "true"
+          maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2025-01-15T07:02:32Z"
+      lastUpdateTime: "2025-01-15T09:05:22Z"
+      message: ReplicaSet "calico-typha-deploy-84cbdfccd5" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:03:33Z"
+      lastUpdateTime: "2025-01-16T07:03:33Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 268
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "2"
+      resources.gardener.cloud/delete-on-invalid-update: "true"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/extension-networking-calico-config
+    creationTimestamp: "2024-07-30T08:09:09Z"
+    generation: 2
+    labels:
+      k8s-app: calico-typha-horizontal-autoscaler
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: calico-typha-horizontal-autoscaler
+    namespace: kube-system
+    resourceVersion: "15694608"
+    uid: e6f31b9b-ac43-4fdb-8354-bc599793aa05
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 5
+    selector:
+      matchLabels:
+        k8s-app: calico-typha-horizontal-autoscaler
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          checksum/configmap-calico-typha-horizontal-autoscaler: b21ef7275f00076843b06e865267c507dbb7b26b842e4edaa63624878c816a4a
+        creationTimestamp: null
+        labels:
+          k8s-app: calico-typha-horizontal-autoscaler
+          networking.gardener.cloud/to-apiserver: allowed
+          networking.gardener.cloud/to-dns: allowed
+          networking.gardener.cloud/to-public-networks: allowed
+          origin: gardener
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - command:
+          - /cluster-proportional-autoscaler
+          - --namespace=kube-system
+          - --configmap=calico-typha-horizontal-autoscaler
+          - --target=deployment/calico-typha-deploy
+          - --logtostderr=true
+          - --v=2
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/cpa/cluster-proportional-autoscaler@sha256:fdb21d80793776bd675c2db9b82e42d0e8f492b7f7b990193f788fdfede1a02d
+          imagePullPolicy: IfNotPresent
+          name: autoscaler
+          resources:
+            limits:
+              memory: 100Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: Default
+        priorityClassName: gardener-shoot-system-800
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+          seccompProfile:
+            type: RuntimeDefault
+          supplementalGroups:
+          - 65532
+        serviceAccount: typha-cpha
+        serviceAccountName: typha-cpha
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 60
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 60
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-07-30T08:09:09Z"
+      lastUpdateTime: "2024-10-02T09:09:55Z"
+      message: ReplicaSet "calico-typha-horizontal-autoscaler-54788cd58d" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:04:20Z"
+      lastUpdateTime: "2025-01-16T07:04:20Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "2"
+      resources.gardener.cloud/delete-on-invalid-update: "true"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/extension-networking-calico-config
+    creationTimestamp: "2024-07-30T08:09:09Z"
+    generation: 2
+    labels:
+      k8s-app: calico-typha-vertical-autoscaler
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: calico-typha-vertical-autoscaler
+    namespace: kube-system
+    resourceVersion: "15694794"
+    uid: 09fefdce-8162-4cb8-acef-86a1ed6c9a84
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 5
+    selector:
+      matchLabels:
+        k8s-app: calico-typha-vertical-autoscaler
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          checksum/configmap-calico-typha-vertical-autoscaler: 529044175043e85f43a2023158edd5122dae6ee498343e4f1ee68d3ab958890e
+        creationTimestamp: null
+        labels:
+          k8s-app: calico-typha-vertical-autoscaler
+          networking.gardener.cloud/to-apiserver: allowed
+          networking.gardener.cloud/to-dns: allowed
+          networking.gardener.cloud/to-public-networks: allowed
+          origin: gardener
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - command:
+          - /cpvpa
+          - --target=deployment/calico-typha-deploy
+          - --namespace=kube-system
+          - --logtostderr=true
+          - --poll-period-seconds=30
+          - --v=2
+          - --config-file=/etc/config/typha-autoscaler
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/cpa/cpvpa@sha256:718f252d47f13e9d47f0b9b51adbff72f43329602d3567cdf7f2c78d51505692
+          imagePullPolicy: IfNotPresent
+          name: autoscaler
+          resources:
+            limits:
+              memory: 130Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/config
+            name: config
+        dnsPolicy: Default
+        priorityClassName: gardener-shoot-system-800
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 1
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+          supplementalGroups:
+          - 1
+        serviceAccount: typha-cpva
+        serviceAccountName: typha-cpva
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 60
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 60
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: calico-typha-vertical-autoscaler
+          name: config
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-07-30T08:09:09Z"
+      lastUpdateTime: "2024-10-02T09:09:54Z"
+      message: ReplicaSet "calico-typha-vertical-autoscaler-69fd55fb76" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:04:34Z"
+      lastUpdateTime: "2025-01-16T07:04:34Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "3"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/shoot-core-coredns
+    creationTimestamp: "2024-07-30T08:09:08Z"
+    generation: 3
+    labels:
+      gardener.cloud/role: system-component
+      high-availability-config.resources.gardener.cloud/type: server
+      k8s-app: kube-dns
+      origin: gardener
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: coredns
+    namespace: kube-system
+    resourceVersion: "15695128"
+    uid: 228a8a77-20f4-4893-951a-0352a5d76fdb
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 2
+    selector:
+      matchLabels:
+        k8s-app: kube-dns
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          gardener.cloud/role: system-component
+          k8s-app: kube-dns
+          origin: gardener
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - args:
+          - -conf
+          - /etc/coredns/Corefile
+          env:
+          - name: KUBERNETES_SERVICE_HOST
+            value: api.teo-1.berlin.internal.canary.k8s.ondemand.com.
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/coredns/coredns@sha256:8a92c42fb9751aa36d4c87eb901dd8ae5f149a24e667aa014bea4ffe581b1339
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: coredns
+          ports:
+          - containerPort: 8053
+            name: dns-udp
+            protocol: UDP
+          - containerPort: 8053
+            name: dns-tcp
+            protocol: TCP
+          - containerPort: 9153
+            name: metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 1
+            httpGet:
+              path: /ready
+              port: 8181
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          resources:
+            limits:
+              memory: 1500Mi
+            requests:
+              cpu: 50m
+              memory: 15Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+              - NET_BIND_SERVICE
+              drop:
+              - all
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/coredns
+            name: config-volume
+            readOnly: true
+          - mountPath: /etc/coredns/custom
+            name: custom-config-volume
+            readOnly: true
+        dnsPolicy: Default
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 1
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+          supplementalGroups:
+          - 1
+        serviceAccount: coredns
+        serviceAccountName: coredns
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 60
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 60
+        topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              gardener.cloud/role: system-component
+              k8s-app: kube-dns
+              origin: gardener
+              resources.gardener.cloud/managed-by: gardener
+              shoot.gardener.cloud/no-cleanup: "true"
+          maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+        volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+            - key: Corefile
+              path: Corefile
+            name: coredns
+          name: config-volume
+        - configMap:
+            defaultMode: 420
+            name: coredns-custom
+            optional: true
+          name: custom-config-volume
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2024-07-30T08:09:08Z"
+      lastUpdateTime: "2024-12-13T14:21:53Z"
+      message: ReplicaSet "coredns-6985d484bd" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:05:03Z"
+      lastUpdateTime: "2025-01-16T07:05:03Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 3
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "16"
+      reference.resources.gardener.cloud/secret-1202f061: metrics-server-69e3e50c
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/shoot-core-metrics-server
+    creationTimestamp: "2024-07-30T08:09:11Z"
+    generation: 16
+    labels:
+      gardener.cloud/role: system-component
+      high-availability-config.resources.gardener.cloud/type: server
+      k8s-app: metrics-server
+      origin: gardener
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: metrics-server
+    namespace: kube-system
+    resourceVersion: "15695266"
+    uid: ece573d0-e83a-439e-8507-624a0458aeba
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 2
+    selector:
+      matchLabels:
+        k8s-app: metrics-server
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 0
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          reference.resources.gardener.cloud/secret-1202f061: metrics-server-69e3e50c
+        creationTimestamp: null
+        labels:
+          gardener.cloud/role: system-component
+          k8s-app: metrics-server
+          networking.gardener.cloud/from-seed: allowed
+          networking.gardener.cloud/to-apiserver: allowed
+          networking.gardener.cloud/to-dns: allowed
+          networking.gardener.cloud/to-kubelet: allowed
+          origin: gardener
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - command:
+          - /metrics-server
+          - --authorization-always-allow-paths=/livez,/readyz
+          - --profiling=false
+          - --cert-dir=/home/certdir
+          - --secure-port=8443
+          - --kubelet-insecure-tls
+          - --kubelet-preferred-address-types=InternalIP,InternalDNS,ExternalDNS,ExternalIP,Hostname
+          - --tls-cert-file=/srv/metrics-server/tls/tls.crt
+          - --tls-private-key-file=/srv/metrics-server/tls/tls.key
+          env:
+          - name: KUBERNETES_SERVICE_HOST
+            value: api.teo-1.berlin.internal.canary.k8s.ondemand.com.
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/metrics-server/metrics-server@sha256:c23c277b728b2838a0c7a9634d170e1e5d3a0324bfa5b049216f98348989711e
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 1
+            httpGet:
+              path: /livez
+              port: 8443
+              scheme: HTTPS
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: metrics-server
+          readinessProbe:
+            failureThreshold: 1
+            httpGet:
+              path: /readyz
+              port: 8443
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 60Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /srv/metrics-server/tls
+            name: metrics-server
+        dnsPolicy: Default
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+          supplementalGroups:
+          - 1
+        serviceAccount: metrics-server
+        serviceAccountName: metrics-server
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 60
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 60
+        topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              gardener.cloud/role: system-component
+              k8s-app: metrics-server
+              networking.gardener.cloud/from-seed: allowed
+              networking.gardener.cloud/to-apiserver: allowed
+              networking.gardener.cloud/to-dns: allowed
+              networking.gardener.cloud/to-kubelet: allowed
+              origin: gardener
+              resources.gardener.cloud/managed-by: gardener
+              shoot.gardener.cloud/no-cleanup: "true"
+          maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+        volumes:
+        - name: metrics-server
+          secret:
+            defaultMode: 420
+            secretName: metrics-server-69e3e50c
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2025-01-16T07:04:33Z"
+      lastUpdateTime: "2025-01-16T07:04:33Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2024-07-30T08:09:11Z"
+      lastUpdateTime: "2025-01-16T07:04:43Z"
+      message: ReplicaSet "metrics-server-854668b74f" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 16
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "18"
+      reference.resources.gardener.cloud/secret-1a62c0ea: vpn-shoot-tlsauth-a53bb4cc
+      reference.resources.gardener.cloud/secret-406af5b2: vpn-shoot-ca-04d9c4da
+      reference.resources.gardener.cloud/secret-cb9c91b8: vpn-shoot-client-0b6d3816
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/shoot-core-vpn-shoot
+    creationTimestamp: "2024-07-30T08:08:41Z"
+    generation: 18
+    labels:
+      app: vpn-shoot
+      gardener.cloud/role: system-component
+      origin: gardener
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: vpn-shoot
+    namespace: kube-system
+    resourceVersion: "15694774"
+    uid: c673a84e-a870-43cc-992c-ad3508fc0eac
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 2
+    selector:
+      matchLabels:
+        app: vpn-shoot
+    strategy:
+      rollingUpdate:
+        maxSurge: 100%
+        maxUnavailable: 0%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          reference.resources.gardener.cloud/secret-1a62c0ea: vpn-shoot-tlsauth-a53bb4cc
+          reference.resources.gardener.cloud/secret-406af5b2: vpn-shoot-ca-04d9c4da
+          reference.resources.gardener.cloud/secret-cb9c91b8: vpn-shoot-client-0b6d3816
+        creationTimestamp: null
+        labels:
+          app: vpn-shoot
+          gardener.cloud/role: system-component
+          origin: gardener
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+          type: tunnel
+      spec:
+        automountServiceAccountToken: false
+        containers:
+        - env:
+          - name: IP_FAMILIES
+            value: IPv4
+          - name: ENDPOINT
+            value: api.teo-1.berlin.internal.canary.k8s.ondemand.com.
+          - name: OPENVPN_PORT
+            value: "8132"
+          - name: REVERSED_VPN_HEADER
+            value: outbound|1194||vpn-seed-server.shoot--berlin--teo-1.svc.cluster.local
+          - name: IS_SHOOT_CLIENT
+            value: "true"
+          - name: SEED_POD_NETWORK
+            value: 10.64.0.0/11
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/europe-docker_pkg_dev/gardener-project/releases/gardener/vpn-client@sha256:ed026a97ed566b015dd57002aafb2e3764535cb802616cd250d6bf6a35070896
+          imagePullPolicy: IfNotPresent
+          name: vpn-shoot
+          resources:
+            limits:
+              memory: 100Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          securityContext:
+            capabilities:
+              add:
+              - NET_ADMIN
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /srv/secrets/vpn-client
+            name: vpn-shoot
+          - mountPath: /srv/secrets/tlsauth
+            name: vpn-shoot-tlsauth
+          - mountPath: /dev/net/tun
+            name: dev-net-tun
+        dnsPolicy: Default
+        initContainers:
+        - command:
+          - /bin/vpn-client
+          - setup
+          env:
+          - name: IP_FAMILIES
+            value: IPv4
+          - name: IS_SHOOT_CLIENT
+            value: "true"
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/europe-docker_pkg_dev/gardener-project/releases/gardener/vpn-client@sha256:ed026a97ed566b015dd57002aafb2e3764535cb802616cd250d6bf6a35070896
+          imagePullPolicy: IfNotPresent
+          name: vpn-shoot-init
+          resources:
+            limits:
+              memory: 32Mi
+            requests:
+              cpu: 30m
+              memory: 32Mi
+          securityContext:
+            privileged: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: vpn-shoot
+        serviceAccountName: vpn-shoot
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 60
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 60
+        volumes:
+        - name: vpn-shoot
+          projected:
+            defaultMode: 256
+            sources:
+            - secret:
+                items:
+                - key: bundle.crt
+                  path: ca.crt
+                name: vpn-shoot-ca-04d9c4da
+            - secret:
+                items:
+                - key: tls.crt
+                  path: tls.crt
+                - key: tls.key
+                  path: tls.key
+                name: vpn-shoot-client-0b6d3816
+        - name: vpn-shoot-tlsauth
+          secret:
+            defaultMode: 256
+            secretName: vpn-shoot-tlsauth-a53bb4cc
+        - hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+          name: dev-net-tun
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-01-16T07:04:33Z"
+      lastUpdateTime: "2025-01-16T07:04:33Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2024-07-30T08:08:42Z"
+      lastUpdateTime: "2025-01-16T07:04:33Z"
+      message: ReplicaSet "vpn-shoot-85dbc4876c" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 18
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"istio-operator.kyma-project.io","app.kubernetes.io/instance":"istio-operator-default","app.kubernetes.io/name":"istio-operator","app.kubernetes.io/part-of":"istio","app.kubernetes.io/version":"1.11.1","control-plane":"controller-manager","kyma-project.io/module":"istio"},"name":"istio-controller-manager","namespace":"kyma-system"},"spec":{"replicas":1,"selector":{"matchLabels":{"app.kubernetes.io/component":"istio-operator.kyma-project.io","control-plane":"controller-manager"}},"template":{"metadata":{"annotations":{"kubectl.kubernetes.io/default-container":"manager"},"labels":{"app.kubernetes.io/component":"istio-operator.kyma-project.io","app.kubernetes.io/instance":"istio-operator-default","app.kubernetes.io/name":"istio-operator","app.kubernetes.io/part-of":"istio","app.kubernetes.io/version":"1.11.1","control-plane":"controller-manager","kyma-project.io/module":"istio","sidecar.istio.io/inject":"false"}},"spec":{"containers":[{"args":["--leader-elect","--health-probe-bind-address=:8081","--metrics-bind-address=:8080"],"command":["/manager"],"image":"europe-docker.pkg.dev/kyma-project/prod/istio/releases/istio-manager:1.11.1","livenessProbe":{"httpGet":{"path":"/healthz","port":8081},"initialDelaySeconds":15,"periodSeconds":20},"name":"manager","readinessProbe":{"httpGet":{"path":"/readyz","port":8081},"initialDelaySeconds":5,"periodSeconds":10},"resources":{"limits":{"cpu":"1000m","memory":"512Mi"},"requests":{"cpu":"10m","memory":"64Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}}}],"priorityClassName":"istio-kyma-priority","securityContext":{"runAsNonRoot":true},"serviceAccountName":"istio-controller-manager","terminationGracePeriodSeconds":10}}}}
+    creationTimestamp: "2024-12-13T14:41:47Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: istio-operator.kyma-project.io
+      app.kubernetes.io/instance: istio-operator-default
+      app.kubernetes.io/name: istio-operator
+      app.kubernetes.io/part-of: istio
+      app.kubernetes.io/version: 1.11.1
+      control-plane: controller-manager
+      kyma-project.io/module: istio
+    name: istio-controller-manager
+    namespace: kyma-system
+    resourceVersion: "15694749"
+    uid: 6a95fd08-a4f0-479e-a6d3-917fc8377c0d
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: istio-operator.kyma-project.io
+        control-plane: controller-manager
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/default-container: manager
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: istio-operator.kyma-project.io
+          app.kubernetes.io/instance: istio-operator-default
+          app.kubernetes.io/name: istio-operator
+          app.kubernetes.io/part-of: istio
+          app.kubernetes.io/version: 1.11.1
+          control-plane: controller-manager
+          kyma-project.io/module: istio
+          sidecar.istio.io/inject: "false"
+      spec:
+        containers:
+        - args:
+          - --leader-elect
+          - --health-probe-bind-address=:8081
+          - --metrics-bind-address=:8080
+          command:
+          - /manager
+          image: europe-docker.pkg.dev/kyma-project/prod/istio/releases/istio-manager:1.11.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: manager
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /readyz
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+            requests:
+              cpu: 10m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        priorityClassName: istio-kyma-priority
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsNonRoot: true
+        serviceAccount: istio-controller-manager
+        serviceAccountName: istio-controller-manager
+        terminationGracePeriodSeconds: 10
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-12-13T14:41:47Z"
+      lastUpdateTime: "2024-12-13T14:41:58Z"
+      message: ReplicaSet "istio-controller-manager-59c7956896" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:04:33Z"
+      lastUpdateTime: "2025-01-16T07:04:33Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "4"
+    creationTimestamp: "2025-01-15T12:41:41Z"
+    generation: 6
+    labels:
+      app.kubernetes.io/name: telemetry-log-gateway
+    name: telemetry-log-gateway
+    namespace: kyma-system
+    ownerReferences:
+    - apiVersion: telemetry.kyma-project.io/v1alpha1
+      kind: LogPipeline
+      name: load-test-1
+      uid: 9b058409-cf86-4575-9416-e758bb8057b7
+    resourceVersion: "15695750"
+    uid: ff92bc37-d6d9-477c-9bfa-fd8a792700b2
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: telemetry-log-gateway
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          checksum/config: e3ed138aa626a015a5238dc3152db224914510708bce68b81a6e454d139f80ec
+          kubectl.kubernetes.io/restartedAt: "2025-01-15T17:00:30+01:00"
+          sidecar.istio.io/interceptionMode: TPROXY
+          traffic.sidecar.istio.io/excludeInboundPorts: "8888"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/name: telemetry-log-gateway
+          sidecar.istio.io/inject: "true"
+          telemetry.kyma-project.io/log-export: "true"
+          telemetry.kyma-project.io/log-ingest: "true"
+      spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: telemetry-log-gateway
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: telemetry-log-gateway
+                topologyKey: topology.kubernetes.io/zone
+              weight: 100
+        containers:
+        - args:
+          - --config=/conf/relay.conf
+          env:
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          - name: MY_NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: GOMEMLIMIT
+            value: "1677721600"
+          envFrom:
+          - secretRef:
+              name: telemetry-log-gateway
+              optional: true
+          image: europe-docker.pkg.dev/kyma-project/prod/kyma-otel-collector:0.116.0-main
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 13133
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: collector
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 13133
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 2000Mi
+            requests:
+              cpu: 200m
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /conf
+            name: config
+        dnsPolicy: ClusterFirst
+        priorityClassName: telemetry-priority-class
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 10001
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: telemetry-log-gateway
+        serviceAccountName: telemetry-log-gateway
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+            - key: relay.conf
+              path: relay.conf
+            name: telemetry-log-gateway
+          name: config
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2025-01-15T12:41:41Z"
+      lastUpdateTime: "2025-01-15T16:01:01Z"
+      message: ReplicaSet "telemetry-log-gateway-5598db485b" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:06:06Z"
+      lastUpdateTime: "2025-01-16T07:06:06Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 6
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"telemetry","app.kubernetes.io/instance":"telemetry-manager","app.kubernetes.io/managed-by":"kustomize","app.kubernetes.io/name":"telemetry-manager","app.kubernetes.io/part-of":"kyma","control-plane":"telemetry-manager"},"name":"telemetry-manager","namespace":"kyma-system"},"spec":{"replicas":1,"selector":{"matchLabels":{"app.kubernetes.io/instance":"telemetry","app.kubernetes.io/name":"manager","control-plane":"telemetry-manager","kyma-project.io/component":"controller"}},"template":{"metadata":{"annotations":{"kubectl.kubernetes.io/default-container":"manager","sidecar.istio.io/inject":"false"},"labels":{"app.kubernetes.io/instance":"telemetry","app.kubernetes.io/name":"manager","control-plane":"telemetry-manager","kyma-project.io/component":"controller"}},"spec":{"containers":[{"args":["--cert-dir=/tmp","--high-priority-class-name=telemetry-priority-class-high","--normal-priority-class-name=telemetry-priority-class","--enable-v1beta1-log-pipelines=true","--enable-log-pipelines-otlp=true"],"command":["/manager"],"env":[{"name":"GOMEMLIMIT","value":"300MiB"},{"name":"APP_LOG_LEVEL","value":"info"},{"name":"MANAGER_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"image":"europe-docker.pkg.dev/kyma-project/prod/telemetry-manager:main","livenessProbe":{"httpGet":{"path":"/healthz","port":8081},"initialDelaySeconds":30,"periodSeconds":20},"name":"manager","readinessProbe":{"httpGet":{"path":"/readyz","port":8081},"initialDelaySeconds":5,"periodSeconds":10},"resources":{"limits":{"memory":"384Mi"},"requests":{"cpu":"5m","memory":"50Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false},"volumeMounts":[{"mountPath":"/tmp","name":"crt-volume"}]}],"priorityClassName":"telemetry-priority-class","securityContext":{"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}},"serviceAccountName":"telemetry-manager","terminationGracePeriodSeconds":10,"volumes":[{"emptyDir":{},"name":"crt-volume"}]}}}}
+    creationTimestamp: "2024-12-16T15:42:56Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/component: telemetry
+      app.kubernetes.io/instance: telemetry-manager
+      app.kubernetes.io/managed-by: kustomize
+      app.kubernetes.io/name: telemetry-manager
+      app.kubernetes.io/part-of: kyma
+      control-plane: telemetry-manager
+    name: telemetry-manager
+    namespace: kyma-system
+    resourceVersion: "15542689"
+    uid: 9e23e02f-0384-48a8-9b0c-e0d122ccb306
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 0
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: telemetry
+        app.kubernetes.io/name: manager
+        control-plane: telemetry-manager
+        kyma-project.io/component: controller
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/default-container: manager
+          sidecar.istio.io/inject: "false"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/instance: telemetry
+          app.kubernetes.io/name: manager
+          control-plane: telemetry-manager
+          kyma-project.io/component: controller
+      spec:
+        containers:
+        - args:
+          - --cert-dir=/tmp
+          - --high-priority-class-name=telemetry-priority-class-high
+          - --normal-priority-class-name=telemetry-priority-class
+          - --enable-v1beta1-log-pipelines=true
+          - --enable-log-pipelines-otlp=true
+          command:
+          - /manager
+          env:
+          - name: GOMEMLIMIT
+            value: 300MiB
+          - name: APP_LOG_LEVEL
+            value: info
+          - name: MANAGER_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          image: europe-docker.pkg.dev/kyma-project/prod/telemetry-manager:main
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: manager
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /readyz
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 384Mi
+            requests:
+              cpu: 5m
+              memory: 50Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /tmp
+            name: crt-volume
+        dnsPolicy: ClusterFirst
+        priorityClassName: telemetry-priority-class
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: telemetry-manager
+        serviceAccountName: telemetry-manager
+        terminationGracePeriodSeconds: 10
+        volumes:
+        - emptyDir: {}
+          name: crt-volume
+  status:
+    conditions:
+    - lastTransitionTime: "2024-12-16T15:42:56Z"
+      lastUpdateTime: "2024-12-16T15:43:06Z"
+      message: ReplicaSet "telemetry-manager-6d486fb4bd" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-15T10:46:53Z"
+      lastUpdateTime: "2025-01-15T10:46:53Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "11"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"log-load-generator","namespace":"log-load-test"},"spec":{"replicas":30,"selector":{"matchLabels":{"app.kubernetes.io/name":"logs-load-generator"}},"template":{"metadata":{"labels":{"app.kubernetes.io/name":"logs-load-generator"}},"spec":{"affinity":{"podAntiAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"podAffinityTerm":{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["logs-load-generator"]}]},"topologyKey":"kubernetes.io/hostname"},"weight":100}]}},"containers":[{"args":["-n=10","-f=json","-l"],"image":"mingrammer/flog","imagePullPolicy":"Always","name":"flog","resources":{"limits":{"cpu":"10m","memory":"200Mi"},"requests":{"cpu":"10m","memory":"50Mi"}}}]}}}}
+    creationTimestamp: "2025-01-15T12:43:21Z"
+    generation: 26
+    name: log-load-generator
+    namespace: log-load-test
+    resourceVersion: "15734408"
+    uid: fc5d9e1f-aa8f-479d-9d59-836d2e48cb97
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 10
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: logs-load-generator
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/name: logs-load-generator
+      spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                    - logs-load-generator
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+        containers:
+        - args:
+          - -f=json
+          - -l
+          image: mingrammer/flog
+          imagePullPolicy: Always
+          name: flog
+          resources:
+            limits:
+              cpu: 50m
+              memory: 200Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 10
+    conditions:
+    - lastTransitionTime: "2025-01-15T12:43:21Z"
+      lastUpdateTime: "2025-01-15T15:34:22Z"
+      message: ReplicaSet "log-load-generator-b8d9fdbff" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:05:05Z"
+      lastUpdateTime: "2025-01-16T07:05:05Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 26
+    readyReplicas: 10
+    replicas: 10
+    updatedReplicas: 10
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "2"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app.kubernetes.io/name":"log-receiver"},"name":"log-receiver","namespace":"log-load-test"},"spec":{"replicas":1,"selector":{"matchLabels":{"app.kubernetes.io/name":"log-receiver"}},"template":{"metadata":{"labels":{"app.kubernetes.io/name":"log-receiver","sidecar.istio.io/inject":"true"}},"spec":{"containers":[{"args":["--config=/etc/collector/config.yaml"],"env":[{"name":"MY_POD_IP","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"status.podIP"}}}],"image":"otel/opentelemetry-collector-contrib:0.114.0","name":"otel-collector","resources":{"limits":{"memory":"2048Mi"},"requests":{"memory":"2048Mi"}},"volumeMounts":[{"mountPath":"/etc/collector","name":"collector-config"}]}],"securityContext":{"fsGroup":101},"volumes":[{"configMap":{"name":"log-receiver"},"name":"collector-config"}]}}}}
+    creationTimestamp: "2025-01-15T12:41:41Z"
+    generation: 3
+    labels:
+      app.kubernetes.io/name: log-receiver
+    name: log-receiver
+    namespace: log-load-test
+    resourceVersion: "15695820"
+    uid: 5c482bbb-92f1-42b5-afde-b50d61bd2623
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: log-receiver
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/name: log-receiver
+          sidecar.istio.io/inject: "true"
+      spec:
+        containers:
+        - args:
+          - --config=/etc/collector/config.yaml
+          env:
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          image: otel/opentelemetry-collector-contrib:0.114.0
+          imagePullPolicy: IfNotPresent
+          name: otel-collector
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              memory: 2Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/collector
+            name: collector-config
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 101
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: log-receiver
+          name: collector-config
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2025-01-15T12:41:41Z"
+      lastUpdateTime: "2025-01-15T13:25:05Z"
+      message: ReplicaSet "log-receiver-5dd8878bd7" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:06:14Z"
+      lastUpdateTime: "2025-01-16T07:06:14Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 3
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: prometheus
+    creationTimestamp: "2024-12-16T14:12:51Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: grafana
+      app.kubernetes.io/version: 11.4.0
+      helm.sh/chart: grafana-8.8.1
+    name: prometheus-grafana
+    namespace: prometheus
+    resourceVersion: "15695719"
+    uid: c8581d08-6eb1-4815-9f28-a30e1eb853c1
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: prometheus
+        app.kubernetes.io/name: grafana
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          checksum/config: 0e9cbd0ea8e24e32f7dfca5bab17a2ba05652642f0a09a4882833ae88e4cc4a3
+          checksum/sc-dashboard-provider-config: e70bf6a851099d385178a76de9757bb0bef8299da6d8443602590e44f05fdf24
+          checksum/secret: c87863134b683a5ca6b2e328a6a029c9fd521b75c9eee0fef686a6043e72bd9e
+          kubectl.kubernetes.io/default-container: grafana
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/instance: prometheus
+          app.kubernetes.io/name: grafana
+          app.kubernetes.io/version: 11.4.0
+          helm.sh/chart: grafana-8.8.1
+      spec:
+        automountServiceAccountToken: true
+        containers:
+        - env:
+          - name: METHOD
+            value: WATCH
+          - name: LABEL
+            value: grafana_dashboard
+          - name: LABEL_VALUE
+            value: "1"
+          - name: FOLDER
+            value: /tmp/dashboards
+          - name: RESOURCE
+            value: both
+          - name: NAMESPACE
+            value: ALL
+          - name: REQ_USERNAME
+            valueFrom:
+              secretKeyRef:
+                key: admin-user
+                name: prometheus-grafana
+          - name: REQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: admin-password
+                name: prometheus-grafana
+          - name: REQ_URL
+            value: http://localhost:3000/api/admin/provisioning/dashboards/reload
+          - name: REQ_METHOD
+            value: POST
+          image: quay.io/kiwigrid/k8s-sidecar:1.28.0
+          imagePullPolicy: IfNotPresent
+          name: grafana-sc-dashboard
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /tmp/dashboards
+            name: sc-dashboard-volume
+        - env:
+          - name: METHOD
+            value: WATCH
+          - name: LABEL
+            value: grafana_datasource
+          - name: LABEL_VALUE
+            value: "1"
+          - name: FOLDER
+            value: /etc/grafana/provisioning/datasources
+          - name: RESOURCE
+            value: both
+          - name: REQ_USERNAME
+            valueFrom:
+              secretKeyRef:
+                key: admin-user
+                name: prometheus-grafana
+          - name: REQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: admin-password
+                name: prometheus-grafana
+          - name: REQ_URL
+            value: http://localhost:3000/api/admin/provisioning/datasources/reload
+          - name: REQ_METHOD
+            value: POST
+          image: quay.io/kiwigrid/k8s-sidecar:1.28.0
+          imagePullPolicy: IfNotPresent
+          name: grafana-sc-datasources
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/grafana/provisioning/datasources
+            name: sc-datasources-volume
+        - env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          - name: GF_SECURITY_ADMIN_USER
+            valueFrom:
+              secretKeyRef:
+                key: admin-user
+                name: prometheus-grafana
+          - name: GF_SECURITY_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: admin-password
+                name: prometheus-grafana
+          - name: GF_PATHS_DATA
+            value: /var/lib/grafana/
+          - name: GF_PATHS_LOGS
+            value: /var/log/grafana
+          - name: GF_PATHS_PLUGINS
+            value: /var/lib/grafana/plugins
+          - name: GF_PATHS_PROVISIONING
+            value: /etc/grafana/provisioning
+          image: docker.io/grafana/grafana:11.4.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /api/health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          name: grafana
+          ports:
+          - containerPort: 3000
+            name: grafana
+            protocol: TCP
+          - containerPort: 9094
+            name: gossip-tcp
+            protocol: TCP
+          - containerPort: 9094
+            name: gossip-udp
+            protocol: UDP
+          - containerPort: 6060
+            name: profiling
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/health
+              port: 3000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/grafana/grafana.ini
+            name: config
+            subPath: grafana.ini
+          - mountPath: /var/lib/grafana
+            name: storage
+          - mountPath: /tmp/dashboards
+            name: sc-dashboard-volume
+          - mountPath: /etc/grafana/provisioning/dashboards/sc-dashboardproviders.yaml
+            name: sc-dashboard-provider
+            subPath: provider.yaml
+          - mountPath: /etc/grafana/provisioning/datasources
+            name: sc-datasources-volume
+        dnsPolicy: ClusterFirst
+        enableServiceLinks: true
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 472
+          runAsGroup: 472
+          runAsNonRoot: true
+          runAsUser: 472
+        serviceAccount: prometheus-grafana
+        serviceAccountName: prometheus-grafana
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: prometheus-grafana
+          name: config
+        - emptyDir: {}
+          name: storage
+        - emptyDir: {}
+          name: sc-dashboard-volume
+        - configMap:
+            defaultMode: 420
+            name: prometheus-grafana-config-dashboards
+          name: sc-dashboard-provider
+        - emptyDir: {}
+          name: sc-datasources-volume
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-12-16T14:12:51Z"
+      lastUpdateTime: "2024-12-16T14:13:22Z"
+      message: ReplicaSet "prometheus-grafana-b4b86658b" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:06:03Z"
+      lastUpdateTime: "2025-01-16T07:06:03Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: prometheus
+    creationTimestamp: "2024-12-16T14:12:51Z"
+    generation: 1
+    labels:
+      app: kube-prometheus-stack-operator
+      app.kubernetes.io/component: prometheus-operator
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: kube-prometheus-stack-prometheus-operator
+      app.kubernetes.io/part-of: kube-prometheus-stack
+      app.kubernetes.io/version: 67.1.0
+      chart: kube-prometheus-stack-67.1.0
+      heritage: Helm
+      release: prometheus
+    name: prometheus-kube-prometheus-operator
+    namespace: prometheus
+    resourceVersion: "15695060"
+    uid: 499ffa58-face-43f5-9dbf-945105ef13a9
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: kube-prometheus-stack-operator
+        release: prometheus
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: kube-prometheus-stack-operator
+          app.kubernetes.io/component: prometheus-operator
+          app.kubernetes.io/instance: prometheus
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: kube-prometheus-stack-prometheus-operator
+          app.kubernetes.io/part-of: kube-prometheus-stack
+          app.kubernetes.io/version: 67.1.0
+          chart: kube-prometheus-stack-67.1.0
+          heritage: Helm
+          release: prometheus
+      spec:
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - --kubelet-service=kube-system/prometheus-kube-prometheus-kubelet
+          - --kubelet-endpoints=true
+          - --kubelet-endpointslice=false
+          - --localhost=127.0.0.1
+          - --prometheus-config-reloader=quay.io/prometheus-operator/prometheus-config-reloader:v0.79.0
+          - --config-reloader-cpu-request=0
+          - --config-reloader-cpu-limit=0
+          - --config-reloader-memory-request=0
+          - --config-reloader-memory-limit=0
+          - --thanos-default-base-image=quay.io/thanos/thanos:v0.37.2
+          - --secret-field-selector=type!=kubernetes.io/dockercfg,type!=kubernetes.io/service-account-token,type!=helm.sh/release.v1
+          - --web.enable-tls=true
+          - --web.cert-file=/cert/cert
+          - --web.key-file=/cert/key
+          - --web.listen-address=:10250
+          - --web.tls-min-version=VersionTLS13
+          env:
+          - name: GOGC
+            value: "30"
+          image: quay.io/prometheus-operator/prometheus-operator:v0.79.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: https
+              scheme: HTTPS
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: kube-prometheus-stack
+          ports:
+          - containerPort: 10250
+            name: https
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: https
+              scheme: HTTPS
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: 10m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /cert
+            name: tls-secret
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          runAsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: prometheus-kube-prometheus-operator
+        serviceAccountName: prometheus-kube-prometheus-operator
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: tls-secret
+          secret:
+            defaultMode: 420
+            secretName: prometheus-kube-prometheus-admission
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-12-16T14:12:51Z"
+      lastUpdateTime: "2024-12-16T14:12:58Z"
+      message: ReplicaSet "prometheus-kube-prometheus-operator-9bd48fff" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:04:59Z"
+      lastUpdateTime: "2025-01-16T07:04:59Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: prometheus
+    creationTimestamp: "2024-12-16T14:12:51Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: metrics
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: kube-state-metrics
+      app.kubernetes.io/part-of: kube-state-metrics
+      app.kubernetes.io/version: 2.14.0
+      helm.sh/chart: kube-state-metrics-5.27.0
+      release: prometheus
+    name: prometheus-kube-state-metrics
+    namespace: prometheus
+    resourceVersion: "15695139"
+    uid: 98cabfa0-c955-489f-8a58-74e037a11d7c
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: prometheus
+        app.kubernetes.io/name: kube-state-metrics
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: metrics
+          app.kubernetes.io/instance: prometheus
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: kube-state-metrics
+          app.kubernetes.io/part-of: kube-state-metrics
+          app.kubernetes.io/version: 2.14.0
+          helm.sh/chart: kube-state-metrics-5.27.0
+          release: prometheus
+      spec:
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - --port=8080
+          - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpoints,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
+          image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.14.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /livez
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: kube-state-metrics
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /readyz
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              cpu: 10m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          runAsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: prometheus-kube-state-metrics
+        serviceAccountName: prometheus-kube-state-metrics
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-12-16T14:12:51Z"
+      lastUpdateTime: "2024-12-16T14:13:12Z"
+      message: ReplicaSet "prometheus-kube-state-metrics-79fb4499fb" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-01-16T07:05:03Z"
+      lastUpdateTime: "2025-01-16T07:05:03Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+kind: List
+metadata:
+  resourceVersion: ""

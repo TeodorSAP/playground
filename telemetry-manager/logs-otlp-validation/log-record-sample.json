@@ -1,0 +1,39 @@
+{
+    "_index": "logs-otel-v1-2024.12.19",
+    "_type": "_doc",
+    "_id": "GQsU4JMB49m4BGElOMjW",
+    "_version": 1,
+    "_score": null,
+    "_source": {
+        "traceId": "",
+        "spanId": "",
+        "severityText": "Info",
+        "flags": 0,
+        "time": "2024-12-19T17:59:40.654382253Z",
+        "severityNumber": 9,
+        "droppedAttributesCount": 0,
+        "serviceName": null,
+        "body": "",
+        "observedTime": "1970-01-01T00:00:00Z",
+        "schemaUrl": "https://opentelemetry.io/schemas/1.4.0",
+        "resource.attributes.k8s@node@name": "k3d-kyma-server-0",
+        "resource.attributes.k8s@namespace@name": "logs-generation",
+        "resource.attributes.k8s@deployment@name": "log-gen-telemetrygen",
+        "log.attributes.app": "server",
+        "resource.attributes.k8s@cluster@name": "10.43.0.1",
+        "resource.attributes.kyma@app_name": "log-gen-telemetrygen",
+        "resource.attributes.k8s@pod@ip": "10.42.0.39",
+        "resource.attributes.k8s@pod@name": "log-gen-telemetrygen-566659b9bc-cnwrx"
+    },
+    "fields": {
+        "observedTime": [
+            "1970-01-01T00:00:00.000Z"
+        ],
+        "time": [
+            "2024-12-19T17:59:40.654382253Z"
+        ]
+    },
+    "sort": [
+        1734631180654382300
+    ]
+}

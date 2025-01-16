@@ -1,0 +1,2175 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "2"
+    creationTimestamp: "2024-12-13T14:42:16Z"
+    generation: 2
+    labels:
+      install.operator.istio.io/owning-resource: installed-state-default-operator
+      install.operator.istio.io/owning-resource-namespace: istio-system
+      istio.io/rev: default
+      k8s-app: istio-cni-node
+      kyma-project.io/module: istio
+      operator.istio.io/component: Cni
+      operator.istio.io/managed: Reconcile
+      operator.istio.io/version: unknown
+      release: istio
+    name: istio-cni-node
+    namespace: istio-system
+    resourceVersion: "15695389"
+    uid: 051724dd-3243-4413-8598-42d786e563bf
+  spec:
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: istio-cni-node
+    template:
+      metadata:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "15014"
+          prometheus.io/scrape: "true"
+          sidecar.istio.io/inject: "false"
+        creationTimestamp: null
+        labels:
+          istio.io/dataplane-mode: none
+          k8s-app: istio-cni-node
+          kyma-project.io/module: istio
+          sidecar.istio.io/inject: "false"
+      spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - istio-cni-node
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+        containers:
+        - args:
+          - --log_output_level=all:warn
+          command:
+          - install-cni
+          env:
+          - name: REPAIR_NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: REPAIR_RUN_AS_DAEMON
+            value: "true"
+          - name: REPAIR_SIDECAR_ANNOTATION
+            value: sidecar.istio.io/status
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: GOMEMLIMIT
+            valueFrom:
+              resourceFieldRef:
+                divisor: "0"
+                resource: limits.memory
+          - name: GOMAXPROCS
+            valueFrom:
+              resourceFieldRef:
+                divisor: "0"
+                resource: limits.cpu
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          envFrom:
+          - configMapRef:
+              name: istio-cni-config
+          image: europe-docker.pkg.dev/kyma-project/prod/external/istio/install-cni:1.24.1-distroless
+          imagePullPolicy: IfNotPresent
+          name: install-cni
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /readyz
+              port: 8000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          securityContext:
+            capabilities:
+              add:
+              - NET_ADMIN
+              - NET_RAW
+              - SYS_ADMIN
+              drop:
+              - ALL
+            privileged: true
+            runAsGroup: 0
+            runAsNonRoot: false
+            runAsUser: 0
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /host/opt/cni/bin
+            name: cni-bin-dir
+          - mountPath: /host/proc
+            name: cni-host-procfs
+            readOnly: true
+          - mountPath: /host/etc/cni/net.d
+            name: cni-net-dir
+          - mountPath: /var/run/istio-cni
+            name: cni-socket-dir
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          kubernetes.io/os: linux
+        priorityClassName: system-node-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: istio-cni
+        serviceAccountName: istio-cni
+        terminationGracePeriodSeconds: 5
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /opt/cni/bin
+            type: ""
+          name: cni-bin-dir
+        - hostPath:
+            path: /proc
+            type: Directory
+          name: cni-host-procfs
+        - hostPath:
+            path: /etc/cni/net.d
+            type: ""
+          name: cni-net-dir
+        - hostPath:
+            path: /var/run/istio-cni
+            type: ""
+          name: cni-socket-dir
+        - hostPath:
+            path: /var/run/netns
+            type: DirectoryOrCreate
+          name: cni-netns-dir
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 1
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 2
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "4"
+      reference.resources.gardener.cloud/configmap-f96b11da: apiserver-proxy-config-dd6da8f6
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/shoot-core-apiserver-proxy
+    creationTimestamp: "2024-07-30T08:08:43Z"
+    generation: 4
+    labels:
+      app: kubernetes
+      gardener.cloud/role: system-component
+      node.gardener.cloud/critical-component: "true"
+      origin: gardener
+      resources.gardener.cloud/managed-by: gardener
+      role: apiserver-proxy
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: apiserver-proxy
+    namespace: kube-system
+    resourceVersion: "15694341"
+    uid: 3394a225-18fc-4e21-a9af-f3939ccd6750
+  spec:
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: kubernetes
+        role: apiserver-proxy
+    template:
+      metadata:
+        annotations:
+          reference.resources.gardener.cloud/configmap-f96b11da: apiserver-proxy-config-dd6da8f6
+        creationTimestamp: null
+        labels:
+          app: kubernetes
+          gardener.cloud/role: system-component
+          networking.gardener.cloud/from-seed: allowed
+          networking.gardener.cloud/to-apiserver: allowed
+          networking.gardener.cloud/to-dns: allowed
+          node.gardener.cloud/critical-component: "true"
+          origin: gardener
+          resources.gardener.cloud/managed-by: gardener
+          role: apiserver-proxy
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        automountServiceAccountToken: false
+        containers:
+        - args:
+          - --ip-address=10.243.51.194
+          - --interface=lo
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/europe-docker_pkg_dev/gardener-project/releases/gardener/apiserver-proxy@sha256:a73ad7f4d29fc55caf38284de1c561f5d32242d5b271ed30bab8777f268e796c
+          imagePullPolicy: IfNotPresent
+          name: sidecar
+          resources:
+            limits:
+              memory: 90Mi
+            requests:
+              cpu: 5m
+              memory: 15Mi
+          securityContext:
+            capabilities:
+              add:
+              - NET_ADMIN
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - command:
+          - envoy
+          - --concurrency
+          - "2"
+          - --use-dynamic-base-id
+          - -c
+          - /etc/apiserver-proxy/envoy.yaml
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/europe-docker_pkg_dev/gardener-project/releases/3rd/envoyproxy/envoy-distroless@sha256:b9d357df65e09732240808c231c6fcc42e3e1fba471a95b47236a23bf67f4571
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 16910
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: proxy
+          ports:
+          - containerPort: 16910
+            hostPort: 16910
+            name: metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 16910
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: 5m
+              memory: 30Mi
+          securityContext:
+            capabilities:
+              add:
+              - NET_BIND_SERVICE
+            runAsUser: 0
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/apiserver-proxy
+            name: proxy-config
+          - mountPath: /etc/admin-uds
+            name: admin-uds
+        dnsPolicy: ClusterFirst
+        hostNetwork: true
+        initContainers:
+        - args:
+          - --ip-address=10.243.51.194
+          - --daemon=false
+          - --interface=lo
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/europe-docker_pkg_dev/gardener-project/releases/gardener/apiserver-proxy@sha256:a73ad7f4d29fc55caf38284de1c561f5d32242d5b271ed30bab8777f268e796c
+          imagePullPolicy: IfNotPresent
+          name: setup
+          resources:
+            limits:
+              memory: 200Mi
+            requests:
+              cpu: 20m
+              memory: 20Mi
+          securityContext:
+            capabilities:
+              add:
+              - NET_ADMIN
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        priorityClassName: system-node-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: apiserver-proxy
+        serviceAccountName: apiserver-proxy
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: apiserver-proxy-config-dd6da8f6
+          name: proxy-config
+        - emptyDir: {}
+          name: admin-uds
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 1
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 4
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "4"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/extension-networking-calico-config
+      resources.gardener.cloud/preserve-resources: "true"
+    creationTimestamp: "2024-07-30T08:09:09Z"
+    generation: 4
+    labels:
+      gardener.cloud/role: system-component
+      k8s-app: calico-node
+      node.gardener.cloud/critical-component: "true"
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: calico-node
+    namespace: kube-system
+    resourceVersion: "15694546"
+    uid: 889e13a0-af26-46ab-86d6-81f95dde1d68
+  spec:
+    revisionHistoryLimit: 5
+    selector:
+      matchLabels:
+        k8s-app: calico-node
+    template:
+      metadata:
+        annotations:
+          checksum/configmap-calico: 450c7215172a9b9f1eef85f96e91bf8ab156f787efb4d37492c5955a252e807d
+        creationTimestamp: null
+        labels:
+          gardener.cloud/role: system-component
+          k8s-app: calico-node
+          networking.gardener.cloud/to-apiserver: allowed
+          networking.gardener.cloud/to-dns: allowed
+          networking.gardener.cloud/to-public-networks: allowed
+          node.gardener.cloud/critical-component: "true"
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - env:
+          - name: USE_POD_CIDR
+            value: "true"
+          - name: FELIX_PROMETHEUSMETRICSENABLED
+            value: "true"
+          - name: FELIX_PROMETHEUSMETRICSPORT
+            value: "9091"
+          - name: DATASTORE_TYPE
+            value: kubernetes
+          - name: FELIX_TYPHAK8SSERVICENAME
+            valueFrom:
+              configMapKeyRef:
+                key: typha_service_name
+                name: calico-config
+          - name: WAIT_FOR_DATASTORE
+            value: "true"
+          - name: NODENAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: CALICO_NETWORKING_BACKEND
+            valueFrom:
+              configMapKeyRef:
+                key: calico_backend
+                name: calico-config
+          - name: CLUSTER_TYPE
+            value: k8s,bgp
+          - name: IP
+            value: autodetect
+          - name: CALICO_IPV4POOL_IPIP
+            value: Never
+          - name: CALICO_IPV4POOL_CIDR
+            value: 100.64.0.0/12
+          - name: IP_AUTODETECTION_METHOD
+            value: cidr=10.180.0.0/16
+          - name: FELIX_IPV6SUPPORT
+            value: "false"
+          - name: FELIX_IPINIPMTU
+            valueFrom:
+              configMapKeyRef:
+                key: veth_mtu
+                name: calico-config
+          - name: FELIX_VXLANMTU
+            valueFrom:
+              configMapKeyRef:
+                key: veth_mtu
+                name: calico-config
+          - name: FELIX_WIREGUARDMTU
+            valueFrom:
+              configMapKeyRef:
+                key: veth_mtu
+                name: calico-config
+          - name: CALICO_DISABLE_FILE_LOGGING
+            value: "true"
+          - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
+            value: ACCEPT
+          - name: FELIX_IPINIPENABLED
+            value: "false"
+          - name: FELIX_BPFENABLED
+            value: "false"
+          - name: FELIX_BPFKUBEPROXYIPTABLESCLEANUPENABLED
+            value: "false"
+          - name: FELIX_HEALTHENABLED
+            value: "true"
+          - name: FELIX_NATPORTRANGE
+            value: 32768:65535
+          - name: CALICO_MANAGE_CNI
+            value: "true"
+          envFrom:
+          - configMapRef:
+              name: kubernetes-services-endpoint
+              optional: true
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/quay_io/calico/node@sha256:6e39412be02fa631b96129fd020eca8ecc8830c685498a93495d211ca373f9a2
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                - /bin/calico-node
+                - -shutdown
+          livenessProbe:
+            exec:
+              command:
+              - /bin/calico-node
+              - -felix-live
+            failureThreshold: 6
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: calico-node
+          ports:
+          - containerPort: 9091
+            name: metrics
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/calico-node
+              - -felix-ready
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              memory: "2936012800"
+            requests:
+              cpu: 250m
+              memory: "104857600"
+          securityContext:
+            privileged: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /host/etc/cni/net.d
+            name: cni-net-dir
+          - mountPath: /lib/modules
+            name: lib-modules
+            readOnly: true
+          - mountPath: /run/xtables.lock
+            name: xtables-lock
+          - mountPath: /var/run/calico
+            name: var-run-calico
+          - mountPath: /var/lib/calico
+            name: var-lib-calico
+          - mountPath: /var/run/nodeagent
+            name: policysync
+          - mountPath: /var/log/calico/cni
+            name: cni-log-dir
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        hostNetwork: true
+        initContainers:
+        - command:
+          - sh
+          - -c
+          - |-
+            IFS=$'
+            ';for i in $(ip route | grep 'proto bird');do unset IFS;ip route del $i;done
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/quay_io/calico/node@sha256:6e39412be02fa631b96129fd020eca8ecc8830c685498a93495d211ca373f9a2
+          imagePullPolicy: IfNotPresent
+          name: cleanup-routes
+          resources: {}
+          securityContext:
+            privileged: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - command:
+          - /opt/cni/bin/install
+          env:
+          - name: CNI_CONF_NAME
+            value: 10-calico.conflist
+          - name: CNI_NETWORK_CONFIG
+            valueFrom:
+              configMapKeyRef:
+                key: cni_network_config
+                name: calico-config
+          - name: KUBERNETES_NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: CNI_MTU
+            valueFrom:
+              configMapKeyRef:
+                key: veth_mtu
+                name: calico-config
+          - name: SLEEP
+            value: "false"
+          envFrom:
+          - configMapRef:
+              name: kubernetes-services-endpoint
+              optional: true
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/quay_io/calico/cni@sha256:28429a110ff825d385730baf77524053a8b23d59769203d1deaf7fd85845323f
+          imagePullPolicy: IfNotPresent
+          name: install-cni
+          resources: {}
+          securityContext:
+            privileged: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /host/etc/cni/net.d
+            name: cni-net-dir
+          - mountPath: /host/secondary-bin-dir
+            name: cni-bin-dir
+        nodeSelector:
+          kubernetes.io/os: linux
+        priorityClassName: system-node-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: calico-node
+        serviceAccountName: calico-node
+        terminationGracePeriodSeconds: 0
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /lib/modules
+            type: ""
+          name: lib-modules
+        - hostPath:
+            path: /var/run/calico
+            type: DirectoryOrCreate
+          name: var-run-calico
+        - hostPath:
+            path: /var/lib/calico
+            type: DirectoryOrCreate
+          name: var-lib-calico
+        - hostPath:
+            path: /run/xtables.lock
+            type: FileOrCreate
+          name: xtables-lock
+        - hostPath:
+            path: /opt/cni/bin
+            type: DirectoryOrCreate
+          name: cni-bin-dir
+        - hostPath:
+            path: /etc/cni/net.d
+            type: ""
+          name: cni-net-dir
+        - hostPath:
+            path: /var/log/calico/cni
+            type: ""
+          name: cni-log-dir
+        - hostPath:
+            path: /var/run/nodeagent
+            type: DirectoryOrCreate
+          name: policysync
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 2
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 4
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "3"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/extension-controlplane-shoot
+    creationTimestamp: "2024-07-30T08:08:48Z"
+    generation: 3
+    labels:
+      app: csi
+      node.gardener.cloud/critical-component: "true"
+      resources.gardener.cloud/managed-by: gardener
+      role: disk-driver
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: csi-driver-node
+    namespace: kube-system
+    resourceVersion: "15694367"
+    uid: dabf300a-0838-48f7-b37c-40d5b76b0a76
+  spec:
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: csi
+        role: disk-driver
+    template:
+      metadata:
+        annotations:
+          node.gardener.cloud/wait-for-csi-node-gcp: pd.csi.storage.gke.io
+        creationTimestamp: null
+        labels:
+          app: csi
+          node.gardener.cloud/critical-component: "true"
+          resources.gardener.cloud/managed-by: gardener
+          role: disk-driver
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - args:
+          - --endpoint=$(CSI_ENDPOINT)
+          - --run-controller-service=false
+          - --maxprocs=2
+          - --logtostderr
+          - --v=5
+          env:
+          - name: CSI_ENDPOINT
+            value: unix:/csi/csi.sock
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/cloud-provider-gcp/gcp-compute-persistent-disk-csi-driver@sha256:e6b5ce930905e9758b0f9cd6a6c47ff27470a36197950b36738320b016771d55
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: healthz
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+          name: csi-driver
+          ports:
+          - containerPort: 9808
+            name: healthz
+            protocol: TCP
+          resources:
+            requests:
+              cpu: 20m
+              memory: 50Mi
+          securityContext:
+            privileged: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/kubelet
+            mountPropagation: Bidirectional
+            name: kubelet-dir
+          - mountPath: /csi
+            name: plugin-dir
+          - mountPath: /dev
+            name: device-dir
+        - args:
+          - --csi-address=$(ADDRESS)
+          - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
+          - --v=5
+          env:
+          - name: ADDRESS
+            value: /csi/csi.sock
+          - name: DRIVER_REG_SOCK_PATH
+            value: /var/lib/kubelet/plugins/pd.csi.storage.gke.io/csi.sock
+          - name: GOMAXPROCS
+            value: "2"
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/sig-storage/csi-node-driver-registrar@sha256:dd03bc67d89048049ca050c094fa64cb29336f2f13d4a905f0224742f004418f
+          imagePullPolicy: IfNotPresent
+          name: csi-node-driver-registrar
+          resources:
+            requests:
+              cpu: 11m
+              memory: 32Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /csi
+            name: plugin-dir
+          - mountPath: /registration
+            name: registration-dir
+        - args:
+          - --csi-address=/csi/csi.sock
+          env:
+          - name: GOMAXPROCS
+            value: "2"
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/sig-storage/livenessprobe@sha256:729ec9a73763ff20870bf5177be554ae70faa9333fd0d069a4ad36495f28e779
+          imagePullPolicy: IfNotPresent
+          name: csi-liveness-probe
+          resources:
+            requests:
+              cpu: 11m
+              memory: 32Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /csi
+            name: plugin-dir
+        dnsPolicy: ClusterFirst
+        hostNetwork: true
+        priorityClassName: system-node-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: csi-driver-node
+        serviceAccountName: csi-driver-node
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /var/lib/kubelet
+            type: Directory
+          name: kubelet-dir
+        - hostPath:
+            path: /var/lib/kubelet/plugins/pd.csi.storage.gke.io/
+            type: DirectoryOrCreate
+          name: plugin-dir
+        - hostPath:
+            path: /var/lib/kubelet/plugins_registry/
+            type: Directory
+          name: registration-dir
+        - hostPath:
+            path: /dev
+            type: Directory
+          name: device-dir
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 1
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 3
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "17"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/extension-shoot-networking-filter-shoot
+    creationTimestamp: "2024-07-30T08:08:43Z"
+    generation: 17
+    labels:
+      gardener.cloud/role: system-component
+      k8s-app: egress-filter-applier
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: egress-filter-applier
+    namespace: kube-system
+    resourceVersion: "15694124"
+    uid: db6166fc-3ecb-4687-b6a4-4c5d5dea3928
+  spec:
+    revisionHistoryLimit: 5
+    selector:
+      matchLabels:
+        gardener.cloud/role: system-component
+        k8s-app: egress-filter-applier
+    template:
+      metadata:
+        annotations:
+          checksum/extension-shoot-networking-filter: 97f1213f9dded0eda0d951b5ce96b891c3a15537949894dbb5e9f72e0fa85b3c
+        creationTimestamp: null
+        labels:
+          gardener.cloud/role: system-component
+          k8s-app: egress-filter-applier
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  gardener.cloud/role: system-component
+                  k8s-app: egress-filter-applier
+              topologyKey: kubernetes.io/hostname
+        automountServiceAccountToken: false
+        containers:
+        - args:
+          - -blackholing=false
+          - -filter-list-dir=lists
+          - -filter-list-ipv4=ipv4-list
+          - -filter-list-ipv6=ipv6-list
+          - -sleep-duration=1h
+          command:
+          - /filter-updater
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/europe-docker_pkg_dev/gardener-project/releases/gardener/egress-filter@sha256:b4d3a4929cbfcc7f8886881292ff2dd7cf1804de3527f8f408429686b7cd56bb
+          imagePullPolicy: IfNotPresent
+          name: egress-filter-applier
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 5m
+              memory: 20Mi
+          securityContext:
+            capabilities:
+              add:
+              - NET_ADMIN
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /lists
+            name: lists
+            readOnly: true
+          - mountPath: /run/xtables.lock
+            name: xtables-lock
+        dnsPolicy: ClusterFirst
+        hostNetwork: true
+        priorityClassName: system-node-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        terminationGracePeriodSeconds: 0
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+        volumes:
+        - name: lists
+          secret:
+            defaultMode: 256
+            secretName: extension-shoot-networking-filter
+        - hostPath:
+            path: /run/xtables.lock
+            type: FileOrCreate
+          name: xtables-lock
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 100%
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 17
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "1"
+      reference.resources.gardener.cloud/configmap-5b5fe699: kube-proxy-cleanup-script-a4263ada
+      reference.resources.gardener.cloud/configmap-bd534e37: kube-proxy-config-2b721703
+      reference.resources.gardener.cloud/configmap-dc3514a5: kube-proxy-conntrack-fix-script-ebff3d39
+      reference.resources.gardener.cloud/secret-6eed2cd7: kube-proxy-2042cdc9
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/shoot-core-kube-proxy-worker-lh5nx-v1.30.6
+    creationTimestamp: "2024-12-13T14:18:32Z"
+    generation: 1
+    labels:
+      gardener.cloud/role: system-component
+      node.gardener.cloud/critical-component: "true"
+      origin: gardener
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: kube-proxy-worker-lh5nx-v1.30.6
+    namespace: kube-system
+    resourceVersion: "15694371"
+    uid: bff8952f-e31a-4d28-bc5d-a8d84e7912a3
+  spec:
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: kubernetes
+        pool: worker-lh5nx
+        role: proxy
+        version: 1.30.6
+    template:
+      metadata:
+        annotations:
+          reference.resources.gardener.cloud/configmap-5b5fe699: kube-proxy-cleanup-script-a4263ada
+          reference.resources.gardener.cloud/configmap-bd534e37: kube-proxy-config-2b721703
+          reference.resources.gardener.cloud/configmap-dc3514a5: kube-proxy-conntrack-fix-script-ebff3d39
+          reference.resources.gardener.cloud/secret-6eed2cd7: kube-proxy-2042cdc9
+        creationTimestamp: null
+        labels:
+          app: kubernetes
+          gardener.cloud/role: system-component
+          node.gardener.cloud/critical-component: "true"
+          origin: gardener
+          pool: worker-lh5nx
+          resources.gardener.cloud/managed-by: gardener
+          role: proxy
+          shoot.gardener.cloud/no-cleanup: "true"
+          version: 1.30.6
+      spec:
+        containers:
+        - command:
+          - /usr/local/bin/kube-proxy
+          - --config=/var/lib/kube-proxy-config/config.yaml
+          - --v=2
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/kube-proxy@sha256:60e38fb2e2ba1187f844e3ed89c66b05052793a99cf2457b4360024b4ebd2f55
+          imagePullPolicy: IfNotPresent
+          name: kube-proxy
+          ports:
+          - containerPort: 10249
+            hostPort: 10249
+            name: metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 2
+            httpGet:
+              path: /healthz
+              port: 10256
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 15
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              cpu: 20m
+              memory: 64Mi
+          securityContext:
+            capabilities:
+              add:
+              - NET_ADMIN
+              - SYS_RESOURCE
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/kube-proxy-kubeconfig
+            name: kubeconfig
+          - mountPath: /var/lib/kube-proxy-config
+            name: kube-proxy-config
+          - mountPath: /etc/ssl/certs
+            name: ssl-certs-hosts
+            readOnly: true
+          - mountPath: /var/run/dbus/system_bus_socket
+            name: systembussocket
+          - mountPath: /lib/modules
+            name: kernel-modules
+        - command:
+          - /bin/sh
+          - /script/conntrack_fix.sh
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/europe-docker_pkg_dev/gardener-project/releases/gardener/alpine-conntrack@sha256:bc3c89c9c5801982b035a8aebf0b1f567af4570fa999a8c45ddebac72d7ffd7a
+          imagePullPolicy: IfNotPresent
+          name: conntrack-fix
+          resources: {}
+          securityContext:
+            capabilities:
+              add:
+              - NET_ADMIN
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /script
+            name: conntrack-fix-script
+        dnsPolicy: ClusterFirst
+        hostNetwork: true
+        initContainers:
+        - command:
+          - sh
+          - -c
+          - /script/cleanup.sh /var/lib/kube-proxy/mode
+          env:
+          - name: KUBE_PROXY_MODE
+            value: iptables
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/kube-proxy@sha256:60e38fb2e2ba1187f844e3ed89c66b05052793a99cf2457b4360024b4ebd2f55
+          imagePullPolicy: IfNotPresent
+          name: cleanup
+          resources: {}
+          securityContext:
+            privileged: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /script
+            name: kube-proxy-cleanup-script
+          - mountPath: /lib/modules
+            name: kernel-modules
+          - mountPath: /var/lib/kube-proxy
+            name: kube-proxy-dir
+          - mountPath: /var/lib/kube-proxy/mode
+            name: kube-proxy-mode
+          - mountPath: /var/lib/kube-proxy-kubeconfig
+            name: kubeconfig
+          - mountPath: /var/lib/kube-proxy-config
+            name: kube-proxy-config
+        - command:
+          - /usr/local/bin/kube-proxy
+          - --config=/var/lib/kube-proxy-config/config.yaml
+          - --v=2
+          - --init-only
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/kube-proxy@sha256:60e38fb2e2ba1187f844e3ed89c66b05052793a99cf2457b4360024b4ebd2f55
+          imagePullPolicy: IfNotPresent
+          name: kube-proxy-init
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 20m
+              memory: 64Mi
+          securityContext:
+            privileged: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/kube-proxy-kubeconfig
+            name: kubeconfig
+          - mountPath: /var/lib/kube-proxy-config
+            name: kube-proxy-config
+          - mountPath: /etc/ssl/certs
+            name: ssl-certs-hosts
+            readOnly: true
+          - mountPath: /var/run/dbus/system_bus_socket
+            name: systembussocket
+          - mountPath: /lib/modules
+            name: kernel-modules
+        nodeSelector:
+          worker.gardener.cloud/kubernetes-version: 1.30.6
+          worker.gardener.cloud/pool: worker-lh5nx
+        priorityClassName: system-node-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: kube-proxy
+        serviceAccountName: kube-proxy
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+        volumes:
+        - name: kubeconfig
+          secret:
+            defaultMode: 420
+            secretName: kube-proxy-2042cdc9
+        - configMap:
+            defaultMode: 420
+            name: kube-proxy-config-2b721703
+          name: kube-proxy-config
+        - hostPath:
+            path: /usr/share/ca-certificates
+            type: ""
+          name: ssl-certs-hosts
+        - hostPath:
+            path: /var/run/dbus/system_bus_socket
+            type: ""
+          name: systembussocket
+        - hostPath:
+            path: /lib/modules
+            type: ""
+          name: kernel-modules
+        - configMap:
+            defaultMode: 511
+            name: kube-proxy-cleanup-script-a4263ada
+          name: kube-proxy-cleanup-script
+        - hostPath:
+            path: /var/lib/kube-proxy
+            type: DirectoryOrCreate
+          name: kube-proxy-dir
+        - hostPath:
+            path: /var/lib/kube-proxy/mode
+            type: FileOrCreate
+          name: kube-proxy-mode
+        - configMap:
+            defaultMode: 420
+            name: kube-proxy-conntrack-fix-script-ebff3d39
+          name: conntrack-fix-script
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 1
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 1
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "2"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/extension-shoot-networking-problemdetector-agent-shoot
+    creationTimestamp: "2024-07-30T08:08:43Z"
+    generation: 2
+    labels:
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: network-problem-detector-host
+    namespace: kube-system
+    resourceVersion: "15694216"
+    uid: 63bdd5ae-3796-4a41-96e3-935615f2d273
+  spec:
+    revisionHistoryLimit: 5
+    selector:
+      matchLabels:
+        gardener.cloud/role: network-problem-detector
+        k8s-app: network-problem-detector-host
+    template:
+      metadata:
+        annotations:
+          check-sum/k8s-exporter: "true"
+        creationTimestamp: null
+        labels:
+          gardener.cloud/role: network-problem-detector
+          k8s-app: network-problem-detector-host
+          networking.gardener.cloud/to-apiserver: allowed
+          networking.gardener.cloud/to-dns: allowed
+          networking.gardener.cloud/to-from-nwpd-agents: allowed
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - command:
+          - /nwpdcli
+          - run-agent
+          - --hostNetwork=true
+          - --config=/config/agent/agent-config.yaml
+          - --cluster-config=/config/cluster/cluster-config.yaml
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: NODE_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.hostIP
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/europe-docker_pkg_dev/gardener-project/releases/gardener/network-problem-detector@sha256:cc7ed3853ea94d0e5cbc54d0cf8b1ffcabb5c6969b7d1ee9f7165bdf0df14c1e
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 12996
+            timeoutSeconds: 1
+          name: network-problem-detector-host
+          ports:
+          - containerPort: 12996
+            name: metrics
+            protocol: TCP
+          resources:
+            limits:
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 32Mi
+          securityContext: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/log/nwpd/records
+            name: output
+          - mountPath: /var/log/nwpd
+            name: log
+          - mountPath: /config/agent
+            name: agent-config
+            readOnly: true
+          - mountPath: /config/cluster
+            name: cluster-config
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        hostNetwork: true
+        priorityClassName: gardener-shoot-system-900
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: network-problem-detector
+        serviceAccountName: network-problem-detector
+        terminationGracePeriodSeconds: 0
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /var/log/nwpd/records
+            type: DirectoryOrCreate
+          name: output
+        - hostPath:
+            path: /var/log/nwpd
+            type: DirectoryOrCreate
+          name: log
+        - configMap:
+            defaultMode: 292
+            items:
+            - key: agent-config.yaml
+              path: agent-config.yaml
+            name: network-problem-detector-config
+          name: agent-config
+        - configMap:
+            defaultMode: 292
+            items:
+            - key: cluster-config.yaml
+              path: cluster-config.yaml
+            name: network-problem-detector-cluster-config
+          name: cluster-config
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 100%
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 2
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "2"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/extension-shoot-networking-problemdetector-agent-shoot
+    creationTimestamp: "2024-07-30T08:08:43Z"
+    generation: 2
+    labels:
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: network-problem-detector-pod
+    namespace: kube-system
+    resourceVersion: "15694631"
+    uid: 6ece0621-7a6b-49ea-94dd-a12ea3f5262e
+  spec:
+    revisionHistoryLimit: 5
+    selector:
+      matchLabels:
+        gardener.cloud/role: network-problem-detector
+        k8s-app: network-problem-detector-pod
+    template:
+      metadata:
+        annotations:
+          check-sum/k8s-exporter: "true"
+        creationTimestamp: null
+        labels:
+          gardener.cloud/role: network-problem-detector
+          k8s-app: network-problem-detector-pod
+          networking.gardener.cloud/to-apiserver: allowed
+          networking.gardener.cloud/to-dns: allowed
+          networking.gardener.cloud/to-from-nwpd-agents: allowed
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - command:
+          - /nwpdcli
+          - run-agent
+          - --hostNetwork=false
+          - --config=/config/agent/agent-config.yaml
+          - --cluster-config=/config/cluster/cluster-config.yaml
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: NODE_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.hostIP
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/europe-docker_pkg_dev/gardener-project/releases/gardener/network-problem-detector@sha256:cc7ed3853ea94d0e5cbc54d0cf8b1ffcabb5c6969b7d1ee9f7165bdf0df14c1e
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8881
+            timeoutSeconds: 1
+          name: network-problem-detector-pod
+          ports:
+          - containerPort: 8881
+            name: metrics
+            protocol: TCP
+          resources:
+            limits:
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 32Mi
+          securityContext: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/log/nwpd/records
+            name: output
+          - mountPath: /var/log/nwpd
+            name: log
+          - mountPath: /config/agent
+            name: agent-config
+            readOnly: true
+          - mountPath: /config/cluster
+            name: cluster-config
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        priorityClassName: gardener-shoot-system-900
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: network-problem-detector
+        serviceAccountName: network-problem-detector
+        terminationGracePeriodSeconds: 0
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /var/log/nwpd/records
+            type: DirectoryOrCreate
+          name: output
+        - hostPath:
+            path: /var/log/nwpd
+            type: DirectoryOrCreate
+          name: log
+        - configMap:
+            defaultMode: 292
+            items:
+            - key: agent-config.yaml
+              path: agent-config.yaml
+            name: network-problem-detector-config
+          name: agent-config
+        - configMap:
+            defaultMode: 292
+            items:
+            - key: cluster-config.yaml
+              path: cluster-config.yaml
+            name: network-problem-detector-cluster-config
+          name: cluster-config
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 100%
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 2
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "2"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/shoot-core-node-exporter
+    creationTimestamp: "2024-07-30T08:08:43Z"
+    generation: 2
+    labels:
+      component: node-exporter
+      gardener.cloud/role: monitoring
+      origin: gardener
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: node-exporter
+    namespace: kube-system
+    resourceVersion: "15694194"
+    uid: 79949f5b-4b93-43a3-b25a-d3703be41159
+  spec:
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        component: node-exporter
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          component: node-exporter
+          gardener.cloud/role: monitoring
+          networking.gardener.cloud/from-seed: allowed
+          networking.gardener.cloud/to-public-networks: allowed
+          origin: gardener
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        automountServiceAccountToken: false
+        containers:
+        - command:
+          - /bin/node_exporter
+          - --web.listen-address=:16909
+          - --path.procfs=/host/proc
+          - --path.sysfs=/host/sys
+          - --path.rootfs=/host
+          - --log.level=error
+          - --collector.disable-defaults
+          - --collector.conntrack
+          - --collector.cpu
+          - --collector.diskstats
+          - --collector.filefd
+          - --collector.filesystem
+          - --collector.filesystem.mount-points-exclude=^/(run|var)/.+$|^/(boot|dev|sys|usr)($|/.+$)
+          - --collector.loadavg
+          - --collector.meminfo
+          - --collector.uname
+          - --collector.stat
+          - --collector.pressure
+          - --collector.textfile
+          - --collector.textfile.directory=/textfile-collector
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/quay_io/prometheus/node-exporter@sha256:8cd062870f1f20379b4120e2ab55098d8c55d98395799c627f2689597b2875da
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 16909
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: node-exporter
+          ports:
+          - containerPort: 16909
+            hostPort: 16909
+            name: scrape
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 16909
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /host
+            name: host
+            readOnly: true
+          - mountPath: /textfile-collector
+            name: textfile
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        hostNetwork: true
+        hostPID: true
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: node-exporter
+        serviceAccountName: node-exporter
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /
+            type: ""
+          name: host
+        - hostPath:
+            path: /var/lib/node-exporter/textfile-collector
+            type: ""
+          name: textfile
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 1
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 2
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "3"
+      reference.resources.gardener.cloud/configmap-40ef1ecf: node-local-dns-835fb0a6
+      reference.resources.gardener.cloud/configmap-658ecc26: kube-dns
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/shoot-core-node-local-dns
+    creationTimestamp: "2024-07-30T08:09:14Z"
+    generation: 3
+    labels:
+      gardener.cloud/role: system-component
+      k8s-app: node-local-dns
+      node.gardener.cloud/critical-component: "true"
+      origin: gardener
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: node-local-dns
+    namespace: kube-system
+    resourceVersion: "15694138"
+    uid: 0cc216c9-3c23-4324-93ef-d2439d6e7410
+  spec:
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: node-local-dns
+    template:
+      metadata:
+        annotations:
+          prometheus.io/port: "9253"
+          prometheus.io/scrape: "true"
+          reference.resources.gardener.cloud/configmap-40ef1ecf: node-local-dns-835fb0a6
+          reference.resources.gardener.cloud/configmap-658ecc26: kube-dns
+        creationTimestamp: null
+        labels:
+          k8s-app: node-local-dns
+          networking.gardener.cloud/to-dns: allowed
+          node.gardener.cloud/critical-component: "true"
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - args:
+          - -localip
+          - 169.254.20.10,100.104.0.10
+          - -conf
+          - /etc/Corefile
+          - -upstreamsvc
+          - kube-dns-upstream
+          - -health-port
+          - "8099"
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/dns/k8s-dns-node-cache@sha256:6792de88c4cc987a10e26284f448338f865383e0454efb97a3a88597b8a8384a
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              host: 169.254.20.10
+              path: /health
+              port: 8099
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: node-cache
+          ports:
+          - containerPort: 53
+            name: dns
+            protocol: UDP
+          - containerPort: 53
+            name: dns-tcp
+            protocol: TCP
+          - containerPort: 9253
+            name: metrics
+            protocol: TCP
+          - containerPort: 9353
+            name: errormetrics
+            protocol: TCP
+          resources:
+            limits:
+              memory: 200Mi
+            requests:
+              cpu: 25m
+              memory: 25Mi
+          securityContext:
+            capabilities:
+              add:
+              - NET_ADMIN
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /run/xtables.lock
+            name: xtables-lock
+          - mountPath: /etc/coredns
+            name: config-volume
+          - mountPath: /etc/kube-dns
+            name: kube-dns-config
+        dnsPolicy: Default
+        hostNetwork: true
+        nodeSelector:
+          networking.gardener.cloud/node-local-dns-enabled: "true"
+        priorityClassName: system-node-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: node-local-dns
+        serviceAccountName: node-local-dns
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoExecute
+          operator: Exists
+        - effect: NoSchedule
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /run/xtables.lock
+            type: FileOrCreate
+          name: xtables-lock
+        - configMap:
+            defaultMode: 420
+            name: kube-dns
+            optional: true
+          name: kube-dns-config
+        - configMap:
+            defaultMode: 420
+            items:
+            - key: Corefile
+              path: Corefile.base
+            name: node-local-dns-835fb0a6
+          name: config-volume
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 10%
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 3
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "3"
+      resources.gardener.cloud/description: |-
+        DO NOT EDIT - This resource is managed by gardener-resource-manager.
+        Any modifications are discarded and the resource is returned to the original state.
+      resources.gardener.cloud/origin: shoot--garden--gcp-ha-eu2-cd04f181-8ccd-4bd5-a388-ed849104f49a-sap-landscape-canary:shoot--berlin--teo-1/shoot-core-node-problem-detector
+    creationTimestamp: "2024-07-30T08:09:08Z"
+    generation: 3
+    labels:
+      app.kubernetes.io/instance: shoot-core
+      app.kubernetes.io/name: node-problem-detector
+      gardener.cloud/role: system-component
+      origin: gardener
+      resources.gardener.cloud/managed-by: gardener
+      shoot.gardener.cloud/no-cleanup: "true"
+    name: node-problem-detector
+    namespace: kube-system
+    resourceVersion: "15695017"
+    uid: 36cfd634-1744-435b-b521-5d94b95044f6
+  spec:
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: node-problem-detector
+        app.kubernetes.io/instance: shoot-core
+        app.kubernetes.io/name: node-problem-detector
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: node-problem-detector
+          app.kubernetes.io/instance: shoot-core
+          app.kubernetes.io/name: node-problem-detector
+          gardener.cloud/role: system-component
+          networking.gardener.cloud/to-apiserver: allowed
+          networking.gardener.cloud/to-dns: allowed
+          origin: gardener
+          resources.gardener.cloud/managed-by: gardener
+          shoot.gardener.cloud/no-cleanup: "true"
+      spec:
+        containers:
+        - command:
+          - /bin/sh
+          - -c
+          - exec /node-problem-detector --logtostderr --config.system-log-monitor=/config/kernel-monitor.json,/config/docker-monitor.json,/config/systemd-monitor.json
+            .. --config.custom-plugin-monitor=/config/kernel-monitor-counter.json,/config/systemd-monitor-counter.json
+            .. --config.system-stats-monitor=/config/system-stats-monitor.json --prometheus-port=20257
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: KUBERNETES_SERVICE_HOST
+            value: api.teo-1.berlin.internal.canary.k8s.ondemand.com.
+          image: europe-docker.pkg.dev/sap-se-gcp-k8s-c-delivery/releases-canary-public/registry_k8s_io/node-problem-detector/node-problem-detector@sha256:bf1d6e7fed0dbc403a7513065ebe071d748b2fe8fe754d76eb9afe988bfc5f67
+          imagePullPolicy: IfNotPresent
+          name: node-problem-detector
+          ports:
+          - containerPort: 20257
+            name: exporter
+            protocol: TCP
+          resources:
+            limits:
+              memory: 500Mi
+            requests:
+              cpu: 20m
+              memory: 20Mi
+          securityContext:
+            privileged: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/log/journal
+            name: log
+            readOnly: true
+          - mountPath: /etc/localtime
+            name: localtime
+            readOnly: true
+          - mountPath: /dev/kmsg
+            name: kmsg
+            readOnly: true
+        dnsPolicy: Default
+        priorityClassName: gardener-shoot-system-900
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: node-problem-detector
+        serviceAccountName: node-problem-detector
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /var/log/journal
+            type: ""
+          name: log
+        - hostPath:
+            path: /etc/localtime
+            type: FileOrCreate
+          name: localtime
+        - hostPath:
+            path: /dev/kmsg
+            type: ""
+          name: kmsg
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 1
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 3
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "7"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"DaemonSet","metadata":{"annotations":{},"labels":{"app.kubernetes.io/name":"telemetry-log-agent"},"name":"telemetry-log-agent","namespace":"kyma-system"},"spec":{"selector":{"matchLabels":{"app.kubernetes.io/name":"telemetry-log-agent"}},"template":{"metadata":{"annotations":{"traffic.sidecar.istio.io/excludeInboundPorts":"8888,15020","traffic.sidecar.istio.io/includeInboundPorts":"*","traffic.sidecar.istio.io/includeOutboundIPRanges":"*"},"labels":{"app.kubernetes.io/name":"telemetry-log-agent","sidecar.istio.io/inject":"true"}},"spec":{"containers":[{"args":["--config=/conf/relay.yaml"],"env":[{"name":"MY_POD_IP","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"status.podIP"}}}],"image":"europe-docker.pkg.dev/kyma-project/prod/kyma-otel-collector:0.114.0-main","imagePullPolicy":"IfNotPresent","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/","port":13133,"scheme":"HTTP"},"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1},"name":"collector","readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/","port":13133,"scheme":"HTTP"},"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1},"resources":{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"100m","memory":"50Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsNonRoot":false,"runAsUser":0,"seccompProfile":{"type":"RuntimeDefault"}},"volumeMounts":[{"mountPath":"/conf","name":"config"},{"mountPath":"/var/log/pods","name":"varlogpods","readOnly":true},{"mountPath":"/var/lib/otelcol","name":"varlibotelcol"}]}],"priorityClassName":"telemetry-priority-class-high","securityContext":{"runAsNonRoot":false,"seccompProfile":{"type":"RuntimeDefault"}},"serviceAccountName":"telemetry-log-agent","terminationGracePeriodSeconds":30,"volumes":[{"configMap":{"defaultMode":420,"items":[{"key":"relay","path":"relay.yaml"}],"name":"telemetry-log-agent"},"name":"config"},{"hostPath":{"path":"/var/log/pods","type":""},"name":"varlogpods"},{"hostPath":{"path":"/var/lib/otelcol","type":"DirectoryOrCreate"},"name":"varlibotelcol"}]}}}}
+    creationTimestamp: "2024-12-20T14:18:14Z"
+    generation: 7
+    labels:
+      app.kubernetes.io/name: telemetry-log-agent
+    name: telemetry-log-agent
+    namespace: kyma-system
+    resourceVersion: "15695855"
+    uid: 4cce7e29-92bd-4b5d-8f7c-31b18df89e22
+  spec:
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: telemetry-log-agent
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-01-15T17:00:22+01:00"
+          traffic.sidecar.istio.io/excludeInboundPorts: 8888,15020
+          traffic.sidecar.istio.io/includeInboundPorts: '*'
+          traffic.sidecar.istio.io/includeOutboundIPRanges: '*'
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/name: telemetry-log-agent
+          sidecar.istio.io/inject: "true"
+      spec:
+        containers:
+        - args:
+          - --config=/conf/relay.yaml
+          env:
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          image: europe-docker.pkg.dev/kyma-project/prod/kyma-otel-collector:0.114.0-main
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 13133
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: collector
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 13133
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 50Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: false
+            runAsUser: 0
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /conf
+            name: config
+          - mountPath: /var/log/pods
+            name: varlogpods
+            readOnly: true
+          - mountPath: /var/lib/otelcol
+            name: varlibotelcol
+        dnsPolicy: ClusterFirst
+        priorityClassName: telemetry-priority-class-high
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsNonRoot: false
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: telemetry-log-agent
+        serviceAccountName: telemetry-log-agent
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+            - key: relay
+              path: relay.yaml
+            name: telemetry-log-agent
+          name: config
+        - hostPath:
+            path: /var/log/pods
+            type: ""
+          name: varlogpods
+        - hostPath:
+            path: /var/lib/otelcol
+            type: DirectoryOrCreate
+          name: varlibotelcol
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 1
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 7
+    updatedNumberScheduled: 2
+- apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    annotations:
+      deprecated.daemonset.template.generation: "1"
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: prometheus
+    creationTimestamp: "2024-12-16T14:12:51Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: metrics
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: prometheus-node-exporter
+      app.kubernetes.io/part-of: prometheus-node-exporter
+      app.kubernetes.io/version: 1.8.2
+      helm.sh/chart: prometheus-node-exporter-4.42.0
+      release: prometheus
+    name: prometheus-prometheus-node-exporter
+    namespace: prometheus
+    resourceVersion: "15694246"
+    uid: ee55e1db-ad32-467f-9605-5643a8ad06de
+  spec:
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: prometheus
+        app.kubernetes.io/name: prometheus-node-exporter
+    template:
+      metadata:
+        annotations:
+          cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: metrics
+          app.kubernetes.io/instance: prometheus
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: prometheus-node-exporter
+          app.kubernetes.io/part-of: prometheus-node-exporter
+          app.kubernetes.io/version: 1.8.2
+          helm.sh/chart: prometheus-node-exporter-4.42.0
+          jobLabel: node-exporter
+          release: prometheus
+      spec:
+        automountServiceAccountToken: false
+        containers:
+        - args:
+          - --path.procfs=/host/proc
+          - --path.sysfs=/host/sys
+          - --path.rootfs=/host/root
+          - --path.udev.data=/host/root/run/udev/data
+          - --web.listen-address=[$(HOST_IP)]:9100
+          - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+          - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$
+          env:
+          - name: HOST_IP
+            value: 0.0.0.0
+          image: quay.io/prometheus/node-exporter:v1.8.2
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 9100
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: node-exporter
+          ports:
+          - containerPort: 9100
+            name: http-metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 9100
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          securityContext:
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /host/proc
+            name: proc
+            readOnly: true
+          - mountPath: /host/sys
+            name: sys
+            readOnly: true
+          - mountPath: /host/root
+            mountPropagation: HostToContainer
+            name: root
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        hostNetwork: true
+        hostPID: true
+        nodeSelector:
+          kubernetes.io/os: linux
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          runAsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+        serviceAccount: prometheus-prometheus-node-exporter
+        serviceAccountName: prometheus-prometheus-node-exporter
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /proc
+            type: ""
+          name: proc
+        - hostPath:
+            path: /sys
+            type: ""
+          name: sys
+        - hostPath:
+            path: /
+            type: ""
+          name: root
+    updateStrategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 1
+      type: RollingUpdate
+  status:
+    currentNumberScheduled: 2
+    desiredNumberScheduled: 2
+    numberAvailable: 2
+    numberMisscheduled: 0
+    numberReady: 2
+    observedGeneration: 1
+    updatedNumberScheduled: 2
+kind: List
+metadata:
+  resourceVersion: ""
