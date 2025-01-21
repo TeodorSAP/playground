@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: telemetry-log-gateway
+  name: telemetry-log-gateway
+  namespace: kyma-system
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 2
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: telemetry-log-gateway
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/config: e3ed138aa626a015a5238dc3152db224914510708bce68b81a6e454d139f80ec
+        kubectl.kubernetes.io/restartedAt: "2025-01-15T17:00:30+01:00"
+        sidecar.istio.io/interceptionMode: TPROXY
+        traffic.sidecar.istio.io/excludeInboundPorts: "8888"
+      labels:
+        app.kubernetes.io/name: telemetry-log-gateway
+        sidecar.istio.io/inject: "true"
+        telemetry.kyma-project.io/log-export: "true"
+        telemetry.kyma-project.io/log-ingest: "true"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: telemetry-log-gateway
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: telemetry-log-gateway
+              topologyKey: topology.kubernetes.io/zone
+            weight: 100
+      containers:
+      - args:
+        - --config=/conf/relay.conf
+        env:
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: GOMEMLIMIT
+          value: "1677721600"
+        envFrom:
+        - secretRef:
+            name: telemetry-log-gateway
+            optional: true
+        image: europe-docker.pkg.dev/kyma-project/prod/kyma-otel-collector:0.116.0-main
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 13133
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: collector
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 13133
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            memory: 2000Mi
+          requests:
+            cpu: 200m
+            memory: 32Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 10001
+          seccompProfile:
+            type: RuntimeDefault
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /conf
+          name: config
+      dnsPolicy: ClusterFirst
+      priorityClassName: telemetry-priority-class
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: telemetry-log-gateway
+      serviceAccountName: telemetry-log-gateway
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: relay.conf
+            path: relay.conf
+          name: telemetry-log-gateway
+        name: config

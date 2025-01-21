@@ -1,0 +1,113 @@
+apiVersion: v1
+data:
+  relay: |
+    exporters:
+      debug:
+      otlp:
+        endpoint: telemetry-otlp-logs.kyma-system:4317
+        compression:
+          none
+        tls:
+          insecure: true
+        retry_on_failure:
+            enabled: true
+            initial_interval: 5s
+            max_interval: 30s
+            max_elapsed_time: 300s
+        sending_queue:
+          enabled: false
+
+    extensions:
+      file_storage:
+        directory: /var/lib/otelcol
+      health_check:
+        endpoint: ${env:MY_POD_IP}:13133
+      pprof:
+        endpoint: 127.0.0.1:1777
+
+    processors:
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+      transform/set-instrumentation-scope-runtime:
+        error_mode: ignore
+        metric_statements:
+            - context: scope
+              statements:
+                - set(version, "main")
+                - set(name, "io.kyma-project.telemetry/runtime")
+
+    receivers:
+      filelog:
+        exclude:
+        - /var/log/pods/kyma-system_telemetry-log-agent*/*/*.log # exclude self
+        - /var/log/pods/kyma-system_telemetry-fluent-bit*/*/*.log # exclude FluentBit
+        include:
+        - /var/log/pods/log-load-test*/*flog*/*.log
+        include_file_name: false
+        include_file_path: true
+        operators:
+        - type: container
+          id: container-parser
+          add_metadata_from_filepath: true
+          format: containerd
+        - from: attributes.stream
+          if: attributes.stream != nil
+          to: attributes["log.iostream"]
+          type: move
+        - if: body matches "^{.*}$"
+          parse_from: body
+          parse_to: attributes
+          type: json_parser
+        - from: body
+          to: attributes.original
+          type: copy
+        - from: attributes.message
+          if: attributes.message != nil
+          to: body
+          type: move
+        - from: attributes.msg
+          if: attributes.msg != nil
+          to: body
+          type: move
+        - if: attributes.level != nil
+          parse_from: attributes.level
+          type: severity_parser
+        retry_on_failure:
+          enabled: false
+          # enabled: true
+        start_at: beginning
+        storage: file_storage
+
+    service:
+      extensions:
+      - health_check
+      - pprof
+      - file_storage
+      pipelines:
+        logs:
+          exporters:
+          - otlp
+          processors:
+          - memory_limiter
+          - transform/set-instrumentation-scope-runtime
+          receivers:
+          - filelog
+      telemetry:
+        metrics:
+          readers:
+          - pull:
+              exporter:
+                prometheus:
+                  host: ${MY_POD_IP}
+                  port: 8888
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"relay":"exporters:\n  otlp:\n    endpoint: telemetry-otlp-logs.kyma-system:4317\n    tls:\n      insecure: true\n    retry_on_failure:\n        enabled: true\n        initial_interval: 5s\n        max_interval: 30s\n        max_elapsed_time: 300s\n    sending_queue:\n      enabled: false\n\nextensions:\n  file_storage:\n    directory: /var/lib/otelcol\n  health_check:\n    endpoint: ${env:MY_POD_IP}:13133\n  pprof:\n    endpoint: 127.0.0.1:1777\n\nprocessors:\n  memory_limiter:\n    check_interval: 5s\n    limit_percentage: 80\n    spike_limit_percentage: 25\n  transform/set-instrumentation-scope-runtime:\n    error_mode: ignore\n    metric_statements:\n        - context: scope\n          statements:\n            - set(version, \"main\")\n            - set(name, \"io.kyma-project.telemetry/runtime\")\n\nreceivers:\n  filelog:\n    exclude:\n    - /var/log/pods/kyma-system_telemetry-log-agent*/*/*.log # exclude self\n    - /var/log/pods/kyma-system_telemetry-fluent-bit*/*/*.log # exclude FluentBit\n    include:\n    - /var/log/pods/log-load-test*/*flog*/*.log\n    include_file_name: false\n    include_file_path: true\n    operators:\n    - type: container\n      id: container-parser\n      add_metadata_from_filepath: true\n      format: containerd\n    - from: attributes.stream\n      if: attributes.stream != nil\n      to: attributes[\"log.iostream\"]\n      type: move\n    - if: body matches \"^{.*}$\"\n      parse_from: body\n      parse_to: attributes\n      type: json_parser\n    - from: body\n      to: attributes.original\n      type: copy\n    - from: attributes.message\n      if: attributes.message != nil\n      to: body\n      type: move\n    - from: attributes.msg\n      if: attributes.msg != nil\n      to: body\n      type: move\n    - if: attributes.level != nil\n      parse_from: attributes.level\n      type: severity_parser\n    retry_on_failure:\n      enabled: true\n    start_at: beginning\n    storage: file_storage\n\nservice:\n  extensions:\n  - health_check\n  - pprof\n  - file_storage\n  pipelines:\n    logs:\n      exporters:\n      - otlp\n      processors:\n      - memory_limiter\n      - transform/set-instrumentation-scope-runtime\n      receivers:\n      - filelog\n  telemetry:\n    metrics:\n      readers:\n      - pull:\n          exporter:\n            prometheus:\n              host: ${MY_POD_IP}\n              port: 8888\n"},"kind":"ConfigMap","metadata":{"annotations":{},"labels":{"app.kubernetes.io/name":"telemetry-log-agent"},"name":"telemetry-log-agent","namespace":"kyma-system"}}
+  labels:
+    app.kubernetes.io/name: telemetry-log-agent
+  name: telemetry-log-agent
+  namespace: kyma-system
