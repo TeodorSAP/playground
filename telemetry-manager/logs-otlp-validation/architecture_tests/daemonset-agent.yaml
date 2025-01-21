@@ -1,0 +1,135 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    deprecated.daemonset.template.generation: "40"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"DaemonSet","metadata":{"annotations":{},"labels":{"app.kubernetes.io/name":"telemetry-log-agent"},"name":"telemetry-log-agent","namespace":"kyma-system"},"spec":{"selector":{"matchLabels":{"app.kubernetes.io/name":"telemetry-log-agent"}},"template":{"metadata":{"annotations":{"traffic.sidecar.istio.io/excludeInboundPorts":"8888,15020","traffic.sidecar.istio.io/includeInboundPorts":"*","traffic.sidecar.istio.io/includeOutboundIPRanges":"*"},"labels":{"app.kubernetes.io/name":"telemetry-log-agent","sidecar.istio.io/inject":"true"}},"spec":{"containers":[{"args":["--config=/conf/relay.yaml"],"env":[{"name":"MY_POD_IP","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"status.podIP"}}}],"image":"europe-docker.pkg.dev/kyma-project/prod/kyma-otel-collector:0.114.0-main","imagePullPolicy":"IfNotPresent","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/","port":13133,"scheme":"HTTP"},"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1},"name":"collector","readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/","port":13133,"scheme":"HTTP"},"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1},"resources":{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"100m","memory":"50Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsNonRoot":false,"runAsUser":0,"seccompProfile":{"type":"RuntimeDefault"}},"volumeMounts":[{"mountPath":"/conf","name":"config"},{"mountPath":"/var/log/pods","name":"varlogpods","readOnly":true},{"mountPath":"/var/lib/otelcol","name":"varlibotelcol"}]}],"priorityClassName":"telemetry-priority-class-high","securityContext":{"runAsNonRoot":false,"seccompProfile":{"type":"RuntimeDefault"}},"serviceAccountName":"telemetry-log-agent","terminationGracePeriodSeconds":30,"volumes":[{"configMap":{"defaultMode":420,"items":[{"key":"relay","path":"relay.yaml"}],"name":"telemetry-log-agent"},"name":"config"},{"hostPath":{"path":"/var/log/pods","type":""},"name":"varlogpods"},{"hostPath":{"path":"/var/lib/otelcol","type":"DirectoryOrCreate"},"name":"varlibotelcol"}]}}}}
+  creationTimestamp: "2024-12-20T14:18:14Z"
+  generation: 40
+  labels:
+    app.kubernetes.io/name: telemetry-log-agent
+  name: telemetry-log-agent
+  namespace: kyma-system
+  resourceVersion: "16528008"
+  uid: 4cce7e29-92bd-4b5d-8f7c-31b18df89e22
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: telemetry-log-agent
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2025-01-21T15:51:04+01:00"
+        traffic.sidecar.istio.io/excludeInboundPorts: 8888,15020
+        traffic.sidecar.istio.io/includeInboundPorts: '*'
+        traffic.sidecar.istio.io/includeOutboundIPRanges: '*'
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/name: telemetry-log-agent
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - args:
+        - --config=/conf/relay.yaml
+        env:
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              divisor: "0"
+              resource: limits.cpu
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        image: europe-docker.pkg.dev/kyma-project/prod/kyma-otel-collector:0.114.0-main
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 13133
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: collector
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 13133
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "4"
+            memory: 4Gi
+          requests:
+            cpu: 100m
+            memory: 50Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: false
+          runAsUser: 0
+          seccompProfile:
+            type: RuntimeDefault
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /conf
+          name: config
+        - mountPath: /var/log/pods
+          name: varlogpods
+          readOnly: true
+        - mountPath: /var/lib/otelcol
+          name: varlibotelcol
+      dnsPolicy: ClusterFirst
+      priorityClassName: telemetry-priority-class-high
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsNonRoot: false
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: telemetry-log-gateway
+      serviceAccountName: telemetry-log-gateway
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: relay
+            path: relay.yaml
+          name: telemetry-log-agent
+        name: config
+      - hostPath:
+          path: /var/log/pods
+          type: ""
+        name: varlogpods
+      - hostPath:
+          path: /var/lib/otelcol
+          type: DirectoryOrCreate
+        name: varlibotelcol
+  updateStrategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+status:
+  currentNumberScheduled: 2
+  desiredNumberScheduled: 2
+  numberAvailable: 2
+  numberMisscheduled: 0
+  numberReady: 2
+  observedGeneration: 40
+  updatedNumberScheduled: 2
