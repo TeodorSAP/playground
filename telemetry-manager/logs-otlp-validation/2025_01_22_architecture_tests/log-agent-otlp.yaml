@@ -224,7 +224,7 @@ spec:
         runAsNonRoot: false
         seccompProfile:
           type: RuntimeDefault
-      serviceAccountName: telemetry-log-agent
+      serviceAccountName: telemetry-log-gateway # used for sending logs directly to the backend
       terminationGracePeriodSeconds: 30
       volumes:
         - configMap:
