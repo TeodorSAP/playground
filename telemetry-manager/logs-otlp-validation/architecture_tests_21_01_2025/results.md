@@ -6,8 +6,9 @@ Testing different architectures in the same load test setup to see which one is 
 - 2 nodes
 - 60 generators with 10m CPU limit
 - 5 min query spans
+- Agent exports directly to mock backend (no gateway involved)
 
-### Scenario 1: ✅ Sending Queue, ✅ Batch Processor
+### Scenario 1: ✅ Sending Queue, ✅ Batcher Exporter
 ![21.01.2025 15:35](image.png)
 
 | AGENT RECEIVED | AGENT EXPORTED | AGENT QUEUE | AGENT RESOURCES      | BACKEND RECEIVED |
@@ -16,10 +17,11 @@ Testing different architectures in the same load test setup to see which one is 
 
 - Agent receives more data than it exports
   - Hypothesis 1: Batching stacks the metric up, not showing the correct values
-  - Hypothesis 2: Some logs are lost
+  - Hypothesis 2: Some logs are lost`
 - Sending queue always full (2K)
+- Looks like we're loosing logs
 
-### Scenario 2: ✅ Sending Queue, ✅ Batcher Exporter
+### Scenario 2: ✅ Sending Queue, ✅ Batch Processor
 ![21.01.2025 16:08](image-1.png)
 
 | AGENT RECEIVED | AGENT EXPORTED | AGENT QUEUE | AGENT RESOURCES      | BACKEND RECEIVED |
@@ -30,7 +32,6 @@ Testing different architectures in the same load test setup to see which one is 
 - Sending queue almost full, but less than in scenario 1
 
 ### Scenario 3: ✅ Sending Queue, ❌ No Batching
-![21.01.2025 16:22](image-2.png)
 
 | AGENT RECEIVED | AGENT EXPORTED | AGENT QUEUE              | AGENT RESOURCES      | BACKEND RECEIVED |
 | :------------- | :------------- | :----------------------- | :------------------- | :--------------- |
@@ -39,22 +40,26 @@ Testing different architectures in the same load test setup to see which one is 
 - Disabling batching just decreases throughput
 
 ### Scenario 4: ❌ No Queue, ❌ No Batching
-TODO: Paste image here
 
-| AGENT RECEIVED | AGENT EXPORTED | AGENT QUEUE | AGENT RESOURCES | BACKEND RECEIVED |
-| :------------- | :------------- | :---------- | :-------------- | :--------------- |
-| ?K             | ?K             | ?K          | M:?/?, C:?/?    | ?K               |
+| AGENT RECEIVED | AGENT EXPORTED | AGENT QUEUE | AGENT RESOURCES    | BACKEND RECEIVED |
+| :------------- | :------------- | :---------- | :----------------- | :--------------- |
+| 4.91K          | 4.91K          | -           | M:62/65, C:0.3/0.3 | 4.92K            |
+
+- Disabling sending queue apparently also decreases throughput
 
 ### Scenario 5: ❌ No Queue, ✅ Batch Processor
-TODO: Paste image here
 
-| AGENT RECEIVED | AGENT EXPORTED | AGENT QUEUE | AGENT RESOURCES | BACKEND RECEIVED |
-| :------------- | :------------- | :---------- | :-------------- | :--------------- |
-| ?K             | ?K             | ?K          | M:?/?, C:?/?    | ?K               |
+| AGENT RECEIVED | AGENT EXPORTED | AGENT QUEUE | AGENT RESOURCES    | BACKEND RECEIVED |
+| :------------- | :------------- | :---------- | :----------------- | :--------------- |
+| 8.67K          | 8.67K          | -           | M:72/70, C:0.4/0.4 | 8.68K            |
 
 ### Scenario 6: ❌ No Queue, ✅ Batcher Exporter
-TODO: Paste image here
 
-| AGENT RECEIVED | AGENT EXPORTED | AGENT QUEUE | AGENT RESOURCES | BACKEND RECEIVED |
-| :------------- | :------------- | :---------- | :-------------- | :--------------- |
-| ?K             | ?K             | ?K          | M:?/?, C:?/?    | ?K               |
+| AGENT RECEIVED | AGENT EXPORTED | AGENT QUEUE | AGENT RESOURCES    | BACKEND RECEIVED |
+| :------------- | :------------- | :---------- | :----------------- | :--------------- |
+| 1.02K          | 1.02K          | -           | M:57/60, C:0.1/0.1 | 1.02K            |
+
+- Throughput drops to the ground
+
+## Conclusions
+- Redo tests, ensuring batcher exporter has the same configuration as batch processor
