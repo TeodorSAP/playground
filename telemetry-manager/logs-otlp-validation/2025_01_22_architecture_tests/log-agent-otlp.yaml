@@ -46,7 +46,8 @@ data:
   relay: |
     exporters:
       otlp:
-        endpoint: telemetry-otlp-logs.kyma-system:4317
+        # endpoint: telemetry-otlp-logs.kyma-system:4317
+        endpoint: log-receiver.log-load-test:4317 # export directly to backend
         tls:
           insecure: true
         retry_on_failure:
@@ -56,6 +57,9 @@ data:
             max_elapsed_time: 300s
         sending_queue:
           enabled: false
+          # storage: file_storage
+        # batcher:
+        #   enabled: true
 
     extensions:
       file_storage:
@@ -77,6 +81,44 @@ data:
               statements:
                 - set(version, "main")
                 - set(name, "io.kyma-project.telemetry/runtime")
+      batch:                                                                                                                                                                                                                                          
+        send_batch_size: 2000                                                                                                                                                                                                                     
+        timeout: 10s                                                                                                                                                                                                                              
+        send_batch_max_size: 2000
+      k8sattributes:                                                                                                                                                                                                                                  
+        auth_type: serviceAccount                                                                                                                                                                                                                   
+        passthrough: false                                                                                                                                                                                                                          
+        extract:                                                                                                                                                                                                                                    
+            metadata:                                                                                                                                                                                                                               
+                - k8s.pod.name                                                                                                                                                                                                                      
+                - k8s.node.name                                                                                                                                                                                                                     
+                - k8s.namespace.name                                                                                                                                                                                                                
+                - k8s.deployment.name                                                                                                                                                                                                               
+                - k8s.statefulset.name                                                                                                                                                                                                              
+                - k8s.daemonset.name                                                                                                                                                                                                                
+                - k8s.cronjob.name                                                                                                                                                                                                                  
+                - k8s.job.name                                                                                                                                                                                                                      
+            labels:                                                                                                                                                                                                                                 
+                - from: pod                                                                                                                                                                                                                         
+                  key: app.kubernetes.io/name                                                                                                                                                                                                       
+                  tag_name: kyma.kubernetes_io_app_name                                                                                                                                                                                             
+                - from: pod                                                                                                                                                                                                                         
+                  key: app                                                                                                                                                                                                                          
+                  tag_name: kyma.app_name                                                                                                                                                                                                           
+        pod_association:                                                                                                                                                                                                                            
+            - sources:                                                                                                                                                                                                                              
+                - from: resource_attribute                                                                                                                                                                                                          
+                  name: k8s.pod.ip                                                                                                                                                                                                                  
+            - sources:                                                                                                                                                                                                                              
+                - from: resource_attribute                                                                                                                                                                                                          
+                  name: k8s.pod.uid                                                                                                                                                                                                                 
+            - sources:                                                                                                                                                                                                                              
+                - from: connection
+      resource/insert-cluster-name:                                                                                                                                                                                                                   
+          attributes:                                                                                                                                                                                                                                 
+              - action: insert                                                                                                                                                                                                                        
+                key: k8s.cluster.name                                                                                                                                                                                                                 
+                value: blabala 
 
     receivers:
       filelog:
@@ -131,6 +173,9 @@ data:
           processors:
           - memory_limiter
           - transform/set-instrumentation-scope-runtime
+          - k8sattributes
+          - resource/insert-cluster-name
+          # - batch
           receivers:
           - filelog
       telemetry:
