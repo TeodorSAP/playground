@@ -26,10 +26,6 @@ data:
         endpoint: 127.0.0.1:1777
 
     processors:
-      memory_limiter:
-        check_interval: 5s
-        limit_percentage: 80
-        spike_limit_percentage: 25
       transform/set-instrumentation-scope-runtime:
         error_mode: ignore
         metric_statements:
@@ -78,7 +74,7 @@ data:
         - /var/log/pods/kyma-system_telemetry-log-agent*/*/*.log # exclude self
         - /var/log/pods/kyma-system_telemetry-fluent-bit*/*/*.log # exclude FluentBit
         include:
-        - /var/log/pods/*/*/*.log
+        - /var/log/pods/log-load-test*/*flog*/*.log
         include_file_name: false
         include_file_path: true
         operators:
@@ -123,13 +119,14 @@ data:
           exporters:
           - otlp
           processors:
-          - memory_limiter
           - transform/set-instrumentation-scope-runtime
           - k8sattributes
           - resource/insert-cluster-name
           receivers:
           - filelog
       telemetry:
+        logs:
+          level: DEBUG 
         metrics:
           readers:
           - pull:

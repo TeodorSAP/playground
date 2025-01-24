@@ -1,17 +1,3 @@
-apiVersion: telemetry.kyma-project.io/v1alpha1
-kind: LogPipeline
-metadata:
-  name: load-test-1
-spec:
-  output:
-    otlp:
-      endpoint:
-        value: http://log-receiver.log-load-test:4317
-      tls:
-        insecure: true
-        insecureSkipVerify: true
-      protocol: grpc
----
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -34,14 +20,15 @@ data:
           http:
             endpoint: ${MY_POD_IP}:4318
     exporters:
-      nop:
+      debug:
+        verbosity: normal
     service:
       pipelines:
         logs:
           receivers:
             - otlp
           exporters:
-            - nop
+            - debug
       telemetry:
         metrics:
           readers:

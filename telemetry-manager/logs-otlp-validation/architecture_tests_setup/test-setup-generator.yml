@@ -28,7 +28,8 @@ spec:
       containers:
         - args:
             - -f=json
-            - -n=2000000
+            - -n=10
+            - -d=60m
           image: mingrammer/flog
           imagePullPolicy: Always
           name: flog
