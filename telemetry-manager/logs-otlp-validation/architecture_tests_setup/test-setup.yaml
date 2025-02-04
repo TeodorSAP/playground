@@ -21,7 +21,8 @@ data:
             endpoint: ${MY_POD_IP}:4318
     exporters:
       debug:
-        verbosity: normal
+        verbosity: basic
+      nop:
     service:
       pipelines:
         logs:
@@ -29,7 +30,10 @@ data:
             - otlp
           exporters:
             - debug
+            # - nop
       telemetry:
+        logs:
+          level: DEBUG
         metrics:
           readers:
           - pull:

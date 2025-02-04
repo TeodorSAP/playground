@@ -7,7 +7,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: log-gen-telemetrygen
-  namespace: logs-generation
+  namespace: log-load-test
 spec:
   replicas: 1
   selector:
@@ -26,9 +26,7 @@ spec:
             - --otlp-endpoint
             - telemetry-otlp-logs.kyma-system:4317
             - --otlp-insecure
-            - --duration
-            - 1h
-            - --rate
+            - --logs
             - "10"
-          image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.111.0
+          image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.118.0
           name: telemetrygen
