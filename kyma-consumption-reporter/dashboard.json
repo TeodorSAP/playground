@@ -16,7 +16,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": 72,
-    "iteration": 1744121545880,
+    "iteration": 1744121545928,
     "links": [],
     "panels": [
         {
@@ -1141,7 +1141,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "kcr_metering_fallback_submeter_errors_total{runtime_id=\"$runtime_id\"}",
+                    "expr": "kcr_metering_fallback_errors_total{runtime_id=\"$runtime_id\"}",
                     "interval": "",
                     "legendFormat": "{{submeter_id}}",
                     "refId": "A"
@@ -1321,8 +1321,8 @@
                 "allValue": null,
                 "current": {
                     "selected": false,
-                    "text": "2931ead3-3635-4c1a-adb6-abecda438209",
-                    "value": "2931ead3-3635-4c1a-adb6-abecda438209"
+                    "text": "6b123505-aaaf-41c6-ab42-ccb86f072696",
+                    "value": "6b123505-aaaf-41c6-ab42-ccb86f072696"
                 },
                 "datasource": null,
                 "definition": "label_values(infrastructure_manager_im_runtime_state, runtimeId)",
@@ -1358,5 +1358,5 @@
     "timezone": "",
     "title": "KCP / Consumption Reporter - teo",
     "uid": "eKoOGtAHz",
-    "version": 9
+    "version": 10
 }
