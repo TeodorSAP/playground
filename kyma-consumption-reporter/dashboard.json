@@ -16,7 +16,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": 72,
-    "iteration": 1744105711084,
+    "iteration": 1744121545860,
     "links": [],
     "panels": [
         {
@@ -40,17 +40,39 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "mappings": [],
+                    "mappings": [
+                        {
+                            "from": "",
+                            "id": 1,
+                            "text": "Billable",
+                            "to": "",
+                            "type": 1,
+                            "value": "billable"
+                        },
+                        {
+                            "from": "",
+                            "id": 2,
+                            "text": "Not Found",
+                            "to": "",
+                            "type": 1,
+                            "value": "not-found"
+                        },
+                        {
+                            "from": "",
+                            "id": 3,
+                            "text": "Not Billable",
+                            "to": "",
+                            "type": 1,
+                            "value": "not-billable"
+                        }
+                    ],
+                    "noValue": "No Data",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
                                 "color": "green",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     }
@@ -71,7 +93,7 @@
                 "orientation": "auto",
                 "reduceOptions": {
                     "calcs": [
-                        "first"
+                        "firstNotNull"
                     ],
                     "fields": "/^state$/",
                     "values": false
@@ -246,7 +268,7 @@
                 "x": 8,
                 "y": 7
             },
-            "id": 17,
+            "id": 19,
             "options": {
                 "graph": {},
                 "legend": {
@@ -262,8 +284,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_node_vm{runtime_id=\"$runtime_id\"}) by (type)",
-                    "instant": false,
+                    "expr": "sum(kcr_metering_node_cost{runtime_id=\"$runtime_id\"}) by (type)",
                     "interval": "",
                     "legendFormat": "{{type}}",
                     "refId": "A"
@@ -271,7 +292,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Virtual Machines",
+            "title": "Node Cost",
             "type": "timeseries"
         },
         {
@@ -343,7 +364,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "rate(kcr_calculation_node_usage_per_meter_total{runtime_id=\"$runtime_id\", meter_id=\"node\"}[6m])",
+                    "expr": "sum(rate(kcr_calculation_node_usage_per_meter_total{runtime_id=\"$runtime_id\", meter_id=\"node\"}[6m]))",
                     "hide": false,
                     "instant": false,
                     "interval": "2m",
@@ -371,13 +392,253 @@
             "type": "row"
         },
         {
-            "collapsed": true,
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 0,
+                "y": 16
+            },
+            "id": 17,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltipOptions": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "7.5.37",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(kcr_metering_pvc_size_exact{runtime_id=\"$runtime_id\"}) by (type)",
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "{{type}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Size (Exact)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 8,
+                "y": 16
+            },
+            "id": 22,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltipOptions": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "7.5.37",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(kcr_metering_pvc_size_exact{runtime_id=\"$runtime_id\"}) by (type)",
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "{{type}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Size (Rounded)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 16,
+                "y": 16
+            },
+            "id": 21,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltipOptions": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "7.5.37",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(kcr_metering_pvc_count{runtime_id=\"$runtime_id\"}) by (type)",
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "{{type}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Count",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
             "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 16
+                "y": 24
             },
             "id": 14,
             "panels": [],
@@ -385,18 +646,418 @@
             "type": "row"
         },
         {
-            "collapsed": true,
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 0,
+                "y": 25
+            },
+            "id": 20,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltipOptions": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "7.5.37",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(kcr_metering_redis_size{runtime_id=\"$runtime_id\"}) by (tier)",
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "{{tier}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Size",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 8,
+                "y": 25
+            },
+            "id": 23,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltipOptions": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "7.5.37",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(kcr_metering_redis_count{runtime_id=\"$runtime_id\"}) by (tier)",
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "{{tier}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Count",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
             "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 17
+                "y": 33
             },
             "id": 16,
             "panels": [],
             "title": "VSC Meter",
             "type": "row"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 0,
+                "y": 34
+            },
+            "id": 24,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltipOptions": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "7.5.37",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(kcr_metering_vsc_size_total{runtime_id=\"$runtime_id\"}) by (provider)",
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "{{provider}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Size (Total)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 8,
+                "y": 34
+            },
+            "id": 25,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltipOptions": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "7.5.37",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(kcr_metering_vsc_size_rounded{runtime_id=\"$runtime_id\"}) by (provider)",
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "{{provider}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Size (Rounded)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 16,
+                "y": 34
+            },
+            "id": 26,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltipOptions": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "7.5.37",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(kcr_metering_vsc_count{runtime_id=\"$runtime_id\"}) by (provider)",
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "{{provider}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Count",
+            "type": "timeseries"
         }
     ],
     "refresh": false,
@@ -409,8 +1070,8 @@
                 "allValue": null,
                 "current": {
                     "selected": false,
-                    "text": "228d5933-4a8a-4de0-a3aa-47f22516ea40",
-                    "value": "228d5933-4a8a-4de0-a3aa-47f22516ea40"
+                    "text": "400b1812-bd15-4a8f-9afa-f11fa467afea",
+                    "value": "400b1812-bd15-4a8f-9afa-f11fa467afea"
                 },
                 "datasource": null,
                 "definition": "label_values(infrastructure_manager_im_runtime_state, runtimeId)",
@@ -446,5 +1107,5 @@
     "timezone": "",
     "title": "KCP / Consumption Reporter - teo",
     "uid": "eKoOGtAHz",
-    "version": 1
+    "version": 6
 }
