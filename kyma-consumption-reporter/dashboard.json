@@ -16,7 +16,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": 72,
-    "iteration": 1744121545876,
+    "iteration": 1744121545880,
     "links": [],
     "panels": [
         {
@@ -452,7 +452,7 @@
                     "placement": "bottom"
                 },
                 "tooltipOptions": {
-                    "mode": "single"
+                    "mode": "multi"
                 }
             },
             "pluginVersion": "7.5.37",
@@ -532,7 +532,7 @@
                     "placement": "bottom"
                 },
                 "tooltipOptions": {
-                    "mode": "single"
+                    "mode": "multi"
                 }
             },
             "pluginVersion": "7.5.37",
@@ -612,7 +612,7 @@
                     "placement": "bottom"
                 },
                 "tooltipOptions": {
-                    "mode": "single"
+                    "mode": "multi"
                 }
             },
             "pluginVersion": "7.5.37",
@@ -706,7 +706,7 @@
                     "placement": "bottom"
                 },
                 "tooltipOptions": {
-                    "mode": "single"
+                    "mode": "multi"
                 }
             },
             "pluginVersion": "7.5.37",
@@ -786,7 +786,7 @@
                     "placement": "bottom"
                 },
                 "tooltipOptions": {
-                    "mode": "single"
+                    "mode": "multi"
                 }
             },
             "pluginVersion": "7.5.37",
@@ -880,7 +880,7 @@
                     "placement": "bottom"
                 },
                 "tooltipOptions": {
-                    "mode": "single"
+                    "mode": "multi"
                 }
             },
             "pluginVersion": "7.5.37",
@@ -960,7 +960,7 @@
                     "placement": "bottom"
                 },
                 "tooltipOptions": {
-                    "mode": "single"
+                    "mode": "multi"
                 }
             },
             "pluginVersion": "7.5.37",
@@ -1040,7 +1040,7 @@
                     "placement": "bottom"
                 },
                 "tooltipOptions": {
-                    "mode": "single"
+                    "mode": "multi"
                 }
             },
             "pluginVersion": "7.5.37",
@@ -1058,6 +1058,257 @@
             "timeShift": null,
             "title": "Count",
             "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 34
+            },
+            "id": 28,
+            "panels": [],
+            "title": "Fallback Meter",
+            "type": "row"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 8,
+                "x": 0,
+                "y": 35
+            },
+            "id": 30,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltipOptions": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "7.5.37",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "kcr_metering_fallback_submeter_errors_total{runtime_id=\"$runtime_id\"}",
+                    "interval": "",
+                    "legendFormat": "{{submeter_id}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Meter Errors",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 8,
+                "x": 8,
+                "y": 35
+            },
+            "id": 31,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltipOptions": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "7.5.37",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "kcr_metering_fallback_submeter_errors_total{runtime_id=\"$runtime_id\"}",
+                    "interval": "",
+                    "legendFormat": "{{submeter_id}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Submeter Errors",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 8,
+                "x": 16,
+                "y": 35
+            },
+            "id": 32,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltipOptions": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "7.5.37",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "kcr_metering_fallback_cache_reads_total{runtime_id=\"$runtime_id\"}",
+                    "interval": "",
+                    "legendFormat": "{{submeter_id}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Cache Reads",
+            "type": "timeseries"
         }
     ],
     "refresh": false,
@@ -1069,7 +1320,7 @@
             {
                 "allValue": null,
                 "current": {
-                    "selected": true,
+                    "selected": false,
                     "text": "2931ead3-3635-4c1a-adb6-abecda438209",
                     "value": "2931ead3-3635-4c1a-adb6-abecda438209"
                 },
@@ -1107,5 +1358,5 @@
     "timezone": "",
     "title": "KCP / Consumption Reporter - teo",
     "uid": "eKoOGtAHz",
-    "version": 7
+    "version": 9
 }
