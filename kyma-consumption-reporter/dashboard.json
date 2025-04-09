@@ -16,7 +16,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": 71,
-    "iteration": 1744198941386,
+    "iteration": 1744206278921,
     "links": [],
     "panels": [
         {
@@ -109,11 +109,19 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "kcr_metering_runtime_state{$filter_by=\"$runtime_id\", state=\"billable\"} or\nkcr_metering_runtime_state{$filter_by=\"$shoot_name\", state=\"billable\"}",
+                    "expr": "kcr_metering_runtime_state{$filter_by=\"$runtime_id\", state=\"billable\"}",
                     "format": "table",
                     "interval": "",
                     "legendFormat": "{{state}}",
                     "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "kcr_metering_runtime_state{$filter_by=\"$shoot_name\", state=\"billable\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{state}}",
+                    "refId": "B"
                 }
             ],
             "timeFrom": null,
@@ -1432,7 +1440,7 @@
             {
                 "allValue": null,
                 "current": {
-                    "selected": true,
+                    "selected": false,
                     "text": "runtime_id",
                     "value": "runtime_id"
                 },
@@ -1464,8 +1472,8 @@
                 "allValue": null,
                 "current": {
                     "selected": false,
-                    "text": "1d5fc8ab-e5d0-47f4-b918-a098247c0039",
-                    "value": "1d5fc8ab-e5d0-47f4-b918-a098247c0039"
+                    "text": "5987fef8-9f30-42fa-8f08-d40a6255037d",
+                    "value": "5987fef8-9f30-42fa-8f08-d40a6255037d"
                 },
                 "datasource": null,
                 "definition": "label_values(infrastructure_manager_im_runtime_state, runtimeId)",
@@ -1495,8 +1503,8 @@
                 "allValue": null,
                 "current": {
                     "selected": false,
-                    "text": "c-846aced",
-                    "value": "c-846aced"
+                    "text": "c-81d028a",
+                    "value": "c-81d028a"
                 },
                 "datasource": null,
                 "definition": "label_values(infrastructure_manager_im_runtime_state, shootName)",
@@ -1532,5 +1540,5 @@
     "timezone": "",
     "title": "KCP / Consumption Reporter - teo",
     "uid": "eKoOGtAHz",
-    "version": 13
+    "version": 14
 }
