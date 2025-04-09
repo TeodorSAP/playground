@@ -15,8 +15,8 @@
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
-    "id": 72,
-    "iteration": 1744121545928,
+    "id": 71,
+    "iteration": 1744185829604,
     "links": [],
     "panels": [
         {
@@ -48,14 +48,6 @@
                             "to": "",
                             "type": 1,
                             "value": "billable"
-                        },
-                        {
-                            "from": "",
-                            "id": 2,
-                            "text": "Not Found",
-                            "to": "",
-                            "type": 1,
-                            "value": "not-found"
                         },
                         {
                             "from": "",
@@ -1141,7 +1133,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "kcr_metering_fallback_errors_total{runtime_id=\"$runtime_id\"}",
+                    "expr": "sum(kcr_metering_fallback_errors_total{runtime_id=\"$runtime_id\"}) by (submeter_id)",
                     "interval": "",
                     "legendFormat": "{{submeter_id}}",
                     "refId": "A"
@@ -1220,7 +1212,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "kcr_metering_fallback_submeter_errors_total{runtime_id=\"$runtime_id\"}",
+                    "expr": "sum(kcr_metering_fallback_submeter_errors_total{runtime_id=\"$runtime_id\"}) by (submeter_id)",
                     "interval": "",
                     "legendFormat": "{{submeter_id}}",
                     "refId": "A"
@@ -1299,7 +1291,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "kcr_metering_fallback_cache_reads_total{runtime_id=\"$runtime_id\"}",
+                    "expr": "sum(kcr_metering_fallback_cache_reads_total{runtime_id=\"$runtime_id\"}) by (submeter_id)",
                     "interval": "",
                     "legendFormat": "{{submeter_id}}",
                     "refId": "A"
@@ -1321,8 +1313,8 @@
                 "allValue": null,
                 "current": {
                     "selected": false,
-                    "text": "6b123505-aaaf-41c6-ab42-ccb86f072696",
-                    "value": "6b123505-aaaf-41c6-ab42-ccb86f072696"
+                    "text": "910b4a0a-4093-42b7-bc57-197e3fe691f4",
+                    "value": "910b4a0a-4093-42b7-bc57-197e3fe691f4"
                 },
                 "datasource": null,
                 "definition": "label_values(infrastructure_manager_im_runtime_state, runtimeId)",
@@ -1358,5 +1350,5 @@
     "timezone": "",
     "title": "KCP / Consumption Reporter - teo",
     "uid": "eKoOGtAHz",
-    "version": 10
+    "version": 2
 }
