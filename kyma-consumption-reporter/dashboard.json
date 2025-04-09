@@ -16,7 +16,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": 71,
-    "iteration": 1744185829604,
+    "iteration": 1744196475739,
     "links": [],
     "panels": [
         {
@@ -44,18 +44,18 @@
                         {
                             "from": "",
                             "id": 1,
-                            "text": "Billable",
-                            "to": "",
-                            "type": 1,
-                            "value": "billable"
-                        },
-                        {
-                            "from": "",
-                            "id": 3,
                             "text": "Not Billable",
                             "to": "",
                             "type": 1,
-                            "value": "not-billable"
+                            "value": "0"
+                        },
+                        {
+                            "from": "",
+                            "id": 2,
+                            "text": "Billable",
+                            "to": "",
+                            "type": 1,
+                            "value": "1"
                         }
                     ],
                     "noValue": "No Data",
@@ -63,8 +63,16 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "rgb(207, 207, 207)",
                                 "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 0
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
                             }
                         ]
                     }
@@ -87,7 +95,7 @@
                     "calcs": [
                         "firstNotNull"
                     ],
-                    "fields": "/^state$/",
+                    "fields": "",
                     "values": false
                 },
                 "text": {
@@ -101,7 +109,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "kcr_metering_runtime_state{runtime_id=\"$runtime_id\"}!=0",
+                    "expr": "kcr_metering_runtime_state{$filter_by=\"$runtime_id\", state=\"billable\"} or kcr_metering_runtime_state{$filter_by=\"$shoot_name\", state=\"billable\"}",
                     "format": "table",
                     "interval": "",
                     "legendFormat": "{{state}}",
@@ -110,7 +118,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Runtime State",
+            "title": "State",
             "type": "stat"
         },
         {
@@ -196,7 +204,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_node_cost{runtime_id=\"$runtime_id\"}) by (type)",
+                    "expr": "sum(kcr_metering_node_cost{$filter_by=\"$runtime_id\"} or kcr_metering_node_cost{$filter_by=\"$shoot_name\"}) by (type)",
                     "interval": "",
                     "legendFormat": "{{type}}",
                     "refId": "A"
@@ -204,7 +212,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Node Cost",
+            "title": "Cost",
             "type": "timeseries"
         },
         {
@@ -276,7 +284,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_node_cost{runtime_id=\"$runtime_id\"}) by (type)",
+                    "expr": "sum(kcr_metering_node_vm{$filter_by=\"$runtime_id\"} or kcr_metering_node_vm{$filter_by=\"$shoot_name\"}) by (type)",
                     "interval": "",
                     "legendFormat": "{{type}}",
                     "refId": "A"
@@ -284,7 +292,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Node Cost",
+            "title": "VM",
             "type": "timeseries"
         },
         {
@@ -356,7 +364,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(rate(kcr_calculation_node_usage_per_meter_total{runtime_id=\"$runtime_id\", meter_id=\"node\"}[6m]))",
+                    "expr": "sum(rate((kcr_calculation_node_usage_per_meter_total{$filter_by=\"$runtime_id\", meter_id=\"node\"} or kcr_calculation_node_usage_per_meter_total{$filter_by=\"$shoot_name\", meter_id=\"node\"})[6m]))",
                     "hide": false,
                     "instant": false,
                     "interval": "2m",
@@ -366,7 +374,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Node Usage",
+            "title": "Usage",
             "type": "timeseries"
         },
         {
@@ -451,7 +459,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_pvc_size_exact{runtime_id=\"$runtime_id\"}) by (type)",
+                    "expr": "sum(kcr_metering_pvc_size_exact{$filter_by=\"$runtime_id\"} or kcr_metering_pvc_size_exact{$filter_by=\"$shoot_name\"}) by (type)",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "{{type}}",
@@ -531,7 +539,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_pvc_size_exact{runtime_id=\"$runtime_id\"}) by (type)",
+                    "expr": "sum(kcr_metering_pvc_size_exact{$filter_by=\"$runtime_id\"} or kcr_metering_pvc_size_exact{$filter_by=\"$shoot_name\"}) by (type)",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "{{type}}",
@@ -611,7 +619,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_pvc_count{runtime_id=\"$runtime_id\"}) by (type)",
+                    "expr": "sum(kcr_metering_pvc_count{$filter_by=\"$runtime_id\"} or kcr_metering_pvc_count{$filter_by=\"$shoot_name\"}) by (type)",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "{{type}}",
@@ -705,7 +713,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_redis_size{runtime_id=\"$runtime_id\"}) by (tier)",
+                    "expr": "sum(kcr_metering_redis_size{$filter_by=\"$runtime_id\"} or kcr_metering_redis_size{$filter_by=\"$shoot_name\"}) by (tier)",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "{{tier}}",
@@ -785,7 +793,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_redis_count{runtime_id=\"$runtime_id\"}) by (tier)",
+                    "expr": "sum(kcr_metering_redis_count{$filter_by=\"$runtime_id\"} or kcr_metering_redis_count{$filter_by=\"$shoot_name\"}) by (tier)",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "{{tier}}",
@@ -879,7 +887,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_vsc_size_total{runtime_id=\"$runtime_id\"}) by (provider)",
+                    "expr": "sum(kcr_metering_vsc_size_total{$filter_by=\"$runtime_id\"} or kcr_metering_vsc_size_total{$filter_by=\"$shoot_name\"}) by (provider)",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "{{provider}}",
@@ -959,7 +967,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_vsc_size_rounded{runtime_id=\"$runtime_id\"}) by (provider)",
+                    "expr": "sum(kcr_metering_vsc_size_rounded{$filter_by=\"$runtime_id\"} or kcr_metering_vsc_size_rounded{$filter_by=\"$shoot_name\"}) by (provider)",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "{{provider}}",
@@ -1039,7 +1047,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_vsc_count{runtime_id=\"$runtime_id\"}) by (provider)",
+                    "expr": "sum(kcr_metering_vsc_count{$filter_by=\"$runtime_id\"} or kcr_metering_vsc_count{$filter_by=\"$shoot_name\"}) by (provider)",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "{{provider}}",
@@ -1133,7 +1141,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_fallback_errors_total{runtime_id=\"$runtime_id\"}) by (submeter_id)",
+                    "expr": "sum(kcr_metering_fallback_errors_total{$filter_by=\"$runtime_id\"} or kcr_metering_fallback_errors_total{$filter_by=\"$shoot_name\"}) by (submeter_id)",
                     "interval": "",
                     "legendFormat": "{{submeter_id}}",
                     "refId": "A"
@@ -1141,7 +1149,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Meter Errors",
+            "title": "Fallback Errors",
             "type": "timeseries"
         },
         {
@@ -1212,7 +1220,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_fallback_submeter_errors_total{runtime_id=\"$runtime_id\"}) by (submeter_id)",
+                    "expr": "sum(kcr_metering_fallback_submeter_errors_total{$filter_by=\"$runtime_id\"} or kcr_metering_fallback_submeter_errors_total{$filter_by=\"$shoot_name\"}) by (submeter_id)",
                     "interval": "",
                     "legendFormat": "{{submeter_id}}",
                     "refId": "A"
@@ -1291,7 +1299,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_fallback_cache_reads_total{runtime_id=\"$runtime_id\"}) by (submeter_id)",
+                    "expr": "sum(kcr_metering_fallback_cache_reads_total{$filter_by=\"$runtime_id\"} or kcr_metering_fallback_cache_reads_total{$filter_by=\"$shoot_name\"}) by (submeter_id)",
                     "interval": "",
                     "legendFormat": "{{submeter_id}}",
                     "refId": "A"
@@ -1312,9 +1320,40 @@
             {
                 "allValue": null,
                 "current": {
+                    "selected": true,
+                    "text": "runtime_id",
+                    "value": "runtime_id"
+                },
+                "description": null,
+                "error": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": "Filter By",
+                "multi": false,
+                "name": "filter_by",
+                "options": [
+                    {
+                        "selected": true,
+                        "text": "runtime_id",
+                        "value": "runtime_id"
+                    },
+                    {
+                        "selected": false,
+                        "text": "shoot_name",
+                        "value": "shoot_name"
+                    }
+                ],
+                "query": "runtime_id,shoot_name",
+                "queryValue": "",
+                "skipUrlSync": false,
+                "type": "custom"
+            },
+            {
+                "allValue": null,
+                "current": {
                     "selected": false,
-                    "text": "910b4a0a-4093-42b7-bc57-197e3fe691f4",
-                    "value": "910b4a0a-4093-42b7-bc57-197e3fe691f4"
+                    "text": "1d5fc8ab-e5d0-47f4-b918-a098247c0039",
+                    "value": "1d5fc8ab-e5d0-47f4-b918-a098247c0039"
                 },
                 "datasource": null,
                 "definition": "label_values(infrastructure_manager_im_runtime_state, runtimeId)",
@@ -1339,6 +1378,37 @@
                 "tagsQuery": "",
                 "type": "query",
                 "useTags": false
+            },
+            {
+                "allValue": null,
+                "current": {
+                    "selected": true,
+                    "text": "c-744f757",
+                    "value": "c-744f757"
+                },
+                "datasource": null,
+                "definition": "label_values(infrastructure_manager_im_runtime_state, shootName)",
+                "description": null,
+                "error": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": null,
+                "multi": false,
+                "name": "shoot_name",
+                "options": [],
+                "query": {
+                    "query": "label_values(infrastructure_manager_im_runtime_state, shootName)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "tagValuesQuery": "",
+                "tags": [],
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
             }
         ]
     },
@@ -1350,5 +1420,5 @@
     "timezone": "",
     "title": "KCP / Consumption Reporter - teo",
     "uid": "eKoOGtAHz",
-    "version": 2
+    "version": 10
 }
