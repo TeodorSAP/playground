@@ -1,0 +1,1 @@
+https://plutono.cp.dev.kyma.cloud.sap/d/eKoOGtAHz/kcp-consumption-reporter-teo?orgId=1&from=now-6h&to=now&var-filter_by=shoot_name&var-shoot_name=${__field.labels.shoot_name}
