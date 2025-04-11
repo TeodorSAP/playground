@@ -16,7 +16,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": 71,
-    "iteration": 1744356425125,
+    "iteration": 1744358263200,
     "links": [],
     "panels": [
         {
@@ -809,7 +809,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_redis_size{shoot_name=\"$shoot_name\"}) by (tier)",
+                    "expr": "sum(kcr_metering_redis_size_exact{shoot_name=\"$shoot_name\"}) by (tier)",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "{{tier}}",
@@ -818,7 +818,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Size",
+            "title": "Size (Exact)",
             "type": "timeseries"
         },
         {
@@ -1063,7 +1063,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(kcr_metering_vsc_size_total{shoot_name=\"$shoot_name\"}) by (provider)",
+                    "expr": "sum(kcr_metering_vsc_size_exact{shoot_name=\"$shoot_name\"}) by (provider)",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "{{provider}}",
@@ -1072,7 +1072,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Size (Total)",
+            "title": "Size (Exact)",
             "type": "timeseries"
         },
         {
@@ -1614,5 +1614,5 @@
     "timezone": "",
     "title": "KCP / Consumption Reporter (Runtime)",
     "uid": "eKoOGtAHz",
-    "version": 12
+    "version": 13
 }
