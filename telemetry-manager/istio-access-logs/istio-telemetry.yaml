@@ -1,0 +1,9 @@
+apiVersion: telemetry.istio.io/v1
+kind: Telemetry
+metadata:
+  name: access-logs-config
+  namespace: otel
+spec:
+  accessLogging:
+    - providers:
+        - name: kyma-logs
