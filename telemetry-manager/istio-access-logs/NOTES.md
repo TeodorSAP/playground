@@ -34,10 +34,14 @@ helm delete -n $K8S_NAMESPACE $HELM_OTEL_RELEASE
 
 ### Prometheus + Grafana Setup
 ```shell
-TODO
+k create ns prometheus
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm upgrade --install -n "prometheus" "prometheus" prometheus-community/kube-prometheus-stack -f ./prom-values.yaml --set grafana.adminPassword=myPwd
 ```
 
 ### Load Test Setup
 ```shell
-TODO
+kubectl label namespace load-test istio-injection=enabled
+kubectl apply -f ./load-test.yaml
 ```
