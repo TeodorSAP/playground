@@ -1,9 +1,0 @@
-apiVersion: telemetry.istio.io/v1
-kind: Telemetry
-metadata:
-  name: access-logs-config
-  namespace: load-test
-spec:
-  accessLogging:
-    - providers:
-        - name: kyma-logs

@@ -1,4 +1,3 @@
-
 ####### This block configures resource limits for the tooling and disables scaping of them via annotations
 
 prometheusOperator:
@@ -53,8 +52,7 @@ kubeScheduler:
 ####### This block is required to enable scraping of endpoints with Istio strict mTLS, see also https://istio.io/latest/docs/ops/integrations/prometheus/#tls-settings
 prometheus:
   prometheusSpec:
-
-####### This block configures data retention and persistence
+    ####### This block configures data retention and persistence
     # How long to retain metrics
     retention: 1d
 
@@ -68,7 +66,7 @@ prometheus:
           resources:
             requests:
               storage: 30Gi
-    
+
     # Define resource limits
     resources:
       limits:
@@ -77,8 +75,7 @@ prometheus:
         cpu: 125m
         memory: 256m
 
-
-####### This block enabled scrape discovery based on typical prometheus annotations
+    ####### This block enabled scrape discovery based on typical prometheus annotations
 
     additionalScrapeConfigs:
       # Scrape config for service endpoints.
@@ -92,40 +89,17 @@ prometheus:
       # * `prometheus.io/path`: If the metrics path is not `/metrics` override this.
       # * `prometheus.io/port`: If the metrics are exposed on a different port to the
       # service then set this appropriately.
-      - job_name: 'kubernetes-service-endpoints'
+      - job_name: istio-proxy
 
         kubernetes_sd_configs:
-          - role: endpoints
+          - role: pod
+
+        metrics_path: /stats/prometheus
 
         relabel_configs:
-          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            regex: istio-proxy
             action: keep
-            regex: true
-          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
-            action: replace
-            target_label: __scheme__
-            regex: (https?)
-          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
-            action: replace
-            target_label: __metrics_path__
-            regex: (.+)
-          - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
-            action: replace
-            target_label: __address__
-            regex: ([^:]+)(?::\d+)?;(\d+)
-            replacement: $1:$2
-          - source_labels: [__meta_kubernetes_namespace]
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            regex: http-envoy-prom
             action: keep
-            regex: kyma-system
-          - source_labels: [__meta_kubernetes_namespace]
-            action: replace
-            target_label: namespace
-          - source_labels: [__meta_kubernetes_service_name]
-            action: replace
-            target_label: service
-          - source_labels: [__meta_kubernetes_pod_name]
-            action: replace
-            target_label: pod
-          - source_labels: [__meta_kubernetes_pod_node_name]
-            action: replace
-            target_label: node
