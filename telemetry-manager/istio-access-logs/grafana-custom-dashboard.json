@@ -754,7 +754,7 @@
                 {
                     "editorMode": "code",
                     "expr": "sum by(le) (rate(envoy_server_initialization_time_ms_bucket{__ignore_usage__=\"\"}[$__rate_interval]) )",
-                    "hide": false,
+                    "hide": true,
                     "legendFormat": "__auto",
                     "range": true,
                     "refId": "A"
@@ -779,7 +779,7 @@
                     },
                     "editorMode": "code",
                     "expr": "sum by(le) (rate(envoy_server_initialization_time_ms_bucket{__ignore_usage__=\"\"}[$__rate_interval]) )",
-                    "hide": false,
+                    "hide": true,
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -977,18 +977,19 @@
         }
     ],
     "preload": false,
+    "refresh": "",
     "schemaVersion": 41,
     "tags": [],
     "templating": {
         "list": []
     },
     "time": {
-        "from": "2025-04-22T11:30:00.000Z",
-        "to": "2025-04-22T12:30:00.000Z"
+        "from": "now-30m",
+        "to": "now"
     },
     "timepicker": {},
     "timezone": "browser",
     "title": "Istio Access Logs Test",
     "uid": "dejod5h5fs934b",
-    "version": 11
+    "version": 12
 }
