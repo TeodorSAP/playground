@@ -40,5 +40,15 @@ helm upgrade --install -n "prometheus" "prometheus" prometheus-community/kube-pr
 ### Load Test Setup
 ```shell
 kubectl label namespace load-test istio-injection=enabled
+
+# Test envoy provider
+kubectl apply -f ./old-istio-telemetry.yaml
+kubectl apply -f ./load-test.yaml
+
+# Test kyma-logs provider
+kubectl apply -f ./backend.yaml
+kubectl apply -f ./new-istio-telemetry.yaml
 kubectl apply -f ./load-test.yaml
 ```
+
+![Load Test Architecture](./load-test-architecture.drawio.svg)
