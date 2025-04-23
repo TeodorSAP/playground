@@ -34,7 +34,7 @@ helm delete -n $K8S_NAMESPACE $HELM_OTEL_RELEASE
 k create ns prometheus
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm upgrade --install -n "prometheus" "prometheus" prometheus-community/kube-prometheus-stack -f ./prom-values.yaml --set grafana.adminPassword=myPwd
+helm upgrade --install -n "prometheus" "prometheus" prometheus-community/kube-prometheus-stack -f ./assets/prom-values.yaml --set grafana.adminPassword=myPwd
 ```
 
 ### Load Test Setup
@@ -42,13 +42,18 @@ helm upgrade --install -n "prometheus" "prometheus" prometheus-community/kube-pr
 kubectl label namespace load-test istio-injection=enabled
 
 # Test envoy provider
-kubectl apply -f ./old-istio-telemetry.yaml
-kubectl apply -f ./load-test.yaml
+kubectl apply -f ./assets/istio-telemetry-envoy.yaml
+kubectl apply -f ./assets/load-test.yaml
 
 # Test kyma-logs provider
-kubectl apply -f ./backend.yaml
-kubectl apply -f ./new-istio-telemetry.yaml
-kubectl apply -f ./load-test.yaml
+kubectl apply -f ./assets/backend.yaml
+kubectl apply -f ./assets/istio-telemetry-kyma-logs.yaml
+kubectl apply -f ./assets/load-test.yaml
+
+# Additionally, test edge-cases for kyma-logs provider
+kubectl apply -f ./assets/fault-injection-config.yaml # configure fault injection parameters accordingly (see file)
+kubectl apply -f ./assets/istio-telemetry-kyma-logs.yaml
+kubectl apply -f ./assets/load-test.yaml
 ```
 
 ![Load Test Architecture](./load-test-architecture.drawio.svg)

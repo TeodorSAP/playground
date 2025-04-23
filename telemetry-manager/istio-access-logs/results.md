@@ -16,7 +16,7 @@ Envoy (Server):
 - `envoy_server_memory_heap_size` = Current reserved heap size in bytes. New Envoy process heap size on hot restart.
 - `envoy_server_memory_physical_size` = Current estimate of total bytes of the physical memory. New Envoy process physical memory size on hot restart.
 - `envoy_server_total_connections` = Total connections of both new and old Envoy processes.
-- `envoy_server_initialization_time_ms` = Total time taken for Envoy initialization in milliseconds. This is the time from server start-up until the worker threads are ready to accept new connections.
+- *(not always reported)* `envoy_server_initialization_time_ms` = Total time taken for Envoy initialization in milliseconds. This is the time from server start-up until the worker threads are ready to accept new connections.
 - `envoy_server_envoy_bug_failures` = Number of envoy bug failures detected in a release build. File or report the issue if this increments as this may be serious.
 - load-test/nginx/istio-proxy: CPU Usage, CPU Throttling, Memory Usage (`Dashboards > Kubernetes / Compute Resources / Pod`)
 
@@ -36,8 +36,9 @@ Istio:
 
 ## Results
 
-### 📊 Run R001
+### 📊 Run R01 - Comparing the two providers
 - 22-Apr-2025
+- **Scenario:** Comparing (old) `envoy` provider with (new) `kyma-logs` provider 
 - Load Generator (fortio): `["load", "-t", "10m", "-qps", "0", "-nocatchup", "-uniform", "nginx.load-test.svc"]` (no catchup)
 
 #### 🅿️ kyma-logs
@@ -70,7 +71,7 @@ fortio logs:
 2025-04-22T12:10:31.863326224Z fortio {"ts":1745323831.863191,"level":"info","r":20,"file":"periodic.go","line":851,"msg":"T000 ended after 10m0.024501371s : 79679 calls. qps=132.79291065271653"}
 2025-04-22T12:10:31.863351196Z fortio Ended after 10m0.024541595s : 318508 calls. qps=530.82
 2025-04-22T12:10:31.863532733Z fortio {"ts":1745323831.863323,"level":"info","r":1,"file":"periodic.go","line":581,"msg":"Run ended","run":0,"elapsed":600024541595,"calls":318508,"qps":530.8249545149174}
-2025-04-22T12:10:31.863553727Z fortio Aggregated Function Time : count 318508 avg 0.0075341122 +/- 0.01669 min 0.001008034 max 0.0788881 sum 2399.67501
+⏰2025-04-22T12:10:31.863553727Z fortio Aggregated Function Time : count 318508 avg 0.0075341122 +/- 0.01669 min 0.001008034 max 0.0788881 sum 2399.67501
 2025-04-22T12:10:31.863560390Z fortio # range, mid point, percentile, count
 2025-04-22T12:10:31.863591553Z fortio >= 0.00100803 <= 0.002 , 0.00150402 , 8.22, 26167
 2025-04-22T12:10:31.863598347Z fortio > 0.002 <= 0.003 , 0.0025 , 66.35, 185163
@@ -156,7 +157,7 @@ fortio logs:
 2025-04-22T13:44:40.449613600Z fortio {"ts":1745329480.449278,"level":"info","r":68,"file":"periodic.go","line":851,"msg":"T002 ended after 10m0.002975203s : 87987 calls. qps=146.6442728391992"}
 2025-04-22T13:44:40.449636465Z fortio Ended after 10m0.003052135s : 352140 calls. qps=586.9
 2025-04-22T13:44:40.449654078Z fortio {"ts":1745329480.449439,"level":"info","r":1,"file":"periodic.go","line":581,"msg":"Run ended","run":0,"elapsed":600003052135,"calls":352140,"qps":586.8970145184677}
-2025-04-22T13:44:40.449661444Z fortio Aggregated Function Time : count 352140 avg 0.0068140556 +/- 0.01599 min 0.001072631 max 0.086818476 sum 2399.50154
+⏰2025-04-22T13:44:40.449661444Z fortio Aggregated Function Time : count 352140 avg 0.0068140556 +/- 0.01599 min 0.001072631 max 0.086818476 sum 2399.50154
 2025-04-22T13:44:40.449667365Z fortio # range, mid point, percentile, count
 2025-04-22T13:44:40.449673525Z fortio >= 0.00107263 <= 0.002 , 0.00153632 , 13.78, 48527
 2025-04-22T13:44:40.449678807Z fortio > 0.002 <= 0.003 , 0.0025 , 81.35, 237932
@@ -213,9 +214,173 @@ fortio logs:
 2025-04-22T13:44:41.414863Z    stream closed EOF for load-test/traffic-generator (fortio)
 ```
 
-### 📊 Run R002
-- 22-Apr-2025
-- Load Generator (fortio): `["load", "-t", "10m", "-qps", "0", "nginx.load-test.svc"]` (with catchup)
+### ❗️📊 Run R02 - New provider (responsive OTEL backend)
+- 23-Apr-2025
+- This is a duplicate of R01/kyma-logs (just for reference)
+- Load Generator (fortio): `["load", "-t", "10m", "-qps", "0", "-nocatchup", "-uniform", "nginx.load-test.svc"]` (no catchup)
+TODO
+- `envoy_server_memory_allocated` / `envoy_server_memory_heap_size` / `envoy_server_memory_physical_size` (MB): ? / ? / ?
+- `envoy_server_total_connections` (average): ?
+- `envoy_server_initialization_time_ms`: ?
+- `envoy_server_envoy_bug_failures`: ?
+- `envoy_server_uptime`: ?
+- `envoy_cluster_upstream_cx_max_requests`: ?
+- `envoy_cluster_upstream_cx_protocol_error`: ?
+- `envoy_cluster_upstream_cx_destroy`: ?
+- `envoy_cluster_upstream_bytes` (KB): ![envoy_cluster_upstream_bytes](results/R00?_envoy_cluster_upstream_bytes_envoy.png)
+
+|     Pod     | CPU Usage | CPU Throttling | Memory Usage (WSS) | Receive Bandwidth | Transmit Bandwidth | Rate of Received Packets | Rate of Transmitted Packets | Rate of Packets Dropped (Received + Transmitted) |
+| :---------: | :-------: | :------------: | :----------------: | :---------------: | :----------------: | :----------------------: | :-------------------------: | :----------------------------------------------: |
+| istio-proxy |     ?     |       ?        |       ? MiB        |         -         |         -          |            -             |              -              |                        -                         |
+|    nginx    |     ?     |       -        |       ? MiB        |      ? KB/s       |       ? MB/s       |          ? p/s           |            ? p/s            |                      ? p/s                       |
+
+fortio logs:
+```
+```
+
+### ❗️📊 Run R03 - New provider (unresponsive OTEL backend) [100%, HTTP 503]
+- 23-Apr-2025
+- This is a duplicate of R001/kyma-logs (just for reference)
+- Load Generator (fortio): `["load", "-t", "10m", "-qps", "0", "-nocatchup", "-uniform", "nginx.load-test.svc"]` (no catchup)
+TODO
+- `envoy_server_memory_allocated` / `envoy_server_memory_heap_size` / `envoy_server_memory_physical_size` (MB): ? / ? / ?
+- `envoy_server_total_connections` (average): ?
+- `envoy_server_initialization_time_ms`: ?
+- `envoy_server_envoy_bug_failures`: ?
+- `envoy_server_uptime`: ?
+- `envoy_cluster_upstream_cx_max_requests`: ?
+- `envoy_cluster_upstream_cx_protocol_error`: ?
+- `envoy_cluster_upstream_cx_destroy`: ?
+- `envoy_cluster_upstream_bytes` (KB): ![envoy_cluster_upstream_bytes](results/R00?_envoy_cluster_upstream_bytes_envoy.png)
+
+|     Pod     | CPU Usage | CPU Throttling | Memory Usage (WSS) | Receive Bandwidth | Transmit Bandwidth | Rate of Received Packets | Rate of Transmitted Packets | Rate of Packets Dropped (Received + Transmitted) |
+| :---------: | :-------: | :------------: | :----------------: | :---------------: | :----------------: | :----------------------: | :-------------------------: | :----------------------------------------------: |
+| istio-proxy |     ?     |       ?        |       ? MiB        |         -         |         -          |            -             |              -              |                        -                         |
+|    nginx    |     ?     |       -        |       ? MiB        |      ? KB/s       |       ? MB/s       |          ? p/s           |            ? p/s            |                      ? p/s                       |
+
+fortio logs:
+```
+```
+
+### 📊 Run R04 - New provider (unresponsive OTEL backend) [70%, HTTP 503]
+- 23-Apr-2025
+- This is a duplicate of R001/kyma-logs (just for reference)
+- Load Generator (fortio): `["load", "-t", "10m", "-qps", "0", "-nocatchup", "-uniform", "nginx.load-test.svc"]` (no catchup)
+TODO
+- `envoy_server_memory_allocated` / `envoy_server_memory_heap_size` / `envoy_server_memory_physical_size` (MB): ? / ? / ?
+- `envoy_server_total_connections` (average): ?
+- `envoy_server_initialization_time_ms`: ?
+- `envoy_server_envoy_bug_failures`: ?
+- `envoy_server_uptime`: ?
+- `envoy_cluster_upstream_cx_max_requests`: ?
+- `envoy_cluster_upstream_cx_protocol_error`: ?
+- `envoy_cluster_upstream_cx_destroy`: ?
+- `envoy_cluster_upstream_bytes` (KB): ![envoy_cluster_upstream_bytes](results/R00?_envoy_cluster_upstream_bytes_envoy.png)
+
+|     Pod     | CPU Usage | CPU Throttling | Memory Usage (WSS) | Receive Bandwidth | Transmit Bandwidth | Rate of Received Packets | Rate of Transmitted Packets | Rate of Packets Dropped (Received + Transmitted) |
+| :---------: | :-------: | :------------: | :----------------: | :---------------: | :----------------: | :----------------------: | :-------------------------: | :----------------------------------------------: |
+| istio-proxy |     ?     |       ?        |       ? MiB        |         -         |         -          |            -             |              -              |                        -                         |
+|    nginx    |     ?     |       -        |       ? MiB        |      ? KB/s       |       ? MB/s       |          ? p/s           |            ? p/s            |                      ? p/s                       |
+
+fortio logs:
+```
+```
+
+### 📊 Run R05 - New provider (unresponsive OTEL backend) [50%, HTTP 503]
+- 23-Apr-2025
+- This is a duplicate of R001/kyma-logs (just for reference)
+- Load Generator (fortio): `["load", "-t", "10m", "-qps", "0", "-nocatchup", "-uniform", "nginx.load-test.svc"]` (no catchup)
+TODO
+- `envoy_server_memory_allocated` / `envoy_server_memory_heap_size` / `envoy_server_memory_physical_size` (MB): ? / ? / ?
+- `envoy_server_total_connections` (average): ?
+- `envoy_server_initialization_time_ms`: ?
+- `envoy_server_envoy_bug_failures`: ?
+- `envoy_server_uptime`: ?
+- `envoy_cluster_upstream_cx_max_requests`: ?
+- `envoy_cluster_upstream_cx_protocol_error`: ?
+- `envoy_cluster_upstream_cx_destroy`: ?
+- `envoy_cluster_upstream_bytes` (KB): ![envoy_cluster_upstream_bytes](results/R00?_envoy_cluster_upstream_bytes_envoy.png)
+
+|     Pod     | CPU Usage | CPU Throttling | Memory Usage (WSS) | Receive Bandwidth | Transmit Bandwidth | Rate of Received Packets | Rate of Transmitted Packets | Rate of Packets Dropped (Received + Transmitted) |
+| :---------: | :-------: | :------------: | :----------------: | :---------------: | :----------------: | :----------------------: | :-------------------------: | :----------------------------------------------: |
+| istio-proxy |     ?     |       ?        |       ? MiB        |         -         |         -          |            -             |              -              |                        -                         |
+|    nginx    |     ?     |       -        |       ? MiB        |      ? KB/s       |       ? MB/s       |          ? p/s           |            ? p/s            |                      ? p/s                       |
+
+fortio logs:
+```
+```
+
+### ❗️📊 Run R06 - New provider (delaying OTEL backend) [100%, 1s]
+- 23-Apr-2025
+- This is a duplicate of R001/kyma-logs (just for reference)
+- Load Generator (fortio): `["load", "-t", "10m", "-qps", "0", "-nocatchup", "-uniform", "nginx.load-test.svc"]` (no catchup)
+TODO
+- `envoy_server_memory_allocated` / `envoy_server_memory_heap_size` / `envoy_server_memory_physical_size` (MB): ? / ? / ?
+- `envoy_server_total_connections` (average): ?
+- `envoy_server_initialization_time_ms`: ?
+- `envoy_server_envoy_bug_failures`: ?
+- `envoy_server_uptime`: ?
+- `envoy_cluster_upstream_cx_max_requests`: ?
+- `envoy_cluster_upstream_cx_protocol_error`: ?
+- `envoy_cluster_upstream_cx_destroy`: ?
+- `envoy_cluster_upstream_bytes` (KB): ![envoy_cluster_upstream_bytes](results/R00?_envoy_cluster_upstream_bytes_envoy.png)
+
+|     Pod     | CPU Usage | CPU Throttling | Memory Usage (WSS) | Receive Bandwidth | Transmit Bandwidth | Rate of Received Packets | Rate of Transmitted Packets | Rate of Packets Dropped (Received + Transmitted) |
+| :---------: | :-------: | :------------: | :----------------: | :---------------: | :----------------: | :----------------------: | :-------------------------: | :----------------------------------------------: |
+| istio-proxy |     ?     |       ?        |       ? MiB        |         -         |         -          |            -             |              -              |                        -                         |
+|    nginx    |     ?     |       -        |       ? MiB        |      ? KB/s       |       ? MB/s       |          ? p/s           |            ? p/s            |                      ? p/s                       |
+
+fortio logs:
+```
+```
+
+### 📊 Run R07 - New provider (delaying OTEL backend) [100%, 3s]
+- 23-Apr-2025
+- This is a duplicate of R001/kyma-logs (just for reference)
+- Load Generator (fortio): `["load", "-t", "10m", "-qps", "0", "-nocatchup", "-uniform", "nginx.load-test.svc"]` (no catchup)
+TODO
+- `envoy_server_memory_allocated` / `envoy_server_memory_heap_size` / `envoy_server_memory_physical_size` (MB): ? / ? / ?
+- `envoy_server_total_connections` (average): ?
+- `envoy_server_initialization_time_ms`: ?
+- `envoy_server_envoy_bug_failures`: ?
+- `envoy_server_uptime`: ?
+- `envoy_cluster_upstream_cx_max_requests`: ?
+- `envoy_cluster_upstream_cx_protocol_error`: ?
+- `envoy_cluster_upstream_cx_destroy`: ?
+- `envoy_cluster_upstream_bytes` (KB): ![envoy_cluster_upstream_bytes](results/R00?_envoy_cluster_upstream_bytes_envoy.png)
+
+|     Pod     | CPU Usage | CPU Throttling | Memory Usage (WSS) | Receive Bandwidth | Transmit Bandwidth | Rate of Received Packets | Rate of Transmitted Packets | Rate of Packets Dropped (Received + Transmitted) |
+| :---------: | :-------: | :------------: | :----------------: | :---------------: | :----------------: | :----------------------: | :-------------------------: | :----------------------------------------------: |
+| istio-proxy |     ?     |       ?        |       ? MiB        |         -         |         -          |            -             |              -              |                        -                         |
+|    nginx    |     ?     |       -        |       ? MiB        |      ? KB/s       |       ? MB/s       |          ? p/s           |            ? p/s            |                      ? p/s                       |
+
+fortio logs:
+```
+```
+
+### 📊 Run R08 - New provider (delaying OTEL backend) [50%, 1s]
+- 23-Apr-2025
+- This is a duplicate of R001/kyma-logs (just for reference)
+- Load Generator (fortio): `["load", "-t", "10m", "-qps", "0", "-nocatchup", "-uniform", "nginx.load-test.svc"]` (no catchup)
+TODO
+- `envoy_server_memory_allocated` / `envoy_server_memory_heap_size` / `envoy_server_memory_physical_size` (MB): ? / ? / ?
+- `envoy_server_total_connections` (average): ?
+- `envoy_server_initialization_time_ms`: ?
+- `envoy_server_envoy_bug_failures`: ?
+- `envoy_server_uptime`: ?
+- `envoy_cluster_upstream_cx_max_requests`: ?
+- `envoy_cluster_upstream_cx_protocol_error`: ?
+- `envoy_cluster_upstream_cx_destroy`: ?
+- `envoy_cluster_upstream_bytes` (KB): ![envoy_cluster_upstream_bytes](results/R00?_envoy_cluster_upstream_bytes_envoy.png)
+
+|     Pod     | CPU Usage | CPU Throttling | Memory Usage (WSS) | Receive Bandwidth | Transmit Bandwidth | Rate of Received Packets | Rate of Transmitted Packets | Rate of Packets Dropped (Received + Transmitted) |
+| :---------: | :-------: | :------------: | :----------------: | :---------------: | :----------------: | :----------------------: | :-------------------------: | :----------------------------------------------: |
+| istio-proxy |     ?     |       ?        |       ? MiB        |         -         |         -          |            -             |              -              |                        -                         |
+|    nginx    |     ?     |       -        |       ? MiB        |      ? KB/s       |       ? MB/s       |          ? p/s           |            ? p/s            |                      ? p/s                       |
+
+fortio logs:
+```
+```
 
 
 
