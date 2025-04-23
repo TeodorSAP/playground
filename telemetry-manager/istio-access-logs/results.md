@@ -44,9 +44,9 @@ Istio:
 #### 🅿️ kyma-logs
 - `envoy_server_memory_allocated` / `envoy_server_memory_heap_size` / `envoy_server_memory_physical_size` (MB): 10.1 / 16 / 21.3
 - `envoy_server_total_connections` (average): 3.25
-- `envoy_server_initialization_time_ms`: ?
+- `envoy_server_initialization_time_ms` (ms): -
 - `envoy_server_envoy_bug_failures`: 0
-- `envoy_server_uptime`: 8.4K - 9.4K
+- `envoy_server_uptime` (K): 8.4 - 9.4
 - `envoy_cluster_upstream_cx_max_requests`: 7.25
 - `envoy_cluster_upstream_cx_protocol_error`: 6.25
 - `envoy_cluster_upstream_cx_destroy`: 6.25
@@ -130,9 +130,9 @@ fortio logs:
 #### 🅿️ envoy
 - `envoy_server_memory_allocated` / `envoy_server_memory_heap_size` / `envoy_server_memory_physical_size` (MB): 9.03 / 14 / 19
 - `envoy_server_total_connections` (average): 3.67
-- `envoy_server_initialization_time_ms`: 5650 ms
+- `envoy_server_initialization_time_ms` (ms): 5650
 - `envoy_server_envoy_bug_failures`: 0
-- `envoy_server_uptime`: 7.7K - 8.31K
+- `envoy_server_uptime` (K): 7.7 - 8.31
 - `envoy_cluster_upstream_cx_max_requests`: 7.67
 - `envoy_cluster_upstream_cx_protocol_error`: 6.67
 - `envoy_cluster_upstream_cx_destroy`: 6.67
@@ -214,28 +214,93 @@ fortio logs:
 2025-04-22T13:44:41.414863Z    stream closed EOF for load-test/traffic-generator (fortio)
 ```
 
-### ❗️📊 Run R02 - New provider (responsive OTEL backend)
+### 📊 Run R02 - New provider (responsive OTEL backend)
 - 23-Apr-2025
 - This is a duplicate of R01/kyma-logs (just for reference)
 - Load Generator (fortio): `["load", "-t", "10m", "-qps", "0", "-nocatchup", "-uniform", "nginx.load-test.svc"]` (no catchup)
-TODO
-- `envoy_server_memory_allocated` / `envoy_server_memory_heap_size` / `envoy_server_memory_physical_size` (MB): ? / ? / ?
-- `envoy_server_total_connections` (average): ?
-- `envoy_server_initialization_time_ms`: ?
-- `envoy_server_envoy_bug_failures`: ?
-- `envoy_server_uptime`: ?
-- `envoy_cluster_upstream_cx_max_requests`: ?
-- `envoy_cluster_upstream_cx_protocol_error`: ?
-- `envoy_cluster_upstream_cx_destroy`: ?
-- `envoy_cluster_upstream_bytes` (KB): ![envoy_cluster_upstream_bytes](results/R00?_envoy_cluster_upstream_bytes_envoy.png)
+- `envoy_server_memory_allocated` / `envoy_server_memory_heap_size` / `envoy_server_memory_physical_size` (MB): 10.1 / 16 / 21.6
+- `envoy_server_total_connections` (average): 3.25
+- `envoy_server_initialization_time_ms`: -
+- `envoy_server_envoy_bug_failures`: 0
+- `envoy_server_uptime`: 4.74-5.34
+- `envoy_cluster_upstream_cx_max_requests`: 5.5
+- `envoy_cluster_upstream_cx_protocol_error`: 4.5
+- `envoy_cluster_upstream_cx_destroy`: 4.5
+- `envoy_cluster_upstream_bytes` (KB): ![envoy_cluster_upstream_bytes](results/R02_envoy_cluster_upstream_bytes.png)
 
 |     Pod     | CPU Usage | CPU Throttling | Memory Usage (WSS) | Receive Bandwidth | Transmit Bandwidth | Rate of Received Packets | Rate of Transmitted Packets | Rate of Packets Dropped (Received + Transmitted) |
 | :---------: | :-------: | :------------: | :----------------: | :---------------: | :----------------: | :----------------------: | :-------------------------: | :----------------------------------------------: |
-| istio-proxy |     ?     |       ?        |       ? MiB        |         -         |         -          |            -             |              -              |                        -                         |
-|    nginx    |     ?     |       -        |       ? MiB        |      ? KB/s       |       ? MB/s       |          ? p/s           |            ? p/s            |                      ? p/s                       |
+| istio-proxy |   0.25    |      100%      |      42.8 MiB      |         -         |         -          |            -             |              -              |                        -                         |
+|    nginx    |   ~0.05   |       -        |      4.49 MiB      |     479 KB/s      |     1.17 MB/s      |         595 p/s          |           693 p/s           |                      0 p/s                       |
 
 fortio logs:
 ```
+2025-04-23T09:37:30.913872791Z fortio {"ts":1745401050.913664,"level":"info","r":1,"file":"scli.go","line":122,"msg":"Starting","command":"Φορτίο","version":"1.69.4 h1:G0DXdTn8/QtiCh+ykBXft8NcOCojfAhQKseHuxFVePE= go1.23.8 amd64 linux","go-max-procs":4}
+2025-04-23T09:37:30.915706510Z fortio Fortio 1.69.4 running at 0 queries per second, 4->4 procs, for 10m0s: nginx.load-test.svc
+2025-04-23T09:37:30.915730167Z fortio {"ts":1745401050.915621,"level":"info","r":1,"file":"httprunner.go","line":121,"msg":"Starting http test","run":0,"url":"nginx.load-test.svc","threads":4,"qps":"-1.0","warmup":"parallel","conn-reuse":""}
+2025-04-23T09:37:30.915851393Z fortio {"ts":1745401050.915720,"level":"warn","r":1,"file":"http_client.go","line":172,"msg":"Assuming http:// on missing scheme for 'nginx.load-test.svc'"}
+2025-04-23T09:37:30.928173608Z fortio Starting at max qps with 4 thread(s) [gomax 4] for 10m0s
+------------------------------
+2025-04-23T09:47:30.961931315Z fortio {"ts":1745401650.961509,"level":"info","r":55,"file":"periodic.go","line":851,"msg":"T003 ended after 10m0.033519492s : 78598 calls. qps=130.98934883928248"}
+2025-04-23T09:47:30.961979137Z fortio {"ts":1745401650.961593,"level":"info","r":54,"file":"periodic.go","line":851,"msg":"T002 ended after 10m0.033608924s : 78564 calls. qps=130.93266582330872"}
+2025-04-23T09:47:30.961986754Z fortio {"ts":1745401650.961616,"level":"info","r":52,"file":"periodic.go","line":851,"msg":"T000 ended after 10m0.033632618s : 78602 calls. qps=130.99599043649022"}
+2025-04-23T09:47:30.961992543Z fortio {"ts":1745401650.960971,"level":"info","r":53,"file":"periodic.go","line":851,"msg":"T001 ended after 10m0.032960527s : 78691 calls. qps=131.14446234901308"}
+2025-04-23T09:47:30.961998499Z fortio Ended after 10m0.033793748s : 314455 calls. qps=524.06
+2025-04-23T09:47:30.962014156Z fortio {"ts":1745401650.961897,"level":"info","r":1,"file":"periodic.go","line":581,"msg":"Run ended","run":0,"elapsed":600033793748,"calls":314455,"qps":524.0621499596132}
+⏰2025-04-23T09:47:30.962160591Z fortio Aggregated Function Time : count 314455 avg 0.0076314753 +/- 0.0176 min 0.001037022 max 0.086782302 sum 2399.75555
+2025-04-23T09:47:30.962177656Z fortio # range, mid point, percentile, count
+2025-04-23T09:47:30.962186905Z fortio >= 0.00103702 <= 0.002 , 0.00151851 , 12.30, 38690
+2025-04-23T09:47:30.962211349Z fortio > 0.002 <= 0.003 , 0.0025 , 75.01, 197173
+2025-04-23T09:47:30.962217420Z fortio > 0.003 <= 0.004 , 0.0035 , 90.08, 47399
+2025-04-23T09:47:30.962223476Z fortio > 0.004 <= 0.005 , 0.0045 , 91.64, 4906
+2025-04-23T09:47:30.962236669Z fortio > 0.005 <= 0.006 , 0.0055 , 92.02, 1204
+2025-04-23T09:47:30.962243493Z fortio > 0.006 <= 0.007 , 0.0065 , 92.19, 536
+2025-04-23T09:47:30.962250405Z fortio > 0.007 <= 0.008 , 0.0075 , 92.28, 272
+2025-04-23T09:47:30.962257782Z fortio > 0.008 <= 0.009 , 0.0085 , 92.32, 126
+2025-04-23T09:47:30.962265348Z fortio > 0.009 <= 0.01 , 0.0095 , 92.34, 72
+2025-04-23T09:47:30.962281781Z fortio > 0.01 <= 0.011 , 0.0105 , 92.35, 32
+2025-04-23T09:47:30.962288090Z fortio > 0.011 <= 0.012 , 0.0115 , 92.36, 12
+2025-04-23T09:47:30.962295151Z fortio > 0.012 <= 0.014 , 0.013 , 92.36, 5
+2025-04-23T09:47:30.962301469Z fortio > 0.014 <= 0.016 , 0.015 , 92.36, 10
+2025-04-23T09:47:30.962314961Z fortio > 0.016 <= 0.018 , 0.017 , 92.37, 10
+2025-04-23T09:47:30.962322834Z fortio > 0.02 <= 0.025 , 0.0225 , 92.37, 7
+2025-04-23T09:47:30.962329645Z fortio > 0.025 <= 0.03 , 0.0275 , 92.37, 3
+2025-04-23T09:47:30.962336882Z fortio > 0.03 <= 0.035 , 0.0325 , 92.37, 2
+2025-04-23T09:47:30.962343316Z fortio > 0.035 <= 0.04 , 0.0375 , 92.37, 1
+2025-04-23T09:47:30.962350712Z fortio > 0.04 <= 0.045 , 0.0425 , 92.37, 12
+2025-04-23T09:47:30.962356902Z fortio > 0.045 <= 0.05 , 0.0475 , 92.38, 28
+2025-04-23T09:47:30.962363132Z fortio > 0.05 <= 0.06 , 0.055 , 92.58, 618
+2025-04-23T09:47:30.962369463Z fortio > 0.06 <= 0.07 , 0.065 , 96.75, 13117
+2025-04-23T09:47:30.962375502Z fortio > 0.07 <= 0.08 , 0.075 , 100.00, 10214
+2025-04-23T09:47:30.962381062Z fortio > 0.08 <= 0.0867823 , 0.0833912 , 100.00, 6
+2025-04-23T09:47:30.962660433Z fortio # target 50% 0.00260119
+2025-04-23T09:47:30.962667368Z fortio # target 75% 0.00299989
+2025-04-23T09:47:30.962681102Z fortio # target 90% 0.00399467
+2025-04-23T09:47:30.962686439Z fortio # target 99% 0.0769272
+2025-04-23T09:47:30.962691367Z fortio # target 99.9% 0.079698
+2025-04-23T09:47:30.962695947Z fortio Error cases : no data
+2025-04-23T09:47:30.962700736Z fortio # Socket and IP used for each connection:
+2025-04-23T09:47:30.962705689Z fortio [0]   1 socket used, resolved to 100.107.56.11:80, connection timing : count 1 avg 0.000175748 +/- 0 min 0.000175748 max 0.000175748 sum 0.000175748
+2025-04-23T09:47:30.962710342Z fortio [1]   1 socket used, resolved to 100.107.56.11:80, connection timing : count 1 avg 0.000167875 +/- 0 min 0.000167875 max 0.000167875 sum 0.000167875
+2025-04-23T09:47:30.962714887Z fortio [2]   1 socket used, resolved to 100.107.56.11:80, connection timing : count 1 avg 0.000156725 +/- 0 min 0.000156725 max 0.000156725 sum 0.000156725
+2025-04-23T09:47:30.962719562Z fortio [3]   1 socket used, resolved to 100.107.56.11:80, connection timing : count 1 avg 0.000178506 +/- 0 min 0.000178506 max 0.000178506 sum 0.000178506
+2025-04-23T09:47:30.962725062Z fortio Connection time histogram (s) : count 4 avg 0.0001697135 +/- 8.453e-06 min 0.000156725 max 0.000178506 sum 0.000678854
+2025-04-23T09:47:30.962729921Z fortio # range, mid point, percentile, count
+➡️2025-04-23T09:47:30.962774196Z fortio >= 0.000156725 <= 0.000178506 , 0.000167615 , 100.00, 4
+➡️2025-04-23T09:47:30.962784689Z fortio # target 50% 0.000163985
+➡️2025-04-23T09:47:30.962789642Z fortio # target 75% 0.000171246
+➡️2025-04-23T09:47:30.962794324Z fortio # target 90% 0.000175602
+➡️2025-04-23T09:47:30.962798783Z fortio # target 99% 0.000178216
+➡️2025-04-23T09:47:30.962803711Z fortio # target 99.9% 0.000178477
+2025-04-23T09:47:30.962808493Z fortio Sockets used: 4 (for perfect keepalive, would be 4)
+2025-04-23T09:47:30.962813874Z fortio Uniform: true, Jitter: false, Catchup allowed: false
+2025-04-23T09:47:30.962818408Z fortio IP addresses distribution:
+2025-04-23T09:47:30.962822688Z fortio 100.107.56.11:80: 4
+🟢2025-04-23T09:47:30.962827360Z fortio Code 200 : 314455 (100.0 %)
+2025-04-23T09:47:30.962838851Z fortio Response Header Sizes : count 314455 avg 241.07621 +/- 0.2653 min 241 max 242 sum 75807619
+2025-04-23T09:47:30.962868439Z fortio Response Body/Total Sizes : count 314455 avg 856.07621 +/- 0.2653 min 856 max 857 sum 269197444
+🟢2025-04-23T09:47:30.962873969Z fortio All done 314455 calls (plus 4 warmup) 7.631 ms avg, 524.1 qps
+2025-04-23T09:47:31.271039Z    stream closed EOF for load-test/traffic-generator (fortio)
 ```
 
 ### ❗️📊 Run R03 - New provider (unresponsive OTEL backend) [100%, HTTP 503]
