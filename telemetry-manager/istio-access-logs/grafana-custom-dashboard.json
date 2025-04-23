@@ -316,7 +316,7 @@
                     "editorMode": "code",
                     "expr": "avg(envoy_cluster_upstream_cx_tx_bytes_buffered{__ignore_usage__=\"\"} ) / 2^10",
                     "hide": false,
-                    "legendFormat": "Buffered",
+                    "legendFormat": "Buffered (KB)",
                     "range": true,
                     "refId": "A"
                 },
@@ -329,7 +329,7 @@
                     "expr": "sum(rate(envoy_cluster_upstream_cx_tx_bytes_total{__ignore_usage__=\"\"}[$__rate_interval]) ) / 2^10",
                     "hide": false,
                     "instant": false,
-                    "legendFormat": "Total",
+                    "legendFormat": "Total (KB)",
                     "range": true,
                     "refId": "B"
                 }
@@ -422,7 +422,7 @@
                     "editorMode": "code",
                     "expr": "avg(envoy_cluster_upstream_cx_rx_bytes_buffered{__ignore_usage__=\"\"} ) / 2^10",
                     "hide": false,
-                    "legendFormat": "Buffered",
+                    "legendFormat": "Buffered (KB)",
                     "range": true,
                     "refId": "A"
                 },
@@ -435,7 +435,7 @@
                     "expr": "sum(rate(envoy_cluster_upstream_cx_rx_bytes_total{__ignore_usage__=\"\"}[$__rate_interval]) ) / 2^10",
                     "hide": false,
                     "instant": false,
-                    "legendFormat": "Total",
+                    "legendFormat": "Total (KB)",
                     "range": true,
                     "refId": "B"
                 }
@@ -991,5 +991,5 @@
     "timezone": "browser",
     "title": "Istio Access Logs Test",
     "uid": "dejod5h5fs934b",
-    "version": 12
+    "version": 13
 }
