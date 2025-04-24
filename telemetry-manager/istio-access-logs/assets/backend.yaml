@@ -16,11 +16,18 @@ data:
     exporters:
       debug:
         verbosity: detailed
+    processors:
+      memory_limiter:
+        limit_mib: 40
+        spike_limit_mib: 20
+        check_interval: 1s
     service:
       pipelines:
         logs:
           receivers:
             - otlp
+          processors:
+            - memory_limiter
           exporters:
             - debug
 ---

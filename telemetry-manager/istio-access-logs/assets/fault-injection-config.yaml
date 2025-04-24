@@ -5,17 +5,17 @@ metadata:
   namespace: kyma-system
 spec:
   hosts:
-    - telemetry-otlp-logs
+    - telemetry-otlp-logs.kyma-system.svc.cluster.local
   http:
     - fault:
         abort: # simulates: backend unresponsive
           httpStatus: 503
           percentage:
             value: 100
-        delay: # simulates: backend delaying
-          percentage:
-            value: 100
-          fixedDelay: 1s
+        # delay: # simulates: backend delaying
+        #   percentage:
+        #     value: 50
+        #   fixedDelay: 1s
       route:
         - destination:
-            host: telemetry-otlp-logs
+            host: telemetry-otlp-logs.kyma-system.svc.cluster.local

@@ -50,10 +50,30 @@ kubectl apply -f ./assets/backend.yaml
 kubectl apply -f ./assets/istio-telemetry-kyma-logs.yaml
 kubectl apply -f ./assets/load-test.yaml
 
-# Additionally, test edge-cases for kyma-logs provider
-kubectl apply -f ./assets/fault-injection-config.yaml # configure fault injection parameters accordingly (see file)
-kubectl apply -f ./assets/istio-telemetry-kyma-logs.yaml
-kubectl apply -f ./assets/load-test.yaml
+# Additionally, test edge-cases for kyma-logs provider (did not work-out)
+# kubectl apply -f ./assets/fault-injection-config.yaml # configure fault injection parameters accordingly (see file)
+# kubectl apply -f ./assets/istio-telemetry-kyma-logs.yaml
+# kubectl apply -f ./assets/load-test.yaml
+```
+
+1. Test "backend unreachable" scenario by scaling the backend deployment to 0 replicas
+2. Test "backend backpressure" scenario by modifying the ConfigMap of the backend, i.e. adding a new memory_limiter processor:
+```yaml
+    processors:
+      memory_limiter:
+        limit_mib: 40
+        spike_limit_mib: 20
+        check_interval: 1s
+    # ...
+    service:
+      pipelines:
+        logs:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+          exporters:
+            - debug
 ```
 
 ![Load Test Architecture](./load-test-architecture.drawio.svg)
