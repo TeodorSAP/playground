@@ -313,12 +313,17 @@
             "pluginVersion": "11.6.0",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
                     "editorMode": "code",
-                    "expr": "avg(envoy_cluster_upstream_cx_tx_bytes_buffered{__ignore_usage__=\"\"} ) / 2^10",
+                    "expr": "sum(rate(envoy_cluster_upstream_cx_tx_bytes_total[10m]))",
                     "hide": false,
-                    "legendFormat": "Buffered (KB)",
+                    "instant": false,
+                    "legendFormat": "SUM",
                     "range": true,
-                    "refId": "A"
+                    "refId": "B"
                 },
                 {
                     "datasource": {
@@ -326,12 +331,12 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(envoy_cluster_upstream_cx_tx_bytes_total{__ignore_usage__=\"\"}[$__rate_interval]) ) / 2^10",
+                    "expr": "rate(envoy_cluster_upstream_cx_tx_bytes_total[10m])",
                     "hide": false,
                     "instant": false,
-                    "legendFormat": "Total (KB)",
+                    "legendFormat": "__auto",
                     "range": true,
-                    "refId": "B"
+                    "refId": "C"
                 }
             ],
             "title": "Sent Connections",
@@ -420,9 +425,9 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "avg(envoy_cluster_upstream_cx_rx_bytes_buffered{__ignore_usage__=\"\"} ) / 2^10",
+                    "expr": "sum(rate(envoy_cluster_upstream_cx_rx_bytes_total[10m]))",
                     "hide": false,
-                    "legendFormat": "Buffered (KB)",
+                    "legendFormat": "SUM",
                     "range": true,
                     "refId": "A"
                 },
@@ -432,7 +437,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(envoy_cluster_upstream_cx_rx_bytes_total{__ignore_usage__=\"\"}[$__rate_interval]) ) / 2^10",
+                    "expr": "rate(envoy_cluster_upstream_cx_rx_bytes_total[10m])",
                     "hide": false,
                     "instant": false,
                     "legendFormat": "Total (KB)",
@@ -991,5 +996,5 @@
     "timezone": "browser",
     "title": "Istio Access Logs Test",
     "uid": "dejod5h5fs934b",
-    "version": 13
+    "version": 3
 }
