@@ -26,8 +26,8 @@ data:
         logs:
           receivers:
             - otlp
-          processors:
-            - memory_limiter
+          # processors:
+          #   - memory_limiter
           exporters:
             - debug
 ---
