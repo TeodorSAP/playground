@@ -9,4 +9,9 @@ spec:
       service.istio.io/canonical-name: load-test-workflow
   accessLogging:
     - providers:
-        - name: kyma-logs
+        # - name: envoy
+        # - name: stdout-json
+        # - name: kyma-logs
+        # - name: kyma-logs-no-labels
+        # - name: kyma-logs-old-labels
+        - name: kyma-logs-reduced-labels

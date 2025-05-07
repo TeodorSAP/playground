@@ -12,10 +12,10 @@ spec:
           httpStatus: 503
           percentage:
             value: 100
-        # delay: # simulates: backend delaying
-        #   percentage:
-        #     value: 50
-        #   fixedDelay: 1s
+        delay: # simulates: backend delaying
+          percentage:
+            value: 50
+          fixedDelay: 1s
       route:
         - destination:
             host: telemetry-otlp-logs.kyma-system.svc.cluster.local
