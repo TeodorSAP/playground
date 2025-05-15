@@ -42,8 +42,12 @@ ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentb
 go test -v -timeout 0 -count 1 ./test/e2e/logs/migrated... -- -labels=log-agent
 ```
 
-See [./log-agent.out](./log-agent.out)
+See [./log-agent.out](./log-agent-1.out)
 - ⚠️ `TestAttributesParser` is flaky => truncated/misformated JSON in HTTP body (see `assert.shared` and `assert.log/log_otel_matchers.go/HaveFlatOTelLogs`)
 
 ### log-gateway
-See [./log-gateway.out](./log-gateway.out)
+```shell
+go test -v -timeout 0 -count 1 ./test/e2e/logs/migrated... -- -labels=log-gateway
+```
+
+See [./log-gateway.out](./log-gateway-1.out)
