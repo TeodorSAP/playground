@@ -1,8 +1,9 @@
+go test -v -timeout 0 -count 1 ./test/e2e/logs/migrated... -- -labels=log-gateway
 === RUN   TestAttributesParser
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 --- SKIP: TestAttributesParser (0.00s)
 PASS
-ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/agent  0.691s
+ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/agent  0.358s
 === RUN   TestCustomFilterDenied
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
 --- SKIP: TestCustomFilterDenied (0.00s)
@@ -25,7 +26,7 @@ ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/agent  
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
 --- SKIP: TestModifyTimestampDateFormat (0.00s)
 PASS
-ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentbit      0.394s
+ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentbit      0.623s
 === RUN   TestContainerSelector_OTel
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 --- SKIP: TestContainerSelector_OTel (0.00s)
@@ -53,16 +54,17 @@ ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentb
 === RUN   TestExtractLabels_OTel/log-agent
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 === RUN   TestExtractLabels_OTel/log-gateway
---- PASS: TestExtractLabels_OTel (31.65s)
+--- PASS: TestExtractLabels_OTel (13.73s)
     --- SKIP: TestExtractLabels_OTel/log-agent (0.00s)
-    --- PASS: TestExtractLabels_OTel/log-gateway (31.65s)
+    --- PASS: TestExtractLabels_OTel/log-gateway (13.73s)
 === RUN   TestExtractLabels_FluentBit
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
 --- SKIP: TestExtractLabels_FluentBit (0.00s)
 === RUN   TestKeepOriginalBody_OTel
---- PASS: TestKeepOriginalBody_OTel (23.04s)
+    suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+--- SKIP: TestKeepOriginalBody_OTel (0.00s)
 === RUN   TestKeepOriginalBody_FluentBit
---- PASS: TestKeepOriginalBody_FluentBit (24.01s)
+--- PASS: TestKeepOriginalBody_FluentBit (48.10s)
 === RUN   TestMTLSAboutToExpireCert_OTel
 === RUN   TestMTLSAboutToExpireCert_OTel/log-agent
     suite.go:166: Skipping test: label skip is set
@@ -122,9 +124,9 @@ ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentb
 === RUN   TestMTLSMissingValues_OTel/log-agent
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 === RUN   TestMTLSMissingValues_OTel/log-gateway
---- PASS: TestMTLSMissingValues_OTel (0.28s)
+--- PASS: TestMTLSMissingValues_OTel (0.67s)
     --- SKIP: TestMTLSMissingValues_OTel/log-agent (0.00s)
-    --- PASS: TestMTLSMissingValues_OTel/log-gateway (0.28s)
+    --- PASS: TestMTLSMissingValues_OTel/log-gateway (0.67s)
 === RUN   TestMTLSMissingValues_FluentBit
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
 --- SKIP: TestMTLSMissingValues_FluentBit (0.00s)
@@ -132,18 +134,51 @@ ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentb
 === RUN   TestMTLS_OTel/log-agent
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 === RUN   TestMTLS_OTel/log-gateway
---- PASS: TestMTLS_OTel (5.04s)
+--- PASS: TestMTLS_OTel (4.47s)
     --- SKIP: TestMTLS_OTel/log-agent (0.00s)
-    --- PASS: TestMTLS_OTel/log-gateway (5.04s)
+    --- PASS: TestMTLS_OTel/log-gateway (4.47s)
 === RUN   TestMTLS_FluentBit
---- PASS: TestMTLS_FluentBit (3.98s)
+--- PASS: TestMTLS_FluentBit (9.17s)
 === RUN   TestMultiPipelineBroken_OTel
 === RUN   TestMultiPipelineBroken_OTel/log-agent
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 === RUN   TestMultiPipelineBroken_OTel/log-gateway
---- PASS: TestMultiPipelineBroken_OTel (12.12s)
+    deployment.go:21: 
+        Timed out after 120.001s.
+        The function passed to Eventually failed at /Users/I565663/Projects/telemetry-manager/test/testkit/assert/deployment.go:19 with:
+        Unexpected error:
+            <*fmt.wrapError | 0x14000d06b40>: 
+            failed to get deployment: deployments.apps "telemetry-log-gateway" not found
+            {
+                msg: "failed to get deployment: deployments.apps \"telemetry-log-gateway\" not found",
+                err: <*errors.StatusError | 0x14000b33860>{
+                    ErrStatus: {
+                        TypeMeta: {Kind: "", APIVersion: ""},
+                        ListMeta: {
+                            SelfLink: "",
+                            ResourceVersion: "",
+                            Continue: "",
+                            RemainingItemCount: nil,
+                        },
+                        Status: "Failure",
+                        Message: "deployments.apps \"telemetry-log-gateway\" not found",
+                        Reason: "NotFound",
+                        Details: {
+                            Name: "telemetry-log-gateway",
+                            Group: "apps",
+                            Kind: "deployments",
+                            UID: "",
+                            Causes: nil,
+                            RetryAfterSeconds: 0,
+                        },
+                        Code: 404,
+                    },
+                },
+            }
+        occurred
+--- FAIL: TestMultiPipelineBroken_OTel (120.21s)
     --- SKIP: TestMultiPipelineBroken_OTel/log-agent (0.00s)
-    --- PASS: TestMultiPipelineBroken_OTel/log-gateway (12.12s)
+    --- FAIL: TestMultiPipelineBroken_OTel/log-gateway (120.21s)
 === RUN   TestMultiPipelineBroken_FluentBit
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
 --- SKIP: TestMultiPipelineBroken_FluentBit (0.00s)
@@ -151,21 +186,40 @@ ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentb
 === RUN   TestMultiPipelineFanout_OTel/log-agent
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 === RUN   TestMultiPipelineFanout_OTel/log-gateway
---- PASS: TestMultiPipelineFanout_OTel (13.10s)
+--- PASS: TestMultiPipelineFanout_OTel (12.05s)
     --- SKIP: TestMultiPipelineFanout_OTel/log-agent (0.00s)
-    --- PASS: TestMultiPipelineFanout_OTel/log-gateway (13.10s)
+    --- PASS: TestMultiPipelineFanout_OTel/log-gateway (12.05s)
 === RUN   TestMultiPipelineFanout_FluentBit
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
 --- SKIP: TestMultiPipelineFanout_FluentBit (0.00s)
+=== RUN   TestMultiPipelineMaxPipeline_OTel
+=== RUN   TestMultiPipelineMaxPipeline_OTel/log-agent
+    suite.go:166: Skipping test: label skip is set
+=== RUN   TestMultiPipelineMaxPipeline_OTel/log-gateway
+    suite.go:166: Skipping test: label skip is set
+--- PASS: TestMultiPipelineMaxPipeline_OTel (0.00s)
+    --- SKIP: TestMultiPipelineMaxPipeline_OTel/log-agent (0.00s)
+    --- SKIP: TestMultiPipelineMaxPipeline_OTel/log-gateway (0.00s)
+=== RUN   TestMultiPipelineMaxPipeline_FluentBit
+    multi_pipeline_max_pipeline_test.go:166: Asserting 5 pipelines are healthy
+    logs.go:85: 
+        Timed out after 120.001s.
+        The function passed to Eventually failed at /Users/I565663/Projects/telemetry-manager/test/testkit/assert/logs.go:104 with:
+        Condition ConfigurationGenerated not healthy. Reason: MaxPipelinesExceeded. Message: Maximum pipeline count limit exceeded
+        Expected
+            <v1.ConditionStatus>: False
+        to equal
+            <v1.ConditionStatus>: True
+--- FAIL: TestMultiPipelineMaxPipeline_FluentBit (121.29s)
 === RUN   TestNamespaceSelector_OTel
 === RUN   TestNamespaceSelector_OTel/log-agent
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 === RUN   TestNamespaceSelector_OTel/log-gateway
---- PASS: TestNamespaceSelector_OTel (33.04s)
+--- PASS: TestNamespaceSelector_OTel (49.30s)
     --- SKIP: TestNamespaceSelector_OTel/log-agent (0.00s)
-    --- PASS: TestNamespaceSelector_OTel/log-gateway (33.04s)
+    --- PASS: TestNamespaceSelector_OTel/log-gateway (49.30s)
 === RUN   TestNamespaceSelector_FluentBit
-    suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+    suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
 --- SKIP: TestNamespaceSelector_FluentBit (0.00s)
 === RUN   TestObservedTime
 === RUN   TestObservedTime/log-agent
@@ -175,11 +229,11 @@ ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentb
         Timed out after 120.001s.
         The function passed to Eventually failed at /Users/I565663/Projects/telemetry-manager/test/testkit/assert/daemon_set.go:20 with:
         Unexpected error:
-            <*fmt.wrapError | 0x140010b8980>: 
+            <*fmt.wrapError | 0x14000d88e00>: 
             failed to get daemonset: daemonsets.apps "telemetry-log-agent" not found
             {
                 msg: "failed to get daemonset: daemonsets.apps \"telemetry-log-agent\" not found",
-                err: <*errors.StatusError | 0x1400131afa0>{
+                err: <*errors.StatusError | 0x14000646c80>{
                     ErrStatus: {
                         TypeMeta: {Kind: "", APIVersion: ""},
                         ListMeta: {
@@ -204,16 +258,16 @@ ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentb
                 },
             }
         occurred
---- FAIL: TestObservedTime (120.25s)
+--- FAIL: TestObservedTime (120.20s)
     --- SKIP: TestObservedTime/log-agent (0.00s)
-    --- FAIL: TestObservedTime/log-gateway (120.25s)
+    --- FAIL: TestObservedTime/log-gateway (120.19s)
 === RUN   TestResources_OTel
 === RUN   TestResources_OTel/log-agent
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 === RUN   TestResources_OTel/log-gateway
---- PASS: TestResources_OTel (0.35s)
+--- PASS: TestResources_OTel (0.33s)
     --- SKIP: TestResources_OTel/log-agent (0.00s)
-    --- PASS: TestResources_OTel/log-gateway (0.35s)
+    --- PASS: TestResources_OTel/log-gateway (0.33s)
 === RUN   TestResources_FluentBit
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
 --- SKIP: TestResources_FluentBit (0.00s)
@@ -242,25 +296,26 @@ ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentb
 === RUN   TestSelfMonitorHappyPath_OTel/log-agent
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 === RUN   TestSelfMonitorHappyPath_OTel/log-gateway
---- PASS: TestSelfMonitorHappyPath_OTel (19.40s)
+--- PASS: TestSelfMonitorHappyPath_OTel (2.22s)
     --- SKIP: TestSelfMonitorHappyPath_OTel/log-agent (0.00s)
-    --- PASS: TestSelfMonitorHappyPath_OTel/log-gateway (19.40s)
+    --- PASS: TestSelfMonitorHappyPath_OTel/log-gateway (2.22s)
 === RUN   TestSelfMonitorHappyPath_FluentBit
---- PASS: TestSelfMonitorHappyPath_FluentBit (12.54s)
+    suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestSelfMonitorHappyPath_FluentBit (0.00s)
 === RUN   TestServiceName_OTel
 === RUN   TestServiceName_OTel/log-agent
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 === RUN   TestServiceName_OTel/log-gateway
---- PASS: TestServiceName_OTel (11.44s)
+--- PASS: TestServiceName_OTel (31.73s)
     --- SKIP: TestServiceName_OTel/log-agent (0.00s)
-    --- PASS: TestServiceName_OTel/log-gateway (11.44s)
+    --- PASS: TestServiceName_OTel/log-gateway (31.73s)
 === RUN   TestSinglePipeline_OTel
 === RUN   TestSinglePipeline_OTel/log-agent
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 === RUN   TestSinglePipeline_OTel/log-gateway
---- PASS: TestSinglePipeline_OTel (11.35s)
+--- PASS: TestSinglePipeline_OTel (22.28s)
     --- SKIP: TestSinglePipeline_OTel/log-agent (0.00s)
-    --- PASS: TestSinglePipeline_OTel/log-gateway (11.35s)
+    --- PASS: TestSinglePipeline_OTel/log-gateway (22.28s)
 === RUN   TestSinglePipeline_FluentBit
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
 --- SKIP: TestSinglePipeline_FluentBit (0.00s)
@@ -268,12 +323,12 @@ ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentb
 === RUN   TestSinglePipelineV1Beta1_OTel/log-agent
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
 === RUN   TestSinglePipelineV1Beta1_OTel/log-gateway
---- PASS: TestSinglePipelineV1Beta1_OTel (11.57s)
+--- PASS: TestSinglePipelineV1Beta1_OTel (12.46s)
     --- SKIP: TestSinglePipelineV1Beta1_OTel/log-agent (0.00s)
-    --- PASS: TestSinglePipelineV1Beta1_OTel/log-gateway (11.57s)
+    --- PASS: TestSinglePipelineV1Beta1_OTel/log-gateway (12.46s)
 === RUN   TestSinglePipelineV1Beta1_FluentBit
     suite.go:172: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
 --- SKIP: TestSinglePipelineV1Beta1_FluentBit (0.00s)
 FAIL
-FAIL    github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/shared 344.155s
+FAIL    github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/shared 579.115s
 FAIL

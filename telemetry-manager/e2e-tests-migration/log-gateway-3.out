@@ -1,0 +1,281 @@
+go test -v -timeout 0 -count 1 ./test/e2e/logs/migrated... -- -labels=log-gateway
+=== RUN   TestAttributesParser
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+--- SKIP: TestAttributesParser (0.00s)
+PASS
+ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/agent  0.661s
+=== RUN   TestCustomFilterDenied
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestCustomFilterDenied (0.00s)
+=== RUN   TestCustomFilterAllowed
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestCustomFilterAllowed (0.00s)
+=== RUN   TestCustomOutput
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestCustomOutput (0.00s)
+=== RUN   TestDedot
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestDedot (0.00s)
+=== RUN   TestKeepAnnotations
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestKeepAnnotations (0.00s)
+=== RUN   TestLogParser
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestLogParser (0.00s)
+=== RUN   TestModifyTimestampDateFormat
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestModifyTimestampDateFormat (0.00s)
+PASS
+ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentbit      0.351s
+=== RUN   TestContainerSelector_OTel
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+--- SKIP: TestContainerSelector_OTel (0.00s)
+=== RUN   TestContainerSelector_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestContainerSelector_FluentBit (0.00s)
+=== RUN   TestDisabledInput_OTel
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+--- SKIP: TestDisabledInput_OTel (0.00s)
+=== RUN   TestDisabledInput_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestDisabledInput_FluentBit (0.00s)
+=== RUN   TestEndpointInvalid_OTel
+=== RUN   TestEndpointInvalid_OTel/log-agent
+    suite.go:170: Skipping test: label skip is set
+=== RUN   TestEndpointInvalid_OTel/log-gateway
+    suite.go:170: Skipping test: label skip is set
+--- PASS: TestEndpointInvalid_OTel (0.00s)
+    --- SKIP: TestEndpointInvalid_OTel/log-agent (0.00s)
+    --- SKIP: TestEndpointInvalid_OTel/log-gateway (0.00s)
+=== RUN   TestEndpointInvalid_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestEndpointInvalid_FluentBit (0.00s)
+=== RUN   TestExtractLabels_OTel
+=== RUN   TestExtractLabels_OTel/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestExtractLabels_OTel/log-gateway
+--- PASS: TestExtractLabels_OTel (13.86s)
+    --- SKIP: TestExtractLabels_OTel/log-agent (0.00s)
+    --- PASS: TestExtractLabels_OTel/log-gateway (13.86s)
+=== RUN   TestExtractLabels_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestExtractLabels_FluentBit (0.00s)
+=== RUN   TestKeepOriginalBody_OTel
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+--- SKIP: TestKeepOriginalBody_OTel (0.00s)
+=== RUN   TestKeepOriginalBody_FluentBit
+--- PASS: TestKeepOriginalBody_FluentBit (45.18s)
+=== RUN   TestMTLSAboutToExpireCert_OTel
+=== RUN   TestMTLSAboutToExpireCert_OTel/log-agent
+    suite.go:170: Skipping test: label skip is set
+=== RUN   TestMTLSAboutToExpireCert_OTel/log-gateway
+    suite.go:170: Skipping test: label skip is set
+--- PASS: TestMTLSAboutToExpireCert_OTel (0.00s)
+    --- SKIP: TestMTLSAboutToExpireCert_OTel/log-agent (0.00s)
+    --- SKIP: TestMTLSAboutToExpireCert_OTel/log-gateway (0.00s)
+=== RUN   TestMTLSAboutToExpireCert_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestMTLSAboutToExpireCert_FluentBit (0.00s)
+=== RUN   TestMTLSCertKeyDontMatch_OTel
+=== RUN   TestMTLSCertKeyDontMatch_OTel/log-agent
+    suite.go:170: Skipping test: label skip is set
+=== RUN   TestMTLSCertKeyDontMatch_OTel/log-gateway
+    suite.go:170: Skipping test: label skip is set
+--- PASS: TestMTLSCertKeyDontMatch_OTel (0.00s)
+    --- SKIP: TestMTLSCertKeyDontMatch_OTel/log-agent (0.00s)
+    --- SKIP: TestMTLSCertKeyDontMatch_OTel/log-gateway (0.00s)
+=== RUN   TestMTLSCertKeyDontMatch_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestMTLSCertKeyDontMatch_FluentBit (0.00s)
+=== RUN   TestMTLSExpiredCert_OTel
+=== RUN   TestMTLSExpiredCert_OTel/log-agent
+    suite.go:170: Skipping test: label skip is set
+=== RUN   TestMTLSExpiredCert_OTel/log-gateway
+    suite.go:170: Skipping test: label skip is set
+--- PASS: TestMTLSExpiredCert_OTel (0.00s)
+    --- SKIP: TestMTLSExpiredCert_OTel/log-agent (0.00s)
+    --- SKIP: TestMTLSExpiredCert_OTel/log-gateway (0.00s)
+=== RUN   TestMTLSExpiredCert_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestMTLSExpiredCert_FluentBit (0.00s)
+=== RUN   TestMTLSInvalidCA_OTel
+=== RUN   TestMTLSInvalidCA_OTel/log-agent
+    suite.go:170: Skipping test: label skip is set
+=== RUN   TestMTLSInvalidCA_OTel/log-gateway
+    suite.go:170: Skipping test: label skip is set
+--- PASS: TestMTLSInvalidCA_OTel (0.00s)
+    --- SKIP: TestMTLSInvalidCA_OTel/log-agent (0.00s)
+    --- SKIP: TestMTLSInvalidCA_OTel/log-gateway (0.00s)
+=== RUN   TestMTLSInvalidCA_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestMTLSInvalidCA_FluentBit (0.00s)
+=== RUN   TestMTLSInvalidCert_OTel
+=== RUN   TestMTLSInvalidCert_OTel/log-agent
+    suite.go:170: Skipping test: label skip is set
+=== RUN   TestMTLSInvalidCert_OTel/log-gateway
+    suite.go:170: Skipping test: label skip is set
+--- PASS: TestMTLSInvalidCert_OTel (0.00s)
+    --- SKIP: TestMTLSInvalidCert_OTel/log-agent (0.00s)
+    --- SKIP: TestMTLSInvalidCert_OTel/log-gateway (0.00s)
+=== RUN   TestMTLSInvalidCert_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestMTLSInvalidCert_FluentBit (0.00s)
+=== RUN   TestMTLSMissingValues_OTel
+=== RUN   TestMTLSMissingValues_OTel/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestMTLSMissingValues_OTel/log-gateway
+--- PASS: TestMTLSMissingValues_OTel (0.46s)
+    --- SKIP: TestMTLSMissingValues_OTel/log-agent (0.00s)
+    --- PASS: TestMTLSMissingValues_OTel/log-gateway (0.46s)
+=== RUN   TestMTLSMissingValues_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestMTLSMissingValues_FluentBit (0.00s)
+=== RUN   TestMTLS_OTel
+=== RUN   TestMTLS_OTel/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestMTLS_OTel/log-gateway
+--- PASS: TestMTLS_OTel (2.47s)
+    --- SKIP: TestMTLS_OTel/log-agent (0.00s)
+    --- PASS: TestMTLS_OTel/log-gateway (2.47s)
+=== RUN   TestMTLS_FluentBit
+--- PASS: TestMTLS_FluentBit (4.26s)
+=== RUN   TestMultiPipelineBroken_OTel
+=== RUN   TestMultiPipelineBroken_OTel/log-agent
+    suite.go:170: Skipping test: label skip is set
+=== RUN   TestMultiPipelineBroken_OTel/log-gateway
+    suite.go:170: Skipping test: label skip is set
+--- PASS: TestMultiPipelineBroken_OTel (0.00s)
+    --- SKIP: TestMultiPipelineBroken_OTel/log-agent (0.00s)
+    --- SKIP: TestMultiPipelineBroken_OTel/log-gateway (0.00s)
+=== RUN   TestMultiPipelineBroken_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestMultiPipelineBroken_FluentBit (0.00s)
+=== RUN   TestMultiPipelineFanout_OTel
+=== RUN   TestMultiPipelineFanout_OTel/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestMultiPipelineFanout_OTel/log-gateway
+--- PASS: TestMultiPipelineFanout_OTel (12.01s)
+    --- SKIP: TestMultiPipelineFanout_OTel/log-agent (0.00s)
+    --- PASS: TestMultiPipelineFanout_OTel/log-gateway (12.01s)
+=== RUN   TestMultiPipelineFanout_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestMultiPipelineFanout_FluentBit (0.00s)
+=== RUN   TestMultiPipelineMaxPipeline
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [max-pipeline]
+--- SKIP: TestMultiPipelineMaxPipeline (0.00s)
+=== RUN   TestMultiPipelineMaxPipeline_OTel
+=== RUN   TestMultiPipelineMaxPipeline_OTel/max-pipeline-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [max-pipeline-agent]
+=== RUN   TestMultiPipelineMaxPipeline_OTel/max-pipeline-gateway
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [max-pipeline-gateway]
+--- PASS: TestMultiPipelineMaxPipeline_OTel (0.00s)
+    --- SKIP: TestMultiPipelineMaxPipeline_OTel/max-pipeline-agent (0.00s)
+    --- SKIP: TestMultiPipelineMaxPipeline_OTel/max-pipeline-gateway (0.00s)
+=== RUN   TestMultiPipelineMaxPipeline_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [max-pipeline-fluent-bit]
+--- SKIP: TestMultiPipelineMaxPipeline_FluentBit (0.00s)
+=== RUN   TestNamespaceSelector_OTel
+=== RUN   TestNamespaceSelector_OTel/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestNamespaceSelector_OTel/log-gateway
+--- PASS: TestNamespaceSelector_OTel (22.43s)
+    --- SKIP: TestNamespaceSelector_OTel/log-agent (0.00s)
+    --- PASS: TestNamespaceSelector_OTel/log-gateway (22.43s)
+=== RUN   TestNamespaceSelector_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestNamespaceSelector_FluentBit (0.00s)
+=== RUN   TestObservedTime
+=== RUN   TestObservedTime/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestObservedTime/log-gateway
+    shared.go:24: 
+        Timed out after 120.001s.
+        The function passed to Eventually failed at /Users/I565663/Projects/telemetry-manager/test/testkit/assert/shared.go:23 with:
+        Expected
+            <[]log.FlatLogOtel | len:0, cap:0>: nil
+        to contain element matching
+            <*matchers.WithTransformMatcher | 0x140005e5280>: {
+                Transform: <func(log.FlatLogOtel) map[string]string>0x10125b850,
+                Matcher: <*matchers.HaveKeyWithValueMatcher | 0x14000436d00>{
+                    Key: <string>"k8s.namespace.name",
+                    Value: <string>"observed-time-log-gateway-gen",
+                },
+                transformArgType: <*reflect.rtype | 0x101ab1720>{
+                    t: {Size_: 0xb8, PtrBytes: 0xa0, Hash: 4167078234, TFlag: 7, Align_: 8, FieldAlign_: 8, Kind_: 25, Equal: nil, GCData: 213, Str: 140927, PtrToThis: 623392},
+                },
+                transformedValue: nil,
+            }
+--- FAIL: TestObservedTime (121.62s)
+    --- SKIP: TestObservedTime/log-agent (0.00s)
+    --- FAIL: TestObservedTime/log-gateway (121.62s)
+=== RUN   TestResources_OTel
+=== RUN   TestResources_OTel/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestResources_OTel/log-gateway
+--- PASS: TestResources_OTel (0.35s)
+    --- SKIP: TestResources_OTel/log-agent (0.00s)
+    --- PASS: TestResources_OTel/log-gateway (0.35s)
+=== RUN   TestResources_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestResources_FluentBit (0.00s)
+=== RUN   TestSecretRotation_OTel
+=== RUN   TestSecretRotation_OTel/log-agent
+    suite.go:170: Skipping test: label skip is set
+=== RUN   TestSecretRotation_OTel/log-gateway
+    suite.go:170: Skipping test: label skip is set
+--- PASS: TestSecretRotation_OTel (0.00s)
+    --- SKIP: TestSecretRotation_OTel/log-agent (0.00s)
+    --- SKIP: TestSecretRotation_OTel/log-gateway (0.00s)
+=== RUN   TestSecretRotation_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestSecretRotation_FluentBit (0.00s)
+=== RUN   TestSecretrefMisconfigured_OTel
+=== RUN   TestSecretrefMisconfigured_OTel/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestSecretrefMisconfigured_OTel/log-gateway
+--- PASS: TestSecretrefMisconfigured_OTel (10.00s)
+    --- SKIP: TestSecretrefMisconfigured_OTel/log-agent (0.00s)
+    --- PASS: TestSecretrefMisconfigured_OTel/log-gateway (10.00s)
+=== RUN   TestSecretrefMisconfigured_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestSecretrefMisconfigured_FluentBit (0.00s)
+=== RUN   TestSelfMonitorHappyPath_OTel
+=== RUN   TestSelfMonitorHappyPath_OTel/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestSelfMonitorHappyPath_OTel/log-gateway
+--- PASS: TestSelfMonitorHappyPath_OTel (22.79s)
+    --- SKIP: TestSelfMonitorHappyPath_OTel/log-agent (0.00s)
+    --- PASS: TestSelfMonitorHappyPath_OTel/log-gateway (22.79s)
+=== RUN   TestSelfMonitorHappyPath_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestSelfMonitorHappyPath_FluentBit (0.00s)
+=== RUN   TestServiceName_OTel
+=== RUN   TestServiceName_OTel/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestServiceName_OTel/log-gateway
+--- PASS: TestServiceName_OTel (32.50s)
+    --- SKIP: TestServiceName_OTel/log-agent (0.00s)
+    --- PASS: TestServiceName_OTel/log-gateway (32.50s)
+=== RUN   TestSinglePipeline_OTel
+=== RUN   TestSinglePipeline_OTel/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestSinglePipeline_OTel/log-gateway
+--- PASS: TestSinglePipeline_OTel (11.53s)
+    --- SKIP: TestSinglePipeline_OTel/log-agent (0.00s)
+    --- PASS: TestSinglePipeline_OTel/log-gateway (11.53s)
+=== RUN   TestSinglePipeline_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestSinglePipeline_FluentBit (0.00s)
+=== RUN   TestSinglePipelineV1Beta1_OTel
+=== RUN   TestSinglePipelineV1Beta1_OTel/log-agent
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [log-agent]
+=== RUN   TestSinglePipelineV1Beta1_OTel/log-gateway
+--- PASS: TestSinglePipelineV1Beta1_OTel (12.28s)
+    --- SKIP: TestSinglePipelineV1Beta1_OTel/log-agent (0.00s)
+    --- PASS: TestSinglePipelineV1Beta1_OTel/log-gateway (12.28s)
+=== RUN   TestSinglePipelineV1Beta1_FluentBit
+    suite.go:176: Skipping test: label mismatch. Required: [log-gateway], Provided: [fluent-bit]
+--- SKIP: TestSinglePipelineV1Beta1_FluentBit (0.00s)
+FAIL
+FAIL    github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/shared 312.088s
+FAIL

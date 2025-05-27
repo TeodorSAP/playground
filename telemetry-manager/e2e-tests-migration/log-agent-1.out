@@ -1,33 +1,329 @@
+go test -v -timeout 0 -count 1 ./test/e2e/logs/migrated... -- -labels=log-agent
 === RUN   TestAttributesParser
-    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
---- PASS: TestMultiPipelineFanout_OTel (12.28s)
-    --- PASS: TestMultiPipelineFanout_OTel/log-agent (12.28s)
-    --- SKIP: TestMultiPipelineFanout_OTel/log-gateway (0.00s)
-=== RUN   TestMultiPipelineFanout_FluentBit
+    shared.go:38: 
+        Failed after 2.054s.
+        The function passed to Consistently failed at /Users/I565663/Projects/telemetry-manager/test/testkit/assert/shared.go:37 with:
+        Transform function failed: HaveFlatOtelLogs requires a valid OTLP JSON document: failed to unmarshal logs: EOF
+--- FAIL: TestAttributesParser (16.44s)
+FAIL
+FAIL    github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/agent  17.474s
+=== RUN   TestCustomFilterDenied
     suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
---- SKIP: TestMultiPipelineFanout_FluentBit (0.00s)
-=== RUN   TestNamespaceSelector_OTel
-=== RUN   TestNamespaceSelector_OTel/log-agent
-=== RUN   TestNamespaceSelector_OTel/log-gateway
-    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
---- PASS: TestNamespaceSelector_OTel (13.32s)
-    --- PASS: TestNamespaceSelector_OTel/log-agent (13.32s)
-    --- SKIP: TestNamespaceSelector_OTel/log-gateway (0.00s)
-=== RUN   TestNamespaceSelector_FluentBit
---- PASS: TestNamespaceSelector_FluentBit (14.94s)
-=== RUN   TestObservedTime
-=== RUN   TestObservedTime/agent
-=== RUN   TestObservedTime/gateway
-=== NAME  TestObservedTime
-    daemon_set.go:22: 
+--- SKIP: TestCustomFilterDenied (0.00s)
+=== RUN   TestCustomFilterAllowed
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestCustomFilterAllowed (0.00s)
+=== RUN   TestCustomOutput
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestCustomOutput (0.00s)
+=== RUN   TestDedot
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestDedot (0.00s)
+=== RUN   TestKeepAnnotations
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestKeepAnnotations (0.00s)
+=== RUN   TestLogParser
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestLogParser (0.00s)
+=== RUN   TestModifyTimestampDateFormat
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestModifyTimestampDateFormat (0.00s)
+PASS
+ok      github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/fluentbit      0.390s
+=== RUN   TestContainerSelector_OTel
+    shared.go:24: 
         Timed out after 120.001s.
-        The function passed to Eventually failed at /Users/I565663/Projects/telemetry-manager/test/testkit/assert/daemon_set.go:20 with:
+        The function passed to Eventually failed at /Users/I565663/Projects/telemetry-manager/test/testkit/assert/shared.go:23 with:
+        Expected
+            <[]log.FlatLogOtel | len:0, cap:0>: nil
+        to contain element matching
+            <*matchers.WithTransformMatcher | 0x14000432a80>: {
+                Transform: <func(log.FlatLogOtel) map[string]string>0x1011ab420,
+                Matcher: <*matchers.HaveKeyWithValueMatcher | 0x140002c2b40>{
+                    Key: <string>"k8s.container.name",
+                    Value: <string>"gen-container-1",
+                },
+                transformArgType: <*reflect.rtype | 0x1019541c0>{
+                    t: {Size_: 0xb8, PtrBytes: 0xa0, Hash: 4167078234, TFlag: 7, Align_: 8, FieldAlign_: 8, Kind_: 25, Equal: nil, GCData: 213, Str: 134654, PtrToThis: 600736},
+                },
+                transformedValue: nil,
+            }
+--- FAIL: TestContainerSelector_OTel (127.69s)
+=== RUN   TestContainerSelector_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestContainerSelector_FluentBit (0.00s)
+=== RUN   TestDisabledInput_OTel
+    disabled_input_test.go:58: 
+        Failed after 0.006s.
+        The function passed to Consistently failed at /Users/I565663/Projects/telemetry-manager/test/e2e/logs/migrated/shared/disabled_input_test.go:57 with:
+        Expected
+            <bool>: false
+        to be true
+--- FAIL: TestDisabledInput_OTel (0.05s)
+=== RUN   TestDisabledInput_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestDisabledInput_FluentBit (0.00s)
+=== RUN   TestEndpointInvalid_OTel
+=== RUN   TestEndpointInvalid_OTel/log-agent
+    suite.go:166: Skipping test: label skip is set
+=== RUN   TestEndpointInvalid_OTel/log-gateway
+    suite.go:166: Skipping test: label skip is set
+--- PASS: TestEndpointInvalid_OTel (0.00s)
+    --- SKIP: TestEndpointInvalid_OTel/log-agent (0.00s)
+    --- SKIP: TestEndpointInvalid_OTel/log-gateway (0.00s)
+=== RUN   TestEndpointInvalid_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestEndpointInvalid_FluentBit (0.00s)
+=== RUN   TestExtractLabels_OTel
+=== RUN   TestExtractLabels_OTel/log-agent
+    shared.go:38: 
+        Failed after 1.114s.
+        The function passed to Consistently failed at /Users/I565663/Projects/telemetry-manager/test/testkit/assert/shared.go:37 with:
+        Expected
+            <[]log.FlatLogOtel | len:112, cap:148>: [
+                {
+                    Name: "",
+                    ScopeName: "io.kyma-project.telemetry/runtime",
+                    ScopeVersion: "main",
+                    ResourceAttributes: {
+                        "k8s.pod.name": "telemetrygen",
+                        "k8s.node.name": "k3d-kyma-server-0",
+                        "cloud.region": "kyma-local",
+                        "k8s.pod.uid": "eb5de8f0-991b-4e24-96ab-b020514d717c",
+                        "host.type": "local",
+                        "k8s.container.name": "telemetrygen",
+                        "service.name": "telemetrygen",
+                        "k8s.pod.label.log.test.exact.should.match": "exact_match",
+                        "host.arch": "arm64",
+                        "cloud.availability_zone": "kyma-local",
+                        "k8s.node.uid": "40e034df-09bf-4c8b-91cf-ca9d11a037c3",
+                        "k8s.cluster.name": "10.43.0.1",
+                        "k8s.container.restart_count": "0",
+                        "k8s.namespace.name": "extract-labels-otel-log-agent-gen",
+                        "k8s.pod.label.log.test.prefix.should.match1": "prefix_match1",
+                        "k8s.pod.label.log.test.prefix.should.match2": "prefix_match2",
+                    },
+                    ScopeAttributes: nil,
+                    Attributes: {
+                        "log.iostream": "stderr",
+                        "log.file.path": "/var/log/pods/extract-labels-otel-log-agent-gen_telemetrygen_eb5de8f0-991b-4e24-96ab-b020514d717c/telemetrygen/0.log",
+                    },
+                    LogRecordBody: "2025-05-19T12:20:15.448Z\tINFO\tlogs/logs.go:34\tstarting the logs generator with configuration\t{\"config\": {\"WorkerCount\":1,\"Rate\":10,\"TotalDuration\":1800000000000,\"ReportingInterval\":1000000000,\"SkipSettingGRPCLogger\":false,\"CustomEndpoint\":\"telemetry-otlp-logs.kyma-system:4317\",\"Insecure\":true,\"InsecureSkipVerify\":false,\"UseHTTP\":false,\"HTTPPath\":\"/v1/logs\",\"Headers\":{},\"ResourceAttributes\":{},\"ServiceName\":\"telemetrygen\",\"TelemetryAttributes\":{},\"CaFile\":\"\",\"ClientAuth\":{\"Enabled\":false,\"ClientCertFile\":\"\",\"ClientKeyFile\":\"\"},\"NumLogs\":1,\"Body\":\"the message\",\"SeverityText\":\"Info\",\"SeverityNumber\":9,\"TraceID\":\"\",\"SpanID\":\"\"}}",
+                    ObservedTimestamp: "2025-05-19 12:20:15.494645053 +0000 UTC",
+                    Timestamp: "2025-05-19 12:20:15.448707095 +0000 UTC",
+                    TraceId: "",
+                    SpanId: "",
+                    SeverityText: "",
+                    SeverityNumber: 0,
+                    TraceFlags: 0,
+                },
+                {
+                    Name: "",
+                    ScopeName: "io.kyma-project.telemetry/runtime",
+                    ScopeVersion: "main",
+                    ResourceAttributes: {
+                        "k8s.pod.uid": "eb5de8f0-991b-4e24-96ab-b020514d717c",
+                        "k8s.pod.label.log.test.exact.should.match": "exact_match",
+                        "k8s.container.restart_count": "0",
+                        "service.name": "telemetrygen",
+                        "host.type": "local",
+                        "k8s.container.name": "telemetrygen",
+                        "k8s.namespace.name": "extract-labels-otel-log-agent-gen",
+                        "k8s.pod.name": "telemetrygen",
+                        "k8s.node.name": "k3d-kyma-server-0",
+                        "k8s.pod.label.log.test.prefix.should.match2": "prefix_match2",
+                        "host.arch": "arm64",
+                        "k8s.pod.label.log.test.prefix.should.match1": "prefix_match1",
+                        "k8s.node.uid": "40e034df-09bf-4c8b-91cf-ca9d11a037c3",
+                        "k8s.cluster.name": "10.43.0.1",
+                        "cloud.region": "kyma-local",
+                        "cloud.availability_zone": "kyma-local",
+                    },
+                    ScopeAttributes: nil,
+                    Attributes: {
+                        "log.file.path": "/var/log/pods/extract-labels-otel-log-agent-gen_telemetrygen_eb5de8f0-991b-4e24-96ab-b020514d717c/telemetrygen/0.log",
+                        "log.iostream": "stderr",
+                    },
+                    LogRecordBody: "2025-05-19T12:20:15.448Z\tINFO\tlogs/logs.go:58\tgeneration of logs is limited\t{\"per-second\": 10}",
+                    ObservedTimestamp: "2025-05-19 12:20:15.494821137 +0000 UTC",
+        ...
+        
+        Gomega truncated this representation as it exceeds 'format.MaxLength'.
+        Consider having the object provide a custom 'GomegaStringer' representation
+        or adjust the parameters in Gomega's 'format' package.
+        
+        Learn more here: https://onsi.github.io/gomega/#adjusting-output
+        
+        to contain element matching
+            <*matchers.AndMatcher | 0x14000a36ab0>: {
+                Matchers: [
+                    <*matchers.WithTransformMatcher | 0x14000b79c40>{
+                        Transform: <func(log.FlatLogOtel) map[string]string>0x1011ab420,
+                        Matcher: <*matchers.HaveKeyWithValueMatcher | 0x14000039480>{
+                            Key: <string>"k8s.pod.label.log.test.exact.should.match",
+                            Value: <string>"exact_match",
+                        },
+                        transformArgType: <*reflect.rtype | 0x1019541c0>{
+                            t: {Size_: 0xb8, PtrBytes: 0xa0, Hash: 4167078234, TFlag: 7, Align_: 8, FieldAlign_: 8, Kind_: 25, Equal: nil, GCData: 213, Str: 134654, PtrToThis: 600736},
+                        },
+                        transformedValue: <map[string]string | len:3>{
+                            "service.name": "telemetrygen",
+                            "k8s.pod.ip": "10.42.0.22",
+                            "k8s.cluster.name": "10.43.0.1",
+                        },
+                    },
+                    <*matchers.WithTransformMatcher | 0x14000b79c80>{
+                        Transform: <func(log.FlatLogOtel) map[string]string>0x1011ab420,
+                        Matcher: <*matchers.HaveKeyWithValueMatcher | 0x140000394a0>{
+                            Key: <string>"k8s.pod.label.log.test.prefix.should.match1",
+                            Value: <string>"prefix_match1",
+                        },
+                        transformArgType: <*reflect.rtype | 0x1019541c0>{
+                            t: {Size_: 0xb8, PtrBytes: 0xa0, Hash: 4167078234, TFlag: 7, Align_: 8, FieldAlign_: 8, Kind_: 25, Equal: nil, GCData: 213, Str: 134654, PtrToThis: 600736},
+                        },
+                        transformedValue: <map[string]string | len:16>{
+                            "k8s.pod.label.log.test.prefix.should.match2": "prefix_match2",
+                            "k8s.node.name": "k3d-kyma-server-0",
+                            "host.arch": "arm64",
+                            "k8s.container.name": "telemetrygen",
+                            "k8s.pod.name": "telemetrygen",
+                            "cloud.region": "kyma-local",
+                            "cloud.availability_zone": "kyma-local",
+                            "k8s.node.uid": "40e034df-09bf-4c8b-91cf-ca9d11a037c3",
+                            "k8s.pod.uid": "eb5de8f0-991b-4e24-96ab-b020514d717c",
+                            "service.name": "telemetrygen",
+                            "host.type": "local",
+                            "k8s.namespace.name": "extract-labels-otel-log-agent-gen",
+                            "k8s.container.restart_count": "0",
+                            "k8s.pod.label.log.test.exact.should.match": "exact_match",
+                            "k8s.cluster.name": "10.43.0.1",
+                            "k8s.pod.label.log.test.prefix.should.match1": "prefix_match1",
+                        },
+                    },
+                    <*matchers.WithTransformMatcher | 0x14000b79cc0>{
+                        Transform: <func(log.FlatLogOtel) map[string]string>0x1011ab420,
+                        Matcher: <*matchers.HaveKeyWithValueMatcher | 0x140000394c0>{
+                            Key: <string>"k8s.pod.label.log.test.prefix.should.match2",
+                            Value: <string>"prefix_match2",
+                        },
+                        transformArgType: <*reflect.rtype | 0x1019541c0>{
+                            t: {Size_: 0xb8, PtrBytes: 0xa0, Hash: 4167078234, TFlag: 7, Align_: 8, FieldAlign_: 8, Kind_: 25, Equal: nil, GCData: 213, Str: 134654, PtrToThis: 600736},
+                        },
+                        transformedValue: <map[string]string | len:16>{
+                            "k8s.pod.label.log.test.prefix.should.match1": "prefix_match1",
+                            "k8s.pod.label.log.test.prefix.should.match2": "prefix_match2",
+                            "k8s.node.name": "k3d-kyma-server-0",
+                            "host.arch": "arm64",
+                            "k8s.container.name": "telemetrygen",
+                            "k8s.pod.name": "telemetrygen",
+                            "cloud.region": "kyma-local",
+                            "cloud.availability_zone": "kyma-local",
+                            "k8s.node.uid": "40e034df-09bf-4c8b-91cf-ca9d11a037c3",
+                            "k8s.pod.uid": "eb5de8f0-991b-4e24-96ab-b020514d717c",
+                            "servi...
+        
+        Gomega truncated this representation as it exceeds 'format.MaxLength'.
+        Consider having the object provide a custom 'GomegaStringer' representation
+        or adjust the parameters in Gomega's 'format' package.
+        
+        Learn more here: https://onsi.github.io/gomega/#adjusting-output
+=== RUN   TestExtractLabels_OTel/log-gateway
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
+--- FAIL: TestExtractLabels_OTel (5.69s)
+    --- FAIL: TestExtractLabels_OTel/log-agent (5.69s)
+    --- SKIP: TestExtractLabels_OTel/log-gateway (0.00s)
+=== RUN   TestExtractLabels_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestExtractLabels_FluentBit (0.00s)
+=== RUN   TestKeepOriginalBody_OTel
+--- PASS: TestKeepOriginalBody_OTel (31.05s)
+=== RUN   TestKeepOriginalBody_FluentBit
+--- PASS: TestKeepOriginalBody_FluentBit (49.04s)
+=== RUN   TestMTLSAboutToExpireCert_OTel
+=== RUN   TestMTLSAboutToExpireCert_OTel/log-agent
+    suite.go:166: Skipping test: label skip is set
+=== RUN   TestMTLSAboutToExpireCert_OTel/log-gateway
+    suite.go:166: Skipping test: label skip is set
+--- PASS: TestMTLSAboutToExpireCert_OTel (0.00s)
+    --- SKIP: TestMTLSAboutToExpireCert_OTel/log-agent (0.00s)
+    --- SKIP: TestMTLSAboutToExpireCert_OTel/log-gateway (0.00s)
+=== RUN   TestMTLSAboutToExpireCert_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestMTLSAboutToExpireCert_FluentBit (0.00s)
+=== RUN   TestMTLSCertKeyDontMatch_OTel
+=== RUN   TestMTLSCertKeyDontMatch_OTel/log-agent
+    suite.go:166: Skipping test: label skip is set
+=== RUN   TestMTLSCertKeyDontMatch_OTel/log-gateway
+    suite.go:166: Skipping test: label skip is set
+--- PASS: TestMTLSCertKeyDontMatch_OTel (0.00s)
+    --- SKIP: TestMTLSCertKeyDontMatch_OTel/log-agent (0.00s)
+    --- SKIP: TestMTLSCertKeyDontMatch_OTel/log-gateway (0.00s)
+=== RUN   TestMTLSCertKeyDontMatch_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestMTLSCertKeyDontMatch_FluentBit (0.00s)
+=== RUN   TestMTLSExpiredCert_OTel
+=== RUN   TestMTLSExpiredCert_OTel/log-agent
+    suite.go:166: Skipping test: label skip is set
+=== RUN   TestMTLSExpiredCert_OTel/log-gateway
+    suite.go:166: Skipping test: label skip is set
+--- PASS: TestMTLSExpiredCert_OTel (0.00s)
+    --- SKIP: TestMTLSExpiredCert_OTel/log-agent (0.00s)
+    --- SKIP: TestMTLSExpiredCert_OTel/log-gateway (0.00s)
+=== RUN   TestMTLSExpiredCert_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestMTLSExpiredCert_FluentBit (0.00s)
+=== RUN   TestMTLSInvalidCA_OTel
+=== RUN   TestMTLSInvalidCA_OTel/log-agent
+    suite.go:166: Skipping test: label skip is set
+=== RUN   TestMTLSInvalidCA_OTel/log-gateway
+    suite.go:166: Skipping test: label skip is set
+--- PASS: TestMTLSInvalidCA_OTel (0.00s)
+    --- SKIP: TestMTLSInvalidCA_OTel/log-agent (0.00s)
+    --- SKIP: TestMTLSInvalidCA_OTel/log-gateway (0.00s)
+=== RUN   TestMTLSInvalidCA_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestMTLSInvalidCA_FluentBit (0.00s)
+=== RUN   TestMTLSInvalidCert_OTel
+=== RUN   TestMTLSInvalidCert_OTel/log-agent
+    suite.go:166: Skipping test: label skip is set
+=== RUN   TestMTLSInvalidCert_OTel/log-gateway
+    suite.go:166: Skipping test: label skip is set
+--- PASS: TestMTLSInvalidCert_OTel (0.00s)
+    --- SKIP: TestMTLSInvalidCert_OTel/log-agent (0.00s)
+    --- SKIP: TestMTLSInvalidCert_OTel/log-gateway (0.00s)
+=== RUN   TestMTLSInvalidCert_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestMTLSInvalidCert_FluentBit (0.00s)
+=== RUN   TestMTLSMissingValues_OTel
+=== RUN   TestMTLSMissingValues_OTel/log-agent
+=== RUN   TestMTLSMissingValues_OTel/log-gateway
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
+--- PASS: TestMTLSMissingValues_OTel (0.27s)
+    --- PASS: TestMTLSMissingValues_OTel/log-agent (0.27s)
+    --- SKIP: TestMTLSMissingValues_OTel/log-gateway (0.00s)
+=== RUN   TestMTLSMissingValues_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestMTLSMissingValues_FluentBit (0.00s)
+=== RUN   TestMTLS_OTel
+=== RUN   TestMTLS_OTel/log-agent
+=== RUN   TestMTLS_OTel/log-gateway
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
+--- PASS: TestMTLS_OTel (8.99s)
+    --- PASS: TestMTLS_OTel/log-agent (8.99s)
+    --- SKIP: TestMTLS_OTel/log-gateway (0.00s)
+=== RUN   TestMTLS_FluentBit
+--- PASS: TestMTLS_FluentBit (7.02s)
+=== RUN   TestMultiPipelineBroken_OTel
+=== RUN   TestMultiPipelineBroken_OTel/log-agent
+    deployment.go:21: 
+        Timed out after 120.001s.
+        The function passed to Eventually failed at /Users/I565663/Projects/telemetry-manager/test/testkit/assert/deployment.go:19 with:
         Unexpected error:
-            <*fmt.wrapError | 0x1400146d720>: 
-            failed to get daemonset: daemonsets.apps "telemetry-log-agent" not found
+            <*fmt.wrapError | 0x14001397480>: 
+            failed to get deployment: deployments.apps "telemetry-log-gateway" not found
             {
-                msg: "failed to get daemonset: daemonsets.apps \"telemetry-log-agent\" not found",
-                err: <*errors.StatusError | 0x140010c3860>{
+                msg: "failed to get deployment: deployments.apps \"telemetry-log-gateway\" not found",
+                err: <*errors.StatusError | 0x14000e67d60>{
                     ErrStatus: {
                         TypeMeta: {Kind: "", APIVersion: ""},
                         ListMeta: {
@@ -37,12 +333,12 @@
                             RemainingItemCount: nil,
                         },
                         Status: "Failure",
-                        Message: "daemonsets.apps \"telemetry-log-agent\" not found",
+                        Message: "deployments.apps \"telemetry-log-gateway\" not found",
                         Reason: "NotFound",
                         Details: {
-                            Name: "telemetry-log-agent",
+                            Name: "telemetry-log-gateway",
                             Group: "apps",
-                            Kind: "daemonsets",
+                            Kind: "deployments",
                             UID: "",
                             Causes: nil,
                             RetryAfterSeconds: 0,
@@ -52,11 +348,58 @@
                 },
             }
         occurred
-=== NAME  TestObservedTime/gateway
-    testing.go:1679: test executed panic(nil) or runtime.Goexit: subtest may have called FailNow on a parent test
---- FAIL: TestObservedTime (143.41s)
-    --- PASS: TestObservedTime/agent (23.14s)
-    --- FAIL: TestObservedTime/gateway (120.27s)
+=== RUN   TestMultiPipelineBroken_OTel/log-gateway
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
+--- FAIL: TestMultiPipelineBroken_OTel (120.23s)
+    --- FAIL: TestMultiPipelineBroken_OTel/log-agent (120.23s)
+    --- SKIP: TestMultiPipelineBroken_OTel/log-gateway (0.00s)
+=== RUN   TestMultiPipelineBroken_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestMultiPipelineBroken_FluentBit (0.00s)
+=== RUN   TestMultiPipelineFanout_OTel
+=== RUN   TestMultiPipelineFanout_OTel/log-agent
+=== RUN   TestMultiPipelineFanout_OTel/log-gateway
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
+--- PASS: TestMultiPipelineFanout_OTel (9.75s)
+    --- PASS: TestMultiPipelineFanout_OTel/log-agent (9.75s)
+    --- SKIP: TestMultiPipelineFanout_OTel/log-gateway (0.00s)
+=== RUN   TestMultiPipelineFanout_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestMultiPipelineFanout_FluentBit (0.00s)
+=== RUN   TestMultiPipelineMaxPipeline_OTel
+=== RUN   TestMultiPipelineMaxPipeline_OTel/log-agent
+    suite.go:166: Skipping test: label skip is set
+=== RUN   TestMultiPipelineMaxPipeline_OTel/log-gateway
+    suite.go:166: Skipping test: label skip is set
+--- PASS: TestMultiPipelineMaxPipeline_OTel (0.00s)
+    --- SKIP: TestMultiPipelineMaxPipeline_OTel/log-agent (0.00s)
+    --- SKIP: TestMultiPipelineMaxPipeline_OTel/log-gateway (0.00s)
+=== RUN   TestMultiPipelineMaxPipeline_FluentBit
+    multi_pipeline_max_pipeline_test.go:166: Asserting 5 pipelines are healthy
+    multi_pipeline_max_pipeline_test.go:172: Attempting to create the 6th pipeline and expecting failure
+    multi_pipeline_max_pipeline_test.go:175: 
+                Error Trace:    /Users/I565663/Projects/telemetry-manager/test/e2e/logs/migrated/shared/multi_pipeline_max_pipeline_test.go:175
+                Error:          An error is expected but got nil.
+                Test:           TestMultiPipelineMaxPipeline_FluentBit
+                Messages:       Expected exceeding pipeline creation to fail
+--- FAIL: TestMultiPipelineMaxPipeline_FluentBit (11.31s)
+=== RUN   TestNamespaceSelector_OTel
+=== RUN   TestNamespaceSelector_OTel/log-agent
+=== RUN   TestNamespaceSelector_OTel/log-gateway
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
+--- PASS: TestNamespaceSelector_OTel (60.43s)
+    --- PASS: TestNamespaceSelector_OTel/log-agent (60.43s)
+    --- SKIP: TestNamespaceSelector_OTel/log-gateway (0.00s)
+=== RUN   TestNamespaceSelector_FluentBit
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestNamespaceSelector_FluentBit (0.00s)
+=== RUN   TestObservedTime
+=== RUN   TestObservedTime/log-agent
+=== RUN   TestObservedTime/log-gateway
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
+--- PASS: TestObservedTime (16.60s)
+    --- PASS: TestObservedTime/log-agent (16.60s)
+    --- SKIP: TestObservedTime/log-gateway (0.00s)
 === RUN   TestResources_OTel
 === RUN   TestResources_OTel/log-agent
 === RUN   TestResources_OTel/log-gateway
@@ -89,26 +432,28 @@
     suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
 --- SKIP: TestSecretrefMisconfigured_FluentBit (0.00s)
 === RUN   TestSelfMonitorHappyPath_OTel
-=== RUN   TestSelfMonitorHappyPath_OTel/agent
-=== RUN   TestSelfMonitorHappyPath_OTel/gateway
---- PASS: TestSelfMonitorHappyPath_OTel (12.00s)
-    --- PASS: TestSelfMonitorHappyPath_OTel/agent (9.49s)
-    --- PASS: TestSelfMonitorHappyPath_OTel/gateway (2.51s)
+=== RUN   TestSelfMonitorHappyPath_OTel/log-agent
+=== RUN   TestSelfMonitorHappyPath_OTel/log-gateway
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
+--- PASS: TestSelfMonitorHappyPath_OTel (7.11s)
+    --- PASS: TestSelfMonitorHappyPath_OTel/log-agent (7.11s)
+    --- SKIP: TestSelfMonitorHappyPath_OTel/log-gateway (0.00s)
 === RUN   TestSelfMonitorHappyPath_FluentBit
---- PASS: TestSelfMonitorHappyPath_FluentBit (50.23s)
+    suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
+--- SKIP: TestSelfMonitorHappyPath_FluentBit (0.00s)
 === RUN   TestServiceName_OTel
 === RUN   TestServiceName_OTel/log-agent
 === RUN   TestServiceName_OTel/log-gateway
     suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
---- PASS: TestServiceName_OTel (5.96s)
-    --- PASS: TestServiceName_OTel/log-agent (5.96s)
+--- PASS: TestServiceName_OTel (17.38s)
+    --- PASS: TestServiceName_OTel/log-agent (17.38s)
     --- SKIP: TestServiceName_OTel/log-gateway (0.00s)
 === RUN   TestSinglePipeline_OTel
 === RUN   TestSinglePipeline_OTel/log-agent
 === RUN   TestSinglePipeline_OTel/log-gateway
     suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
---- PASS: TestSinglePipeline_OTel (5.18s)
-    --- PASS: TestSinglePipeline_OTel/log-agent (5.18s)
+--- PASS: TestSinglePipeline_OTel (4.67s)
+    --- PASS: TestSinglePipeline_OTel/log-agent (4.67s)
     --- SKIP: TestSinglePipeline_OTel/log-gateway (0.00s)
 === RUN   TestSinglePipeline_FluentBit
     suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
@@ -117,12 +462,12 @@
 === RUN   TestSinglePipelineV1Beta1_OTel/log-agent
 === RUN   TestSinglePipelineV1Beta1_OTel/log-gateway
     suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [log-gateway]
---- PASS: TestSinglePipelineV1Beta1_OTel (10.26s)
-    --- PASS: TestSinglePipelineV1Beta1_OTel/log-agent (10.26s)
+--- PASS: TestSinglePipelineV1Beta1_OTel (6.21s)
+    --- PASS: TestSinglePipelineV1Beta1_OTel/log-agent (6.21s)
     --- SKIP: TestSinglePipelineV1Beta1_OTel/log-gateway (0.00s)
 === RUN   TestSinglePipelineV1Beta1_FluentBit
     suite.go:172: Skipping test: label mismatch. Required: [log-agent], Provided: [fluent-bit]
 --- SKIP: TestSinglePipelineV1Beta1_FluentBit (0.00s)
 FAIL
-FAIL    github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/shared 498.057s
+FAIL    github.com/kyma-project/telemetry-manager/test/e2e/logs/migrated/shared 494.791s
 FAIL
