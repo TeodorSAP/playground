@@ -12,8 +12,10 @@ import (
 const (
 	FORMAT_JSON   = "json"
 	FORMAT_RANDOM = "random"
-	LETTERS       = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	LETTERS       = "bcdefghijklmnopqrstuvwxyzABCDEFHIJKLMNOPQRSTUVWXYZ0123456789"
 )
+
+var DEBUG_TIME = 10 * time.Second
 
 // makePrintable fills buf with pseudo‑random printable ASCII.
 func makePrintable(buf []byte) {
@@ -25,40 +27,40 @@ func makePrintable(buf []byte) {
 // makeJSON fills buf with a JSON object containing a timestamp and a message.
 func makeJSON(buf []byte) int {
 	timestamp := time.Now().Format(time.RFC3339Nano)
-    template := `{"time": "%s", "body": "%s"}`
-    
-    // Minimum valid JSON length (empty message)
-    minLen := len(fmt.Sprintf(template, timestamp, ""))
+	template := `{"time": "%s", "body": "%s"}`
 
-    if len(buf) < minLen {
-        fmt.Fprintf(os.Stderr, "Error: -b must be at least %d for valid JSON output\n", minLen)
-        os.Exit(1)
-    }
+	// Minimum valid JSON length (empty message)
+	minLen := len(fmt.Sprintf(template, timestamp, ""))
 
-    // Find the largest message length that fits in buf
-    maxMsgLen := len(buf) - (minLen - 2)
-    if maxMsgLen < 0 {
-        maxMsgLen = 0
-    }
-    var jsonStr string
-    for {
-        msg := make([]byte, maxMsgLen)
-        for i := range msg {
-            msg[i] = LETTERS[rand.Intn(len(LETTERS))]
-        }
-        jsonStr = fmt.Sprintf(template, timestamp, string(msg))
-        if len(jsonStr) <= len(buf) {
-            break
-        }
-        maxMsgLen--
-    }
+	if len(buf) < minLen {
+		fmt.Fprintf(os.Stderr, "Error: -b must be at least %d for valid JSON output\n", minLen)
+		os.Exit(1)
+	}
 
-    copy(buf, jsonStr)
-    // Pad with spaces if needed
-    for i := len(jsonStr); i < len(buf); i++ {
-        buf[i] = ' '
-    }
-    return len(jsonStr)
+	// Find the largest message length that fits in buf
+	maxMsgLen := len(buf) - (minLen - 2)
+	if maxMsgLen < 0 {
+		maxMsgLen = 0
+	}
+	var jsonStr string
+	for {
+		msg := make([]byte, maxMsgLen)
+		for i := range msg {
+			msg[i] = LETTERS[rand.Intn(len(LETTERS))]
+		}
+		jsonStr = fmt.Sprintf(template, timestamp, string(msg))
+		if len(jsonStr) <= len(buf) {
+			break
+		}
+		maxMsgLen--
+	}
+
+	copy(buf, jsonStr)
+	// Pad with spaces if needed
+	for i := len(jsonStr); i < len(buf); i++ {
+		buf[i] = ' '
+	}
+	return len(jsonStr)
 }
 
 func main() {
@@ -110,15 +112,25 @@ func main() {
 	ticker := time.NewTicker(period)
 	defer ticker.Stop()
 
+	logRecordsCount := 0
+	tickerDebug := time.NewTicker(DEBUG_TIME)
+	defer tickerDebug.Stop()
+
 	for {
-		switch *format {
-		case "json":
-			jsonLen := makeJSON(buf)
-            fmt.Printf("%s %s\n", time.Now().Format(time.RFC3339Nano), string(buf[:jsonLen]))
-		case "random":
-			makePrintable(buf)
-			fmt.Printf("%s %s\n", time.Now().Format(time.RFC3339Nano), buf)
+		select {
+		case <-tickerDebug.C:
+			fmt.Printf("DEBUG: %d log records printed last 10 sec\n", logRecordsCount)
+			logRecordsCount = 0
+		case <-ticker.C:
+			switch *format {
+			case "json":
+				jsonLen := makeJSON(buf)
+				fmt.Printf("%s\n", string(buf[:jsonLen]))
+			case "random":
+				makePrintable(buf)
+				fmt.Printf("%s %s\n", time.Now().Format(time.RFC3339Nano), buf)
+			}
+			logRecordsCount++
 		}
-		<-ticker.C
 	}
 }
