@@ -12,7 +12,7 @@ import (
 const (
 	FORMAT_JSON   = "json"
 	FORMAT_RANDOM = "random"
-	LETTERS       = "bcdefghijklmnopqrstuvwxyzABCDEFHIJKLMNOPQRSTUVWXYZ0123456789"
+	LETTERS       = "abcdefghijklmnopqrstuvwxyzABCDEFHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
 var DEBUG_TIME = 10 * time.Second
