@@ -23,34 +23,42 @@ func makePrintable(buf []byte) {
 }
 
 // makeJSON fills buf with a JSON object containing a timestamp and a message.
-func makeJSON(buf []byte) {
+func makeJSON(buf []byte) int {
 	timestamp := time.Now().Format(time.RFC3339Nano)
+    template := `{"time": "%s", "body": "%s"}`
+    
+    // Minimum valid JSON length (empty message)
+    minLen := len(fmt.Sprintf(template, timestamp, ""))
 
-	// Template for JSON with empty message
-	template := `{"time": "%s", "body": "%s"}`
-	// Calculate the overhead (fixed) length with empty message
-	overhead := len(fmt.Sprintf(template, timestamp, ""))
+    if len(buf) < minLen {
+        fmt.Fprintf(os.Stderr, "Error: -b must be at least %d for valid JSON output\n", minLen)
+        os.Exit(1)
+    }
 
-	// If the buffer is too small for even the fixed part, fill as much as possible
-	if len(buf) < overhead {
-		copy(buf, fmt.Sprintf(template, timestamp, "")[:len(buf)])
-		return
-	}
+    // Find the largest message length that fits in buf
+    maxMsgLen := len(buf) - (minLen - 2)
+    if maxMsgLen < 0 {
+        maxMsgLen = 0
+    }
+    var jsonStr string
+    for {
+        msg := make([]byte, maxMsgLen)
+        for i := range msg {
+            msg[i] = LETTERS[rand.Intn(len(LETTERS))]
+        }
+        jsonStr = fmt.Sprintf(template, timestamp, string(msg))
+        if len(jsonStr) <= len(buf) {
+            break
+        }
+        maxMsgLen--
+    }
 
-	// Calculate max message length that fits in buf
-	maxMsgLen := len(buf) - (overhead - 2) // -2 because %s for message is replaced by message itself
-
-	msg := make([]byte, maxMsgLen)
-	for i := range msg {
-		msg[i] = LETTERS[rand.Intn(len(LETTERS))]
-	}
-
-	jsonStr := fmt.Sprintf(template, timestamp, string(msg))
-	copy(buf, jsonStr)
-	// Pad with spaces if needed
-	for i := len(jsonStr); i < len(buf); i++ {
-		buf[i] = ' '
-	}
+    copy(buf, jsonStr)
+    // Pad with spaces if needed
+    for i := len(jsonStr); i < len(buf); i++ {
+        buf[i] = ' '
+    }
+    return len(jsonStr)
 }
 
 func main() {
@@ -61,10 +69,25 @@ func main() {
 	format := flag.String("f", "json", "output format ('json' = json lines logs, 'random' = random printable ASCII)")
 	flag.Parse()
 
+	// Calculate minimum required size for JSON
+	if *format == FORMAT_JSON {
+		timestamp := time.Now().Format(time.RFC3339Nano)
+		template := `{"time": "%s", "body": "%s"}`
+		minLen := len(fmt.Sprintf(template, timestamp, ""))
+
+		if *bytesPerRec < minLen {
+			fmt.Fprintf(os.Stderr, "-b must be at least %d for valid JSON output\n", minLen)
+			os.Exit(1)
+		}
+	}
+
+	// Validate size
 	if *bytesPerRec <= 0 {
 		fmt.Fprintln(os.Stderr, "-b must be > 0")
 		os.Exit(1)
 	}
+
+	// Validate interval and rate
 	var period time.Duration
 	if *rate != "0" {
 		rateInt, err := strconv.Atoi(*rate)
@@ -90,11 +113,12 @@ func main() {
 	for {
 		switch *format {
 		case "json":
-			makeJSON(buf)
+			jsonLen := makeJSON(buf)
+            fmt.Printf("%s %s\n", time.Now().Format(time.RFC3339Nano), string(buf[:jsonLen]))
 		case "random":
 			makePrintable(buf)
+			fmt.Printf("%s %s\n", time.Now().Format(time.RFC3339Nano), buf)
 		}
-		fmt.Printf("%s %s\n", time.Now().Format(time.RFC3339Nano), buf)
 		<-ticker.C
 	}
 }
