@@ -65,4 +65,23 @@ main.main()
 
 > NOTE: This might fail again on Go 1.25, where elliptic curve algorithms are considered non-compliant.
 
-🔵 INFO: telemetry-manager is stable at this point (in idle mode)
+🔵 INFO: At this point, telemetry-manager is stable in idle mode
+
+🔵 INFO: Integration testsuite succeeds
+
+🔵 INFO: Testing on the e2e cluster(stage/c-2bb323d)...
+- telemetry-manager runs consistently, reporting no errors
+- pipelines are not affected by the image change
+- pipelines' flows are unaffected by the image change. Observed unhealthy flow for one metric and log pipeline, but this also happened with the non-FIPS image (see pictures below).
+![Log Pipelines](image.png)
+![Metric Pipelines](image-1.png)
+- TODO: Check CLS backend
+- TODO: Check Dynatrace backend
+
+### opentelemetry-collector-components
+
+TODO
+
+### consumption-reporter
+
+TODO
