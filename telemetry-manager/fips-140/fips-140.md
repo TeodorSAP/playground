@@ -96,14 +96,11 @@ To: europe-docker.pkg.dev/kyma-project/dev/kyma-otel-collector:PR-390
 
 🔵 INFO: Tested on the e2e cluster(stage/c-2bb323d), no malfunctioning detected
 
-### consumption-reporter
-
-*investigation not needed*
-
 ## Conclusions
 - We are still early adopters of FIPS-140-3
 - Gardener and k3s don't seem to have any planned support for FIPS-140-3 as of now
 - Downgrading Go to 1.24.6 seems to be a stable workaround for now
-- FIPS-140-3 enabled by jellyfish on lifecycle-manager, but with the same Go version (1.24.6) downgrade workaround
+- FIPS-140-3 enabled by jellyfish on lifecycle-manager, but with the same Go version (1.24.6) downgrade workaround (https://github.com/kyma-project/lifecycle-manager/pull/2643)
+- A document about FIPS-140-3 in Kyma is being drafted: https://github.tools.sap/kyma/restricted-markets/issues/97
 - On our side, telemetry-manager is the only component affected by FIPS-140-3, requiring a code change to avoid SHA-1 usage
 - No issues observed with telemetry-self-monitor, directory-size-exporter, and otel-collector after enabling FIPS-140
