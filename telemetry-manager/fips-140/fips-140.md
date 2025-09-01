@@ -73,7 +73,9 @@ main.main()
 - telemetry-manager runs consistently, reporting no errors
 - pipelines are not affected by the image change
 - pipelines' flows are unaffected by the image change. Observed unhealthy flow for one metric and log pipeline, but this also happened with the non-FIPS image (see pictures below).
+
 ![Log Pipelines](image.png)
+
 ![Metric Pipelines](image-1.png)
 
 ### telemetry-manager/dependencies/telemetry-self-monitor
@@ -96,11 +98,12 @@ To: europe-docker.pkg.dev/kyma-project/dev/kyma-otel-collector:PR-390
 
 ### consumption-reporter
 
-TODO
+*investigation not needed*
 
 ## Conclusions
 - We are still early adopters of FIPS-140-3
 - Gardener and k3s don't seem to have any planned support for FIPS-140-3 as of now
 - Downgrading Go to 1.24.6 seems to be a stable workaround for now
+- FIPS-140-3 enabled by jellyfish on lifecycle-manager, but with the same Go version (1.24.6) downgrade workaround
 - On our side, telemetry-manager is the only component affected by FIPS-140-3, requiring a code change to avoid SHA-1 usage
 - No issues observed with telemetry-self-monitor, directory-size-exporter, and otel-collector after enabling FIPS-140
