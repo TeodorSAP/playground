@@ -61,7 +61,7 @@ main.main()
     /telemetry-manager-workspace/main.go:121 +0x13 
 ```
 
-✅ SOLUTION: Manually generate the `subjectKey` from the `caCertTemplate` using the ASN.1 `x509.MarshalPKIXPublicKey` marshaller, which instead of the default SHA.1-based algorithm (not FIPS-compliant), uses the elliptic curve algorithms. See: https://pkg.go.dev/crypto/x509#MarshalPKIXPublicKey
+✅ SOLUTION: Manually generate the `subjectKey` from the `caCertTemplate` using the ASN.1 `x509.MarshalPKIXPublicKey` marshaller, which instead of the default SHA.1-based algorithm (not FIPS-compliant), uses the elliptic curve algorithms. See: https://pkg.go.dev/crypto/x509#MarshalPKIXPublicKey. Changes found in: https://github.com/kyma-project/telemetry-manager/pull/2440
 
 > NOTE: This might fail again on Go 1.25, where elliptic curve algorithms are considered non-compliant.
 
@@ -75,13 +75,32 @@ main.main()
 - pipelines' flows are unaffected by the image change. Observed unhealthy flow for one metric and log pipeline, but this also happened with the non-FIPS image (see pictures below).
 ![Log Pipelines](image.png)
 ![Metric Pipelines](image-1.png)
-- TODO: Check CLS backend
-- TODO: Check Dynatrace backend
 
-### opentelemetry-collector-components
+### telemetry-manager/dependencies/telemetry-self-monitor
+From: europe-docker.pkg.dev/kyma-project/prod/tpi/telemetry-self-monitor:3.5.0-8d9d348 \
+To: europe-docker.pkg.dev/kyma-project/dev/tpi/telemetry-self-monitor:PR-2440
 
-TODO
+🔵 INFO: Tested on the e2e cluster(stage/c-2bb323d), no malfunctioning detected
+
+### telemetry-manager/dependencies/directory-size-exporter
+From: europe-docker.pkg.dev/kyma-project/prod/directory-size-exporter:v20250724-d99b68f4 \
+To: europe-docker.pkg.dev/kyma-project/dev/directory-size-exporter:PR-2440
+
+🔵 INFO: Tested on the e2e cluster(stage/c-2bb323d), no malfunctioning detected
+
+### telemetry-manager/opentelemetry-collector-components
+From: europe-docker.pkg.dev/kyma-project/prod/kyma-otel-collector:0.132.0-1.46.0 \
+To: europe-docker.pkg.dev/kyma-project/dev/kyma-otel-collector:PR-390
+
+🔵 INFO: Tested on the e2e cluster(stage/c-2bb323d), no malfunctioning detected
 
 ### consumption-reporter
 
 TODO
+
+## Conclusions
+- We are still early adopters of FIPS-140-3
+- Gardener and k3s don't seem to have any planned support for FIPS-140-3 as of now
+- Downgrading Go to 1.24.6 seems to be a stable workaround for now
+- On our side, telemetry-manager is the only component affected by FIPS-140-3, requiring a code change to avoid SHA-1 usage
+- No issues observed with telemetry-self-monitor, directory-size-exporter, and otel-collector after enabling FIPS-140
